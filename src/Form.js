@@ -1,5 +1,3 @@
-// TODO: Add support for auth token
-
 import "./static/stylesheets/form.scss";
 
 import React from "react";
@@ -15,8 +13,10 @@ class Form extends React.Component {
       network: "main",
       objectId: "",
       versionHash: "hq__CcdV4wnCNq9wv6jXpYeCQ2GE4FLQBFtVSSSt2XKfBJMrH89DFDGsfkpWWvBy16QBGGYeF5mLGo",
+      authorizationToken: "",
       linkPath: "",
       autoplay: "Off",
+      loop: false,
       controls: true,
       muted: false,
       width: 854,
@@ -76,6 +76,10 @@ class Form extends React.Component {
       params.m = true;
     }
 
+    if(this.state.loop) {
+      params.lp = true;
+    }
+
     if(this.state.objectId) {
       params.oid = this.state.objectId;
     }
@@ -86,6 +90,10 @@ class Form extends React.Component {
 
     if(this.state.linkPath) {
       params.ln = btoa(this.state.linkPath);
+    }
+
+    if(this.state.authorizationToken) {
+      params.ath = this.state.authorizationToken;
     }
 
     if(this.state.autoplay === "When Visible") {
@@ -175,10 +183,12 @@ class Form extends React.Component {
             { this.LabelledField("Object ID", "objectId", this.Input("objectId")) }
             { this.LabelledField("Version Hash", "versionHash", this.Input("versionHash")) }
             { this.LabelledField("Link Path", "linkPath", this.Input("linkPath")) }
+            { this.LabelledField("Auth Token", "authorizationToken", this.Input("authorizationToken")) }
 
             { this.LabelledField("Autoplay", "autoplay", this.Select("autoplay", ["Off", "When Visible", "On"])) }
             { this.LabelledField("Show Controls", "controls", this.Checkbox("controls")) }
             { this.LabelledField("Mute Audio", "muted", this.Checkbox("muted")) }
+            { this.LabelledField("Loop", "loop", this.Checkbox("loop")) }
 
             { this.LabelledField("Width", "width", this.Input("width", {type: "number", step: 1, required: true})) }
             { this.LabelledField("Height", "height", this.Input("height", {type: "number", step: 1, required: true})) }

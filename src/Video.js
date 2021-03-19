@@ -1,27 +1,35 @@
 import "./static/stylesheets/video.scss";
-import EluvioPlayer, {EluvioPlayerParameters} from "elv-player-js/src";
+import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
 const LoadParams = () => {
   const conversion = {
-    net: "networks",
+    net: "network",
     oid: "objectId",
     vid: "versionHash",
+    ath: "authorizationToken",
     ln: "linkPath",
     ap: "autoPlay",
     scr: "scrollPlayPause",
     m: "muted",
-    ct: "controls"
+    ct: "controls",
+    lp: "loop",
+
+    // Watermark defaults true
+    nwm: "watermark"
   };
 
   const networks = {
-    main: EluvioPlayerParameters.networks.main,
-    demo: EluvioPlayerParameters.networks.demo,
-    test: EluvioPlayerParameters.networks.test
+    main: EluvioPlayerParameters.networks.MAIN,
+    demo: EluvioPlayerParameters.networks.DEMO,
+    test: EluvioPlayerParameters.networks.TEST
   };
 
   const urlParams = new URLSearchParams(window.location.search);
 
-  let params = {};
+  let params = {
+    watermark: true
+  };
+
   for(const key of urlParams.keys()) {
     const value = urlParams.get(key).toString();
 
@@ -30,6 +38,7 @@ const LoadParams = () => {
         params[conversion[key]] = networks[value.toLowerCase()];
         break;
 
+      case "ath":
       case "oid":
       case "vid":
         params[conversion[key]] = value;
@@ -39,10 +48,12 @@ const LoadParams = () => {
         params[conversion[key]] = atob(value);
         break;
 
+      case "nwm":
       case "ap":
       case "scr":
       case "m":
       case "ct":
+      case "lp":
         params[conversion[key]] = true;
         break;
     }
@@ -56,12 +67,15 @@ const LoadParams = () => {
       playoutParameters: {
         objectId: params.objectId,
         versionHash: params.versionHash,
-        linkPath: params.linkPath
+        linkPath: params.linkPath,
+        authorizationToken: params.authorizationToken
       }
     },
     playerOptions: {
+      controls: params.controls ? EluvioPlayerParameters.controls.DEFAULT : EluvioPlayerParameters.controls.OFF,
       autoplay: params.scrollPlayPause ? EluvioPlayerParameters.autoplay.WHEN_VISIBLE : params.autoplay,
-      muted: params.muted
+      muted: params.muted,
+      loop: params.loop
     }
   };
 };
