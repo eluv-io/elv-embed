@@ -50,7 +50,8 @@ module.exports = {
       inject: "body",
       cache: false,
       filename: "index.html",
-      inlineSource: ".(js|css)$"
+      inlineSource: ".(js|css)$",
+      favicon: "./src/static/icons/favicon.png"
     }),
     process.env.ANALYZE_BUNDLE ? new BundleAnalyzerPlugin() : undefined
   ].filter(p => p),

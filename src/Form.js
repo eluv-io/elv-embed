@@ -10,6 +10,8 @@ class Form extends React.Component {
     super(props);
 
     this.state = {
+      title: "The title of the content",
+      description: "A short description that will be displayed in social media posts",
       network: "main",
       objectId: "",
       versionHash: "hq__CcdV4wnCNq9wv6jXpYeCQ2GE4FLQBFtVSSSt2XKfBJMrH89DFDGsfkpWWvBy16QBGGYeF5mLGo",
@@ -42,6 +44,10 @@ class Form extends React.Component {
         <h2>Embed Code</h2>
         <pre className="embed-code">
           { this.state.embedCode }
+        </pre>
+        <h2>Embed URL</h2>
+        <pre className="embed-code">
+          { this.state.embedUrl }
         </pre>
         <div
           className="embed"
@@ -78,6 +84,14 @@ class Form extends React.Component {
       case "Show":
         params.ct = "s";
         break;
+    }
+
+    if(this.state.title) {
+      params.ttl = btoa(this.state.title);
+    }
+
+    if(this.state.description) {
+      params.dsc = btoa(this.state.description);
     }
 
     if(this.state.controls === "Auto Hide") {
@@ -120,6 +134,7 @@ class Form extends React.Component {
     const paramsString = Object.keys(params).map(key => params[key] === true ? key : `${key}=${params[key]}`).join("&");
 
     this.setState({
+      embedUrl: `${window.location.href}?${paramsString}`,
       embedCode: (
 `<iframe 
   width=${width} height=${height} scrolling="no" marginheight="0" 
@@ -189,6 +204,9 @@ class Form extends React.Component {
           <form onSubmit={this.Generate}>
             <div className="spacer" />
             <legend>Generate Embedded Video Code</legend>
+
+            { this.LabelledField("Title", "title", this.Input("title")) }
+            { this.LabelledField("Description", "description", this.Input("description")) }
 
             { this.LabelledField("Network", "network", this.Select("network", ["main", "demo", "test"])) }
 

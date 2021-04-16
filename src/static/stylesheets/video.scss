@@ -5,17 +5,6 @@ body,
   position: relative;
 }
 
-#watermark {
-  display: none;
-  height: 20px;
-  left: 15px;
-  opacity: 0.8;
-  position: absolute;
-  top: 15px;
-  width: auto;
-  z-index: 10;
-}
-
 video {
   background: #000;
   cursor: pointer;
@@ -25,4 +14,5 @@ video {
   min-width: 100%;
   object-fit: contain;
   object-position: center;
+  z-index: 0;
 }

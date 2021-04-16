@@ -1,6 +1,19 @@
 import "./static/stylesheets/video.scss";
 import EluvioPlayer, {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
+const CreateMetaTags = (options={}) => {
+  Object.keys(options).forEach(tag => {
+    if(!options[tag]) { return; }
+
+    const metaTag = document.createElement("meta");
+
+    metaTag.setAttribute("property", tag);
+    metaTag.setAttribute("content", options[tag]);
+
+    document.head.appendChild(metaTag);
+  });
+};
+
 const LoadParams = () => {
   const conversion = {
     net: "network",
@@ -13,6 +26,8 @@ const LoadParams = () => {
     m: "muted",
     ct: "controls",
     lp: "loop",
+    ttl: "title",
+    dsc: "description",
 
     // Watermark defaults true
     nwm: "watermark"
@@ -46,6 +61,8 @@ const LoadParams = () => {
         break;
 
       case "ln":
+      case "ttl":
+      case "dsc":
         params[conversion[key]] = atob(value);
         break;
 
@@ -76,6 +93,16 @@ const LoadParams = () => {
       break;
   }
 
+  document.title = params.title ? `${params.title} | Eluvio` : "Eluvio";
+
+  CreateMetaTags({
+    "og:url": window.location.toString(),
+    "og:locale": "en_US",
+    "og:type": "video",
+    "og:title": params.title ? `${params.title} | Eluvio` : "Eluvio",
+    "og:description": params.description
+  });
+
   return {
     clientOptions: {
       network: params.network
@@ -92,11 +119,22 @@ const LoadParams = () => {
       controls,
       autoplay: params.scrollPlayPause ? EluvioPlayerParameters.autoplay.WHEN_VISIBLE : params.autoplay,
       muted: params.muted,
-      loop: params.loop
+      loop: params.loop,
+      playerCallback: ({posterUrl}) => {
+        if(posterUrl) {
+          CreateMetaTags({"og:image": posterUrl});
+          CreateMetaTags({"og:image:alt": params.title});
+        }
+      }
     }
   };
 };
 
+
+const robots = document.createElement("meta");
+robots.setAttribute("name", "robots");
+robots.setAttribute("content", "noindex");
+document.head.appendChild(robots);
 
 const Initialize = async () => {
   new EluvioPlayer(
