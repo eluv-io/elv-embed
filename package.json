@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@eluvio/elv-client-js": "^3.1.47",
-    "@eluvio/elv-player-js": "^1.0.10",
+    "@eluvio/elv-player-js": "^1.0.13",
     "hls.js": "^0.14.17",
     "mobx": "^5.13.0",
     "mobx-react": "^6.1.3",

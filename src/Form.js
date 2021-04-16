@@ -16,8 +16,8 @@ class Form extends React.Component {
       authorizationToken: "",
       linkPath: "",
       autoplay: "Off",
+      controls: "Auto Hide",
       loop: false,
-      controls: true,
       muted: false,
       width: 854,
       height: 480,
@@ -68,8 +68,20 @@ class Form extends React.Component {
       p: true // p denotes app should be in play mode
     };
 
-    if(this.state.controls) {
-      params.ct = true;
+    switch (this.state.controls) {
+      case "Browser Default":
+        params.ct = "d";
+        break;
+      case "Auto Hide":
+        params.ct = "h";
+        break;
+      case "Show":
+        params.ct = "s";
+        break;
+    }
+
+    if(this.state.controls === "Auto Hide") {
+      params.cth = true;
     }
 
     if(this.state.muted) {
@@ -186,7 +198,7 @@ class Form extends React.Component {
             { this.LabelledField("Auth Token", "authorizationToken", this.Input("authorizationToken")) }
 
             { this.LabelledField("Autoplay", "autoplay", this.Select("autoplay", ["Off", "When Visible", "On"])) }
-            { this.LabelledField("Show Controls", "controls", this.Checkbox("controls")) }
+            { this.LabelledField("Controls", "controls", this.Select("controls", ["Hide", "Browser Default", "Auto Hide", "Show"])) }
             { this.LabelledField("Mute Audio", "muted", this.Checkbox("muted")) }
             { this.LabelledField("Loop", "loop", this.Checkbox("loop")) }
 

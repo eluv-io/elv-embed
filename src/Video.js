@@ -41,6 +41,7 @@ const LoadParams = () => {
       case "ath":
       case "oid":
       case "vid":
+      case "ct":
         params[conversion[key]] = value;
         break;
 
@@ -52,11 +53,27 @@ const LoadParams = () => {
       case "ap":
       case "scr":
       case "m":
-      case "ct":
+      case "cth":
       case "lp":
         params[conversion[key]] = true;
         break;
     }
+  }
+
+  let controls;
+  switch (params.controls) {
+    case "d":
+      controls = EluvioPlayerParameters.controls.DEFAULT;
+      break;
+    case "h":
+      controls = EluvioPlayerParameters.controls.AUTO_HIDE;
+      break;
+    case "s":
+      controls = EluvioPlayerParameters.controls.ON;
+      break;
+    default:
+      controls = ("controls" in params) ? EluvioPlayerParameters.controls.DEFAULT : EluvioPlayerParameters.controls.OFF;
+      break;
   }
 
   return {
@@ -72,7 +89,7 @@ const LoadParams = () => {
       }
     },
     playerOptions: {
-      controls: params.controls ? EluvioPlayerParameters.controls.DEFAULT : EluvioPlayerParameters.controls.OFF,
+      controls,
       autoplay: params.scrollPlayPause ? EluvioPlayerParameters.autoplay.WHEN_VISIBLE : params.autoplay,
       muted: params.muted,
       loop: params.loop
