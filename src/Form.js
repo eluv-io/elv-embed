@@ -10,8 +10,8 @@ class Form extends React.Component {
     super(props);
 
     this.state = {
-      title: "The title of the content",
-      description: "A short description that will be displayed in social media posts",
+      title: "",
+      description: "",
       network: "main",
       objectId: "",
       versionHash: "hq__CcdV4wnCNq9wv6jXpYeCQ2GE4FLQBFtVSSSt2XKfBJMrH89DFDGsfkpWWvBy16QBGGYeF5mLGo",
@@ -223,8 +223,8 @@ class Form extends React.Component {
             <div />
             <h2>Target</h2>
 
-            { this.LabelledField("Title", "title", this.Input("title")) }
-            { this.LabelledField("Description", "description", this.Input("description")) }
+            { this.LabelledField("Title", "title", this.Input("title", { placeholder: "The title of the content" })) }
+            { this.LabelledField("Description", "description", this.Input("description", { placeholder: "A short description that will be displayed in social media posts" })) }
 
             { this.LabelledField("Network", "network", this.Select("network", ["main", "demo", "test"])) }
 
