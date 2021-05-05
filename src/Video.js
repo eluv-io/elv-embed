@@ -27,9 +27,12 @@ const LoadParams = () => {
     lp: "loop",
     ttl: "title",
     dsc: "description",
+    sm: "smallPlayer",
 
     ath: "authorizationToken",
     ten: "tenantId",
+    ntp: "ntpId",
+    ptk: "promptTicket",
     tk: "ticketCode",
     sbj: "ticketSubject",
 
@@ -62,6 +65,7 @@ const LoadParams = () => {
       case "vid":
       case "ct":
       case "ten":
+      case "ntp":
         params[conversion[key]] = value;
         break;
 
@@ -79,6 +83,8 @@ const LoadParams = () => {
       case "m":
       case "cth":
       case "lp":
+      case "ptk":
+      case "sm":
         params[conversion[key]] = true;
         break;
     }
@@ -113,7 +119,9 @@ const LoadParams = () => {
   return {
     clientOptions: {
       network: params.network,
+      promptTicket: params.promptTicket,
       tenantId: params.tenantId,
+      ntpId: params.ntpId,
       ticketCode: params.ticketCode,
       ticketSubject: params.ticketSubject
     },
@@ -136,6 +144,9 @@ const LoadParams = () => {
           CreateMetaTags({"og:image:alt": params.title});
         }
       }
+    },
+    misc: {
+      smallPlayer: params.smallPlayer
     }
   };
 };
@@ -147,10 +158,14 @@ robots.setAttribute("content", "noindex");
 document.head.appendChild(robots);
 
 const Initialize = async () => {
-  window.player = new EluvioPlayer(
-    document.getElementById("app"),
-    LoadParams()
-  );
+  const target = document.getElementById("app");
+  const params = LoadParams();
+
+  if(params.misc.smallPlayer) {
+    target.classList.add("player-target-small");
+  }
+
+  window.player = new EluvioPlayer(target, params);
 };
 
 Initialize();

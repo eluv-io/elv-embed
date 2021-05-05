@@ -7,7 +7,7 @@
   "homepage": "https://github.com/eluv-io/elv-fabric-browser-app-template",
   "scripts": {
     "bump-version": "npm --git-tag-version --no-commit-hooks version patch",
-    "serve": "webpack-dev-server --hot --port 8088",
+    "serve": "webpack-dev-server --hot --port 8088 --host=0.0.0.0",
     "build": "rm -rf dist/* && NODE_ENV=production node ./node_modules/webpack-cli/bin/cli.js -p --progress --colors --devtool none",
     "build-analyze": "rm -rf dist/* && NODE_ENV=production ANALYZE_BUNDLE=true node ./node_modules/webpack-cli/bin/cli.js -p --progress --colors --devtool none",
     "add-build": "COMMIT=`git rev-parse HEAD` ; echo $COMMIT > dist/version.txt ; git add dist",
@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@eluvio/elv-client-js": "^3.1.47",
-    "@eluvio/elv-player-js": "^1.0.34",
+    "@eluvio/elv-player-js": "^1.0.36",
     "hls.js": "^0.14.17",
     "mobx": "^5.13.0",
     "mobx-react": "^6.1.3",

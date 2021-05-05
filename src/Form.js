@@ -16,10 +16,13 @@ class Form extends React.Component {
       objectId: "",
       versionHash: "hq__CcdV4wnCNq9wv6jXpYeCQ2GE4FLQBFtVSSSt2XKfBJMrH89DFDGsfkpWWvBy16QBGGYeF5mLGo",
       authorizationToken: "",
-      ticketCode: "",
+      promptTicket: false,
       tenantId: "",
+      ntpId: "",
+      ticketCode: "",
       ticketSubject: "",
       linkPath: "",
+      smallPlayer: false,
       autoplay: "Off",
       controls: "Auto Hide",
       loop: false,
@@ -125,6 +128,14 @@ class Form extends React.Component {
       params.ten = this.state.tenantId;
     }
 
+    if(this.state.ntpId) {
+      params.ntp = this.state.ntpId;
+    }
+
+    if(this.state.promptTicket) {
+      params.ptk = true;
+    }
+
     if(this.state.ticketCode) {
       params.tk = btoa(this.state.ticketCode);
     }
@@ -135,6 +146,10 @@ class Form extends React.Component {
 
     if(this.state.authorizationToken) {
       params.ath = this.state.authorizationToken;
+    }
+
+    if(this.state.smallPlayer) {
+      params.sm = true;
     }
 
     if(this.state.autoplay === "When Visible") {
@@ -237,12 +252,15 @@ class Form extends React.Component {
 
             { this.LabelledField("Auth Token", "authorizationToken", this.Input("authorizationToken")) }
             { this.LabelledField("Tenant ID", "tenantId", this.Input("tenantId")) }
+            { this.LabelledField("NTP ID", "ntpId", this.Input("ntpId")) }
+            { this.LabelledField("Prompt for Ticket", "promptTicket", this.Checkbox("promptTicket")) }
             { this.LabelledField("Ticket Code", "ticketCode", this.Input("ticketCode")) }
             { this.LabelledField("Ticket Subject", "ticketSubject", this.Input("ticketSubject")) }
 
             <div />
             <h2>Player</h2>
 
+            { this.LabelledField("Small Player", "smallPlayer", this.Checkbox("smallPlayer")) }
             { this.LabelledField("Autoplay", "autoplay", this.Select("autoplay", ["Off", "When Visible", "On"])) }
             { this.LabelledField("Controls", "controls", this.Select("controls", ["Hide", "Browser Default", "Auto Hide", "Show"])) }
             { this.LabelledField("Mute Audio", "muted", this.Checkbox("muted")) }
