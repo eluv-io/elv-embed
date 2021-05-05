@@ -16,6 +16,9 @@ class Form extends React.Component {
       objectId: "",
       versionHash: "hq__CcdV4wnCNq9wv6jXpYeCQ2GE4FLQBFtVSSSt2XKfBJMrH89DFDGsfkpWWvBy16QBGGYeF5mLGo",
       authorizationToken: "",
+      ticketCode: "",
+      tenantId: "",
+      ticketSubject: "",
       linkPath: "",
       autoplay: "Off",
       controls: "Auto Hide",
@@ -118,6 +121,18 @@ class Form extends React.Component {
       params.ln = btoa(this.state.linkPath);
     }
 
+    if(this.state.tenantId) {
+      params.ten = this.state.tenantId;
+    }
+
+    if(this.state.ticketCode) {
+      params.tk = btoa(this.state.ticketCode);
+    }
+
+    if(this.state.ticketSubject) {
+      params.sbj = btoa(this.state.ticketSubject);
+    }
+
     if(this.state.authorizationToken) {
       params.ath = this.state.authorizationToken;
     }
@@ -205,6 +220,9 @@ class Form extends React.Component {
             <div className="spacer" />
             <legend>Generate Embedded Video Code</legend>
 
+            <div />
+            <h2>Target</h2>
+
             { this.LabelledField("Title", "title", this.Input("title")) }
             { this.LabelledField("Description", "description", this.Input("description")) }
 
@@ -213,7 +231,17 @@ class Form extends React.Component {
             { this.LabelledField("Object ID", "objectId", this.Input("objectId")) }
             { this.LabelledField("Version Hash", "versionHash", this.Input("versionHash")) }
             { this.LabelledField("Link Path", "linkPath", this.Input("linkPath")) }
+
+            <div />
+            <h2>Authorization</h2>
+
             { this.LabelledField("Auth Token", "authorizationToken", this.Input("authorizationToken")) }
+            { this.LabelledField("Tenant ID", "tenantId", this.Input("tenantId")) }
+            { this.LabelledField("Ticket Code", "ticketCode", this.Input("ticketCode")) }
+            { this.LabelledField("Ticket Subject", "ticketSubject", this.Input("ticketSubject")) }
+
+            <div />
+            <h2>Player</h2>
 
             { this.LabelledField("Autoplay", "autoplay", this.Select("autoplay", ["Off", "When Visible", "On"])) }
             { this.LabelledField("Controls", "controls", this.Select("controls", ["Hide", "Browser Default", "Auto Hide", "Show"])) }

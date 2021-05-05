@@ -19,7 +19,6 @@ const LoadParams = () => {
     net: "network",
     oid: "objectId",
     vid: "versionHash",
-    ath: "authorizationToken",
     ln: "linkPath",
     ap: "autoPlay",
     scr: "scrollPlayPause",
@@ -28,6 +27,11 @@ const LoadParams = () => {
     lp: "loop",
     ttl: "title",
     dsc: "description",
+
+    ath: "authorizationToken",
+    ten: "tenantId",
+    tk: "ticketCode",
+    sbj: "ticketSubject",
 
     // Watermark defaults true
     nwm: "watermark"
@@ -57,12 +61,15 @@ const LoadParams = () => {
       case "oid":
       case "vid":
       case "ct":
+      case "ten":
         params[conversion[key]] = value;
         break;
 
       case "ln":
       case "ttl":
       case "dsc":
+      case "tk":
+      case "sbj":
         params[conversion[key]] = atob(value);
         break;
 
@@ -105,7 +112,10 @@ const LoadParams = () => {
 
   return {
     clientOptions: {
-      network: params.network
+      network: params.network,
+      tenantId: params.tenantId,
+      ticketCode: params.ticketCode,
+      ticketSubject: params.ticketSubject
     },
     sourceOptions: {
       playoutParameters: {
@@ -137,7 +147,7 @@ robots.setAttribute("content", "noindex");
 document.head.appendChild(robots);
 
 const Initialize = async () => {
-  new EluvioPlayer(
+  window.player = new EluvioPlayer(
     document.getElementById("app"),
     LoadParams()
   );
