@@ -10,6 +10,7 @@ class Form extends React.Component {
     super(props);
 
     this.state = {
+      isCollection: false,
       title: "",
       description: "",
       network: "main",
@@ -76,9 +77,14 @@ class Form extends React.Component {
     event.preventDefault();
 
     let params = {
-      net: this.state.network,
-      p: true // p denotes app should be in play mode
+      net: this.state.network
     };
+
+    if(this.state.isCollection) {
+      params.c = true;
+    } else {
+      params.p = true;
+    }
 
     switch (this.state.controls) {
       case "Browser Default":
@@ -90,14 +96,6 @@ class Form extends React.Component {
       case "Show":
         params.ct = "s";
         break;
-    }
-
-    if(this.state.title) {
-      params.ttl = btoa(this.state.title);
-    }
-
-    if(this.state.description) {
-      params.dsc = btoa(this.state.description);
     }
 
     if(this.state.controls === "Auto Hide") {
@@ -150,6 +148,9 @@ class Form extends React.Component {
 
     if(this.state.smallPlayer) {
       params.sm = true;
+
+      params.w = parseInt(this.state.width);
+      params.h = parseInt(this.state.height);
     }
 
     if(this.state.autoplay === "When Visible") {
@@ -157,6 +158,18 @@ class Form extends React.Component {
     } else if(this.state.autoplay === "On") {
       params.ap = true;
     }
+
+    let ogFields = {};
+
+    if(this.state.title) {
+      ogFields.title = this.state.title;
+    }
+
+    if(this.state.description) {
+      ogFields.description = this.state.description;
+    }
+
+    params.og = btoa(JSON.stringify(ogFields));
 
     const width = parseInt(this.state.width);
     const height = parseInt(this.state.height);
@@ -246,6 +259,7 @@ class Form extends React.Component {
             { this.LabelledField("Object ID", "objectId", this.Input("objectId")) }
             { this.LabelledField("Version Hash", "versionHash", this.Input("versionHash")) }
             { this.LabelledField("Link Path", "linkPath", this.Input("linkPath")) }
+            { this.LabelledField("Collection", "isCollection", this.Checkbox("isCollection")) }
 
             <div />
             <h2>Authorization</h2>
