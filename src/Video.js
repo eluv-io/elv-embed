@@ -9,7 +9,11 @@ robots.setAttribute("content", "noindex");
 document.head.appendChild(robots);
 
 const Initialize = async () => {
-  const target = document.getElementById("app");
+  const app = document.getElementById("app");
+  const target = document.createElement("div");
+  target.classList.add("player-target");
+  app.appendChild(target);
+
   const params = LoadParams();
 
   if(params.smallPlayer) {

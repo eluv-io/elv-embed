@@ -134,6 +134,7 @@ export const LoadParams = () => {
     tenantId: params.tenantId,
     ntpId: params.ntpId,
     ticketSubject: params.ticketSubject,
+    promptTicket: params.promptTicket,
 
     width: params.width,
     height: params.height,

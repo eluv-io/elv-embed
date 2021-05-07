@@ -77,9 +77,11 @@ class Collection extends React.Component {
   constructor(props) {
     super(props);
 
+    const params = LoadParams();
+
     this.state = {
       client: undefined,
-      params: LoadParams(),
+      params,
       metadata: {},
       imageUrls: {
         logo: undefined,
@@ -91,7 +93,7 @@ class Collection extends React.Component {
 
       code: "",
       redeemError: "",
-      codeRedeemed: false,
+      codeRedeemed: !params.promptTicket,
       redeeming: false
     };
 
@@ -183,15 +185,12 @@ class Collection extends React.Component {
 
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      /*
       await this.state.client.RedeemCode({
         tenantId: this.state.params.tenantId,
         ntpId: this.state.params.ntpId,
         email: this.state.params.ticketSubject,
         code: this.state.code
       });
-
-       */
 
       await this.LoadItems();
 
