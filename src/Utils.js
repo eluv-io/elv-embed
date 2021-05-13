@@ -19,7 +19,7 @@ export const LoadParams = () => {
     oid: "objectId",
     vid: "versionHash",
     ln: "linkPath",
-    ap: "autoPlay",
+    ap: "autoplay",
     scr: "scrollPlayPause",
     m: "muted",
     ct: "controls",
@@ -27,6 +27,8 @@ export const LoadParams = () => {
     ttl: "title",
     dsc: "description",
     sm: "smallPlayer",
+    sh: "showShare",
+    st: "showTitle",
 
     w: "width",
     h: "height",
@@ -88,10 +90,11 @@ export const LoadParams = () => {
       case "ap":
       case "scr":
       case "m":
-      case "cth":
       case "lp":
       case "ptk":
       case "sm":
+      case "sh":
+      case "st":
         params[conversion[key]] = true;
         break;
     }
@@ -125,6 +128,8 @@ export const LoadParams = () => {
 
   return {
     smallPlayer: params.smallPlayer,
+    showTitle: params.showTitle,
+    showShare: params.showShare,
     network: params.network,
     objectId: params.objectId,
     versionHash: params.versionHash,

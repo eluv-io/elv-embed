@@ -44,7 +44,7 @@ legend {
   font-size: 32px;
   font-weight: 300;
   letter-spacing: 0.035em;
-  margin-bottom: 40px;
+  margin: 0;
 }
 
 input,
@@ -100,4 +100,9 @@ button {
   padding: 30px;
   white-space: pre-wrap;
   word-break: break-all;
+}
+
+.hint {
+  color: #808080;
+  font-size: 14px;
 }

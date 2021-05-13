@@ -10,7 +10,8 @@ class Form extends React.Component {
     super(props);
 
     this.state = {
-      isCollection: false,
+      showTitle: false,
+      showShare: false,
       title: "",
       description: "",
       network: "main",
@@ -77,14 +78,9 @@ class Form extends React.Component {
     event.preventDefault();
 
     let params = {
-      net: this.state.network
+      net: this.state.network,
+      p: true
     };
-
-    if(this.state.isCollection) {
-      params.c = true;
-    } else {
-      params.p = true;
-    }
 
     switch (this.state.controls) {
       case "Browser Default":
@@ -96,10 +92,6 @@ class Form extends React.Component {
       case "Show":
         params.ct = "s";
         break;
-    }
-
-    if(this.state.controls === "Auto Hide") {
-      params.cth = true;
     }
 
     if(this.state.muted) {
@@ -146,6 +138,14 @@ class Form extends React.Component {
       params.ath = this.state.authorizationToken;
     }
 
+    if(this.state.showShare) {
+      params.sh = true;
+    }
+
+    if(this.state.showTitle) {
+      params.st = true;
+    }
+
     if(this.state.smallPlayer) {
       params.sm = true;
 
@@ -158,18 +158,6 @@ class Form extends React.Component {
     } else if(this.state.autoplay === "On") {
       params.ap = true;
     }
-
-    let ogFields = {};
-
-    if(this.state.title) {
-      ogFields.title = this.state.title;
-    }
-
-    if(this.state.description) {
-      ogFields.description = this.state.description;
-    }
-
-    params.og = btoa(JSON.stringify(ogFields));
 
     const width = parseInt(this.state.width);
     const height = parseInt(this.state.height);
@@ -250,16 +238,11 @@ class Form extends React.Component {
 
             <div />
             <h2>Target</h2>
-
-            { this.LabelledField("Title", "title", this.Input("title", { placeholder: "The title of the content" })) }
-            { this.LabelledField("Description", "description", this.Input("description", { placeholder: "A short description that will be displayed in social media posts" })) }
-
             { this.LabelledField("Network", "network", this.Select("network", ["main", "demo", "test"])) }
 
             { this.LabelledField("Object ID", "objectId", this.Input("objectId")) }
             { this.LabelledField("Version Hash", "versionHash", this.Input("versionHash")) }
             { this.LabelledField("Link Path", "linkPath", this.Input("linkPath")) }
-            { this.LabelledField("Collection", "isCollection", this.Checkbox("isCollection")) }
 
             <div />
             <h2>Authorization</h2>
@@ -274,6 +257,8 @@ class Form extends React.Component {
             <div />
             <h2>Player</h2>
 
+            { this.LabelledField("Show Video Title", "showTitle", this.Checkbox("showTitle")) }
+            { this.LabelledField("Show Share Buttons", "showShare", this.Checkbox("showShare")) }
             { this.LabelledField("Small Player", "smallPlayer", this.Checkbox("smallPlayer")) }
             { this.LabelledField("Autoplay", "autoplay", this.Select("autoplay", ["Off", "When Visible", "On"])) }
             { this.LabelledField("Controls", "controls", this.Select("controls", ["Hide", "Browser Default", "Auto Hide", "Show"])) }
@@ -282,6 +267,10 @@ class Form extends React.Component {
 
             { this.LabelledField("Width", "width", this.Input("width", {type: "number", step: 1, required: true})) }
             { this.LabelledField("Height", "height", this.Input("height", {type: "number", step: 1, required: true})) }
+            <div className="spacer" />
+            <div className="hint">
+              Note: Video title and share controls are 50px in height each.
+            </div>
 
             <div className="spacer" />
             <button type="submit">Generate Embed Code</button>
