@@ -37,9 +37,9 @@ video {
   display: flex;
   height: 50px;
   justify-content: flex-end;
+  max-width: 100%;
   padding-right: 15px;
   width: 100%;
-  max-width: 100%;
 
   &__text {
     color: #585858;
@@ -79,22 +79,22 @@ header {
   justify-content: center;
   letter-spacing: 0.12em;
   margin: 0;
+  max-width: 100%;
   min-height: 50px;
   text-transform: uppercase;
   width: 100%;
-  max-width: 100%;
 }
 
 .dark {
   .social-buttons {
-    background: #000000;
+    background: #000;
 
     &__text {
       color: #bababa;
     }
 
     svg {
-      background: #ffffff;
+      background: #fff;
       border-radius: 5px;
       padding: 2px;
     }

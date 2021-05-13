@@ -101,7 +101,7 @@ const Initialize = async () => {
 
   const player = new EluvioPlayer(target, params.playerParameters);
 
-  if(params.darkMode || !params.smallPlayer) {
+  if(params.darkMode) {
     app.classList.add("dark");
   }
 
@@ -115,7 +115,7 @@ const Initialize = async () => {
     heightReduction += 50;
   }
 
-  if(params.smallPlayer) {
+  if(params.smallPlayer && params.width && params.height) {
     target.style.width = `${params.width}px`;
     target.style.height = `${params.height}px`;
   } else {
