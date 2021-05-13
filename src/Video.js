@@ -108,7 +108,7 @@ const Initialize = async () => {
 
   if(params.smallPlayer) {
     target.style.width = `${params.width}px`;
-    target.style.height = `${params.height - heightReduction}px`;
+    target.style.height = `${params.height}px`;
   } else {
     app.classList.add("dark");
     target.style.maxHeight = `calc(100vh - ${heightReduction}px)`;

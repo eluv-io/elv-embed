@@ -77,6 +77,8 @@ class Form extends React.Component {
   Generate(event) {
     event.preventDefault();
 
+    let frameHeight = parseInt(this.state.height);
+
     let params = {
       net: this.state.network,
       p: true
@@ -140,10 +142,12 @@ class Form extends React.Component {
 
     if(this.state.showShare) {
       params.sh = true;
+      frameHeight += 50;
     }
 
     if(this.state.showTitle) {
       params.st = true;
+      frameHeight += 50;
     }
 
     if(this.state.smallPlayer) {
@@ -160,7 +164,6 @@ class Form extends React.Component {
     }
 
     const width = parseInt(this.state.width);
-    const height = parseInt(this.state.height);
 
     const paramsString = Object.keys(params).map(key => params[key] === true ? key : `${key}=${params[key]}`).join("&");
 
@@ -168,7 +171,7 @@ class Form extends React.Component {
       embedUrl: `${window.location.href}?${paramsString}`,
       embedCode: (
 `<iframe 
-  width=${width} height=${height} scrolling="no" marginheight="0" 
+  width=${width} height=${frameHeight} scrolling="no" marginheight="0" 
   marginwidth="0" frameborder="0" type="text/html" 
   src="${window.location.href}?${paramsString}"
 ></iframe>`
@@ -267,10 +270,6 @@ class Form extends React.Component {
 
             { this.LabelledField("Width", "width", this.Input("width", {type: "number", step: 1, required: true})) }
             { this.LabelledField("Height", "height", this.Input("height", {type: "number", step: 1, required: true})) }
-            <div className="spacer" />
-            <div className="hint">
-              Note: Video title and share controls are 50px in height each.
-            </div>
 
             <div className="spacer" />
             <button type="submit">Generate Embed Code</button>
