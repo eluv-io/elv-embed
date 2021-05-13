@@ -12,6 +12,7 @@ class Form extends React.Component {
     this.state = {
       showTitle: false,
       showShare: false,
+      darkMode: false,
       title: "",
       description: "",
       network: "main",
@@ -140,6 +141,10 @@ class Form extends React.Component {
       params.ath = this.state.authorizationToken;
     }
 
+    if(this.state.darkMode) {
+      params.dk = true;
+    }
+
     if(this.state.showShare) {
       params.sh = true;
       frameHeight += 50;
@@ -163,17 +168,30 @@ class Form extends React.Component {
       params.ap = true;
     }
 
+    let data = {};
+    if(this.state.title) {
+      data["og:title"] = this.state.title;
+    }
+
+    if(this.state.description) {
+      data["og:description"] = this.state.description;
+    }
+
+    if(Object.keys(data).length > 0) {
+      params.data = btoa(JSON.stringify({meta_tags: data}));
+    }
+
     const width = parseInt(this.state.width);
 
     const paramsString = Object.keys(params).map(key => params[key] === true ? key : `${key}=${params[key]}`).join("&");
 
     this.setState({
-      embedUrl: `${window.location.href}?${paramsString}`,
+      embedUrl: `${window.location.origin}?${paramsString}`,
       embedCode: (
 `<iframe 
   width=${width} height=${frameHeight} scrolling="no" marginheight="0" 
   marginwidth="0" frameborder="0" type="text/html" 
-  src="${window.location.href}?${paramsString}"
+  src="${window.location.origin}?${paramsString}"
 ></iframe>`
       )
     });
@@ -242,7 +260,6 @@ class Form extends React.Component {
             <div />
             <h2>Target</h2>
             { this.LabelledField("Network", "network", this.Select("network", ["main", "demo", "test"])) }
-
             { this.LabelledField("Object ID", "objectId", this.Input("objectId")) }
             { this.LabelledField("Version Hash", "versionHash", this.Input("versionHash")) }
             { this.LabelledField("Link Path", "linkPath", this.Input("linkPath")) }
@@ -259,10 +276,13 @@ class Form extends React.Component {
 
             <div />
             <h2>Player</h2>
+            { this.LabelledField("Title", "title", this.Input("title")) }
+            { this.LabelledField("Description", "description", this.Input("description")) }
 
             { this.LabelledField("Show Video Title", "showTitle", this.Checkbox("showTitle")) }
             { this.LabelledField("Show Share Buttons", "showShare", this.Checkbox("showShare")) }
             { this.LabelledField("Small Player", "smallPlayer", this.Checkbox("smallPlayer")) }
+            { this.LabelledField("Dark Mode", "darkMode", this.Checkbox("darkMode")) }
             { this.LabelledField("Autoplay", "autoplay", this.Select("autoplay", ["Off", "When Visible", "On"])) }
             { this.LabelledField("Controls", "controls", this.Select("controls", ["Hide", "Browser Default", "Auto Hide", "Show"])) }
             { this.LabelledField("Mute Audio", "muted", this.Checkbox("muted")) }

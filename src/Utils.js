@@ -29,6 +29,7 @@ export const LoadParams = () => {
     sm: "smallPlayer",
     sh: "showShare",
     st: "showTitle",
+    dk: "darkMode",
 
     w: "width",
     h: "height",
@@ -39,6 +40,7 @@ export const LoadParams = () => {
     ptk: "promptTicket",
     tk: "ticketCode",
     sbj: "ticketSubject",
+    data: "data",
 
     // Watermark defaults true
     nwm: "watermark"
@@ -83,6 +85,7 @@ export const LoadParams = () => {
       case "dsc":
       case "tk":
       case "sbj":
+      case "data":
         params[conversion[key]] = atob(value);
         break;
 
@@ -95,6 +98,7 @@ export const LoadParams = () => {
       case "sm":
       case "sh":
       case "st":
+      case "dk":
         params[conversion[key]] = true;
         break;
     }
@@ -116,17 +120,23 @@ export const LoadParams = () => {
       break;
   }
 
-  document.title = params.title ? `${params.title} | Eluvio` : "Eluvio";
+  let title;
+  if(params.data) {
+    try {
+      title = JSON.parse(params.data).meta_tags["og:title"];
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to parse 'data' parameter:");
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
+  }
 
-  CreateMetaTags({
-    "og:url": window.location.toString(),
-    "og:locale": "en_US",
-    "og:type": "video",
-    "og:title": params.title ? `${params.title} | Eluvio` : "Eluvio",
-    "og:description": params.description
-  });
+  document.title = title ? `${title} | Eluvio` : "Eluvio";
 
   return {
+    title,
+    darkMode: params.darkMode,
     smallPlayer: params.smallPlayer,
     showTitle: params.showTitle,
     showShare: params.showShare,

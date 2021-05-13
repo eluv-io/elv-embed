@@ -48,6 +48,11 @@ const InitializeTitle = async (app, params, player, width) => {
     header.style.width = `${width}px`;
   }
 
+  if(params.title) {
+    header.innerHTML = params.title;
+    return;
+  }
+
   const client = await player.Client();
 
   try {
@@ -96,6 +101,10 @@ const Initialize = async () => {
 
   const player = new EluvioPlayer(target, params.playerParameters);
 
+  if(params.darkMode || !params.smallPlayer) {
+    app.classList.add("dark");
+  }
+
   if(params.showTitle) {
     InitializeTitle(app, params, player, params.smallPlayer ? params.width : undefined);
     heightReduction += 50;
@@ -110,7 +119,6 @@ const Initialize = async () => {
     target.style.width = `${params.width}px`;
     target.style.height = `${params.height}px`;
   } else {
-    app.classList.add("dark");
     target.style.maxHeight = `calc(100vh - ${heightReduction}px)`;
   }
 
