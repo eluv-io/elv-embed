@@ -97,8 +97,6 @@ const Initialize = async () => {
 
   const params = LoadParams();
 
-  let heightReduction = 0;
-
   const player = new EluvioPlayer(target, params.playerParameters);
 
   if(params.darkMode) {
@@ -107,19 +105,15 @@ const Initialize = async () => {
 
   if(params.showTitle) {
     InitializeTitle(app, params, player, params.smallPlayer ? params.width : undefined);
-    heightReduction += 50;
   }
 
   if(params.showShare) {
     InitializeShareButtons(app, params.smallPlayer ? params.width : undefined);
-    heightReduction += 50;
   }
 
   if(params.smallPlayer && params.width && params.height) {
     target.style.width = `${params.width}px`;
     target.style.height = `${params.height}px`;
-  } else {
-    target.style.maxHeight = `calc(100vh - ${heightReduction}px)`;
   }
 
   window.player = player;
