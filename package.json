@@ -19,8 +19,8 @@
     "fix-scss": "./node_modules/sass-lint-auto-fix/dist/index.js"
   },
   "dependencies": {
-    "@eluvio/elv-client-js": "^3.1.47",
-    "@eluvio/elv-player-js": "^1.0.43",
+    "@eluvio/elv-client-js": "^3.1.61",
+    "@eluvio/elv-player-js": "^1.0.50",
     "hls.js": "^0.14.17",
     "mobx": "^5.13.0",
     "mobx-react": "^6.1.3",
@@ -28,7 +28,7 @@
     "react-dom": "^16.8.6",
     "scroll-behavior-polyfill": "^2.0.13",
     "share-buttons": "^1.7.0",
-    "urijs": "^1.19.6",
+    "urijs": "^1.19.7",
     "url-join": "^4.0.1"
   },
   "devDependencies": {

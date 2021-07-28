@@ -19,6 +19,7 @@ export const LoadParams = () => {
     oid: "objectId",
     vid: "versionHash",
     ln: "linkPath",
+    dr: "directLink",
     ap: "autoplay",
     scr: "scrollPlayPause",
     m: "muted",
@@ -99,6 +100,7 @@ export const LoadParams = () => {
       case "sh":
       case "st":
       case "dk":
+      case "dr":
         params[conversion[key]] = true;
         break;
     }
@@ -168,6 +170,7 @@ export const LoadParams = () => {
           objectId: params.objectId,
           versionHash: params.versionHash,
           linkPath: params.linkPath,
+          directLink: params.directLink,
           authorizationToken: params.authorizationToken
         }
       },

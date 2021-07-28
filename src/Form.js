@@ -25,6 +25,7 @@ class Form extends React.Component {
       ticketCode: "",
       ticketSubject: "",
       linkPath: "",
+      directLink: false,
       smallPlayer: false,
       autoplay: "Off",
       controls: "Auto Hide",
@@ -115,6 +116,10 @@ class Form extends React.Component {
 
     if(this.state.linkPath) {
       params.ln = btoa(this.state.linkPath);
+    }
+
+    if(this.state.directLink) {
+      params.dr = true;
     }
 
     if(this.state.tenantId) {
@@ -263,6 +268,7 @@ class Form extends React.Component {
             { this.LabelledField("Object ID", "objectId", this.Input("objectId")) }
             { this.LabelledField("Version Hash", "versionHash", this.Input("versionHash")) }
             { this.LabelledField("Link Path", "linkPath", this.Input("linkPath")) }
+            { this.LabelledField("Direct Link", "directLink", this.Checkbox("directLink")) }
 
             <div />
             <h2>Authorization</h2>
