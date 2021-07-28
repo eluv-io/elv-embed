@@ -191,12 +191,12 @@ class Form extends React.Component {
     const paramsString = Object.keys(params).map(key => params[key] === true ? key : `${key}=${params[key]}`).join("&");
 
     this.setState({
-      embedUrl: `${window.location.origin}?${paramsString}`,
+      embedUrl: `${window.location.href}?${paramsString}`,
       embedCode: (
 `<iframe 
   width=${width} height=${frameHeight} scrolling="no" marginheight="0" 
   marginwidth="0" frameborder="0" type="text/html" 
-  src="${window.location.origin}?${paramsString}"
+  src="${window.location.href}?${paramsString}"
 ></iframe>`
       )
     });
