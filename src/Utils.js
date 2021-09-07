@@ -28,6 +28,7 @@ export const LoadParams = () => {
     ttl: "title",
     dsc: "description",
     sm: "smallPlayer",
+    i: "imageOnly",
     sh: "showShare",
     st: "showTitle",
     dk: "darkMode",
@@ -101,6 +102,7 @@ export const LoadParams = () => {
       case "st":
       case "dk":
       case "dr":
+      case "i":
         params[conversion[key]] = true;
         break;
     }
@@ -147,6 +149,7 @@ export const LoadParams = () => {
     versionHash: params.versionHash,
     linkPath: params.linkPath,
     authorizationToken: params.authorizationToken,
+    imageOnly: params.imageOnly,
 
     tenantId: params.tenantId,
     ntpId: params.ntpId,

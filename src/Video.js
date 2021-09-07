@@ -1,7 +1,7 @@
 import "./static/stylesheets/video.scss";
 import EluvioPlayer from "@eluvio/elv-player-js";
 import {LoadParams} from "./Utils";
-
+import {ElvClient} from "@eluvio/elv-client-js/dist/src/ElvClient";
 
 const robots = document.createElement("meta");
 robots.setAttribute("name", "robots");
@@ -40,7 +40,7 @@ const InitializeShareButtons = (app, width) => {
   app.appendChild(container);
 };
 
-const InitializeTitle = async (app, params, player, width) => {
+const InitializeTitle = async (app, params, client, target, width) => {
   const header = document.createElement("header");
   app.prepend(header);
 
@@ -52,8 +52,6 @@ const InitializeTitle = async (app, params, player, width) => {
     header.innerHTML = params.title;
     return;
   }
-
-  const client = await player.Client();
 
   try {
     const sourceOptions = { ...params.playerParameters.sourceOptions.playoutParameters };
@@ -89,6 +87,32 @@ const InitializeTitle = async (app, params, player, width) => {
   }
 };
 
+const LoadImage = async (client, params, target) => {
+  const sourceOptions = { ...params.playerParameters.sourceOptions.playoutParameters };
+  if(!sourceOptions.versionHash) {
+    sourceOptions.libraryId = await client.ContentObjectLibraryId({objectId: sourceOptions.objectId});
+  }
+
+  const targetHash = await client.LinkTarget(sourceOptions);
+  const metadata = (await client.ContentObjectMetadata({
+    versionHash: targetHash,
+    metadataSubtree: "public",
+    select: [
+      "asset_metadata/nft"
+    ]
+  })) || {};
+
+  const url = ((metadata.asset_metadata || {}).nft || {}).image;
+
+  if(!url) { return; }
+
+  const image = document.createElement("img");
+  image.classList.add("player-target__image");
+  image.src = url;
+
+  target.appendChild(image);
+};
+
 const Initialize = async () => {
   const app = document.getElementById("app");
   const target = document.createElement("div");
@@ -97,26 +121,35 @@ const Initialize = async () => {
 
   const params = LoadParams();
 
-  const player = new EluvioPlayer(target, params.playerParameters);
-
   if(params.darkMode) {
     app.classList.add("dark");
   }
 
+  const client = await ElvClient.FromConfigurationUrl({
+    configUrl: params.network
+  });
+
+  params.playerParameters.clientOptions.client = client;
+
   if(params.showTitle) {
-    InitializeTitle(app, params, player, params.smallPlayer ? params.width : undefined);
+    InitializeTitle(app, params, client, target, params.smallPlayer ? params.width : undefined);
   }
 
   if(params.showShare) {
     InitializeShareButtons(app, params.smallPlayer ? params.width : undefined);
   }
 
-  if(params.smallPlayer && params.width && params.height) {
-    target.style.width = `${params.width}px`;
-    target.style.height = `${params.height}px`;
-  }
+  if(params.imageOnly) {
+    LoadImage(client, params, target);
+  } else {
+    const player = new EluvioPlayer(target, params.playerParameters);
+    if(params.smallPlayer && params.width && params.height) {
+      target.style.width = `${params.width}px`;
+      target.style.height = `${params.height}px`;
+    }
 
-  window.player = player;
+    window.player = player;
+  }
 };
 
 Initialize();
