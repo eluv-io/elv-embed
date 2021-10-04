@@ -40,69 +40,56 @@ const InitializeShareButtons = (app, width) => {
   app.appendChild(container);
 };
 
-const InitializeTitle = async (app, params, client, target, width) => {
-  const header = document.createElement("header");
-  app.prepend(header);
-
-  if(width) {
-    header.style.width = `${width}px`;
-  }
-
-  if(params.title) {
-    header.innerHTML = params.title;
-    return;
-  }
-
+const InitializeTitle = async ({app, params, metadata, width}) => {
   try {
-    const sourceOptions = { ...params.playerParameters.sourceOptions.playoutParameters };
-    if(!sourceOptions.versionHash) {
-      sourceOptions.libraryId = await client.ContentObjectLibraryId({objectId: sourceOptions.objectId});
-    }
-
-    const targetHash = await client.LinkTarget(sourceOptions);
-    const metadata = await client.ContentObjectMetadata({
-      versionHash: targetHash,
-      metadataSubtree: "public",
-      select: [
-        "name",
-        "asset_metadata/title",
-        "asset_metadata/display_title"
-      ]
-    });
-
     const title =
-      (metadata.asset_metadata || {}).display_title ||
-      (metadata.asset_metadata || {}).title ||
+      params.title ||
+      metadata.asset_metadata.nft.display_name ||
+      metadata.asset_metadata.nft.name ||
+      metadata.asset_metadata.display_title ||
+      metadata.asset_metadata.title ||
       metadata.name;
 
     if(title) {
-      header.innerHTML = title;
-    } else {
-      app.removeChild(header);
+      document.title = title ? `${title} | Eluvio` : "Eluvio";
+
+      if(params.showTitle) {
+        const header = document.createElement("header");
+        app.prepend(header);
+
+        if(width) {
+          header.style.width = `${width}px`;
+        }
+
+        header.innerHTML = title;
+      }
     }
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
-    app.removeChild(header);
   }
 };
 
-const LoadImage = async (client, params, target) => {
-  const sourceOptions = { ...params.playerParameters.sourceOptions.playoutParameters };
-  if(!sourceOptions.versionHash) {
-    sourceOptions.libraryId = await client.ContentObjectLibraryId({objectId: sourceOptions.objectId});
+const Playable = async (client, playerParams) => {
+  try {
+    const availableOfferings = await client.AvailableOfferings({
+      objectId: playerParams.sourceOptions.playoutParameters.objectId,
+      versionHash: playerParams.sourceOptions.playoutParameters.versionHash,
+      writeToken: playerParams.sourceOptions.playoutParameters.writeToken,
+      linkPath: playerParams.sourceOptions.playoutParameters.linkPath,
+      directLink: playerParams.sourceOptions.playoutParameters.directLink,
+      resolveIncludeSource: true,
+      authorizationToken: playerParams.sourceOptions.playoutParameters.authorizationToken
+    });
+
+    return availableOfferings && Object.keys(availableOfferings).length > 0;
+  } catch (error) {
+    return false;
   }
+};
 
-  const targetHash = await client.LinkTarget(sourceOptions);
-  const metadata = (await client.ContentObjectMetadata({
-    versionHash: targetHash,
-    metadataSubtree: "public",
-    select: [
-      "asset_metadata/nft"
-    ]
-  })) || {};
-
-  const url = ((metadata.asset_metadata || {}).nft || {}).image;
+const LoadImage = async ({client, params, metadata={}, target}) => {
+  const url = metadata.asset_metadata.nft.image || await client.ContentObjectImageUrl({versionHash: params.versionHash});
 
   if(!url) { return; }
 
@@ -131,16 +118,39 @@ const Initialize = async () => {
 
   params.playerParameters.clientOptions.client = client;
 
-  if(params.showTitle) {
-    InitializeTitle(app, params, client, target, params.smallPlayer ? params.width : undefined);
-  }
-
   if(params.showShare) {
     InitializeShareButtons(app, params.smallPlayer ? params.width : undefined);
   }
 
-  if(params.imageOnly) {
-    LoadImage(client, params, target);
+  if(!params.versionHash) {
+    params.versionHash = await client.LatestVersionHash({
+      objectId: params.objectId
+    });
+  }
+
+  let metadata = (await client.ContentObjectMetadata({
+    versionHash: params.versionHash,
+    metadataSubtree: "public",
+    authorizationToken: params.authorizationToken,
+    select: [
+      "name",
+      "asset_metadata/title",
+      "asset_metadata/display_title",
+      "asset_metadata/nft"
+    ]
+  })) || {};
+
+  metadata.asset_metadata = metadata.asset_metadata || {};
+  metadata.asset_metadata.nft = metadata.asset_metadata.nft || {};
+
+  if(metadata.asset_metadata.nft.background_color) {
+    app.style.backgroundColor = metadata.asset_metadata.nft.background_color.color;
+  }
+
+  InitializeTitle({app, params, metadata, width: params.smallPlayer ? params.width : undefined});
+
+  if(params.imageOnly || !(await Playable(client, params.playerParameters))) {
+    LoadImage({client, params, metadata, target});
   } else {
     const player = new EluvioPlayer(target, params.playerParameters);
     if(params.smallPlayer && params.width && params.height) {

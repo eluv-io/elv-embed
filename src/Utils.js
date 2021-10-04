@@ -181,13 +181,7 @@ export const LoadParams = () => {
         controls,
         autoplay: params.scrollPlayPause ? EluvioPlayerParameters.autoplay.WHEN_VISIBLE : params.autoplay,
         muted: params.muted,
-        loop: params.loop,
-        playerCallback: ({posterUrl}) => {
-          if(posterUrl) {
-            CreateMetaTags({"og:image": posterUrl});
-            CreateMetaTags({"og:image:alt": params.title});
-          }
-        }
+        loop: params.loop
       },
     }
   };
