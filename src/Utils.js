@@ -13,7 +13,7 @@ const CreateMetaTags = (options={}) => {
   });
 };
 
-export const LoadParams = () => {
+export const LoadParams = (url) => {
   const conversion = {
     net: "network",
     oid: "objectId",
@@ -44,7 +44,8 @@ export const LoadParams = () => {
     sbj: "ticketSubject",
     data: "data",
 
-    // Watermark defaults true
+    // Watermark defaults true except for NFTs
+    wm: "watermark",
     nwm: "watermark"
   };
 
@@ -54,7 +55,9 @@ export const LoadParams = () => {
     test: EluvioPlayerParameters.networks.TEST
   };
 
-  const urlParams = new URLSearchParams(window.location.search);
+  const urlParams = new URLSearchParams(
+    new URL(url || window.location.toString()).search
+  );
 
   let params = {
     watermark: true
@@ -91,7 +94,7 @@ export const LoadParams = () => {
         params[conversion[key]] = atob(value);
         break;
 
-      case "nwm":
+      case "wm":
       case "ap":
       case "scr":
       case "m":
@@ -104,6 +107,10 @@ export const LoadParams = () => {
       case "dr":
       case "i":
         params[conversion[key]] = true;
+        break;
+
+      case "nwm":
+        params.watermark = false;
         break;
     }
   }
@@ -181,7 +188,8 @@ export const LoadParams = () => {
         controls,
         autoplay: params.scrollPlayPause ? EluvioPlayerParameters.autoplay.WHEN_VISIBLE : params.autoplay,
         muted: params.muted,
-        loop: params.loop
+        loop: params.loop,
+        watermark: params.watermark
       },
     }
   };
