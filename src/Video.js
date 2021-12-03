@@ -106,9 +106,9 @@ export const Initialize = async ({client, target, url}={}) => {
   let playerTarget;
   if(!target) {
     target = document.getElementById("app");
-    target.classList.add("-elv-embed");
   }
 
+  target.classList.add("-elv-embed");
   target.innerHTML = "";
 
   if(params.darkMode) {
