@@ -112,6 +112,10 @@ export const LoadParams = (url) => {
       case "nwm":
         params.watermark = false;
         break;
+
+      case "node":
+        params.node = value;
+        break;
     }
   }
 
@@ -153,6 +157,7 @@ export const LoadParams = (url) => {
     showShare: params.showShare,
     network: params.network,
     objectId: params.objectId,
+    node: params.node,
     versionHash: params.versionHash,
     linkPath: params.linkPath,
     authorizationToken: params.authorizationToken,

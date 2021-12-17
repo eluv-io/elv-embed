@@ -127,6 +127,16 @@ export const Initialize = async ({client, target, url}={}) => {
 
   params.playerParameters.clientOptions.client = client;
 
+  if(params.node && params.node.startsWith("https://")) {
+    let nodes = await client.Nodes();
+
+    await client.SetNodes({fabricURIs: [params.node]});
+
+    if(!nodes.fabricURIs.find(uri => uri === params.node)) {
+      nodes.fabricURIs.push(params.node);
+    }
+  }
+
   if(!params.versionHash) {
     params.versionHash = await client.LatestVersionHash({
       objectId: params.objectId
