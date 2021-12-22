@@ -101,89 +101,112 @@ const LoadImage = async ({client, params, metadata={}, target}) => {
 };
 
 export const Initialize = async ({client, target, url}={}) => {
-  const params = LoadParams(url);
+  try {
+    const params = LoadParams(url);
 
-  let playerTarget;
-  if(!target) {
-    target = document.getElementById("app");
-  }
-
-  target.classList.add("-elv-embed");
-  target.innerHTML = "";
-
-  if(params.darkMode) {
-    target.classList.add("-elv-dark");
-  }
-
-  playerTarget = document.createElement("div");
-  playerTarget.classList.add("-elv-player-target");
-  target.appendChild(playerTarget);
-
-  if(!client) {
-    client = await ElvClient.FromConfigurationUrl({
-      configUrl: params.network
-    });
-  }
-
-  params.playerParameters.clientOptions.client = client;
-
-  if(params.node) {
-    let nodes = await client.Nodes();
-
-    await client.SetNodes({fabricURIs: [params.node]});
-
-    if(!nodes.fabricURIs.find(uri => uri === params.node)) {
-      nodes.fabricURIs.push(params.node);
-    }
-  }
-
-  if(!params.versionHash) {
-    params.versionHash = await client.LatestVersionHash({
-      objectId: params.objectId
-    });
-  }
-
-  let metadata = (await client.ContentObjectMetadata({
-    versionHash: params.versionHash,
-    metadataSubtree: "public",
-    authorizationToken: params.authorizationToken,
-    select: [
-      "name",
-      "nft",
-      "asset_metadata/title",
-      "asset_metadata/display_title",
-      "asset_metadata/nft"
-    ]
-  })) || {};
-
-  const isNFT = !!metadata.nft || !!(metadata.asset_metadata || {}).nft;
-
-  if(isNFT) {
-    params.playerParameters.playerOptions.watermark = false;
-  }
-
-  metadata.asset_metadata = metadata.asset_metadata || {};
-  metadata.asset_metadata.nft = metadata.asset_metadata.nft || {};
-
-  if(metadata.asset_metadata.nft.background_color) {
-    target.style.backgroundColor = metadata.asset_metadata.nft.background_color.color;
-  }
-
-  if(params.imageOnly || !(await Playable(client, params.playerParameters))) {
-    LoadImage({client, params, metadata, target: playerTarget});
-  } else {
-    const player = new EluvioPlayer(playerTarget, params.playerParameters);
-    if(params.smallPlayer && params.width && params.height) {
-      playerTarget.style.width = `${params.width}px`;
-      playerTarget.style.height = `${params.height}px`;
+    let playerTarget;
+    if(!target) {
+      target = document.getElementById("app");
     }
 
-    window.player = player;
-  }
+    target.classList.add("-elv-embed");
+    target.innerHTML = "";
 
-  if(params.showShare) {
-    InitializeShareButtons(target, params.smallPlayer ? params.width : undefined);
-  }
+    if(params.darkMode) {
+      target.classList.add("-elv-dark");
+    }
 
-  InitializeTitle({target, params, metadata, width: params.smallPlayer ? params.width : undefined});
+    playerTarget = document.createElement("div");
+    playerTarget.classList.add("-elv-player-target");
+    target.appendChild(playerTarget);
+
+    if(!client) {
+      client = await ElvClient.FromConfigurationUrl({
+        configUrl: params.network
+      });
+    }
+
+    params.playerParameters.clientOptions.client = client;
+
+    if(params.node) {
+      await client.SetNodes({fabricURIs: [params.node]});
+    }
+
+    if(!params.versionHash) {
+      params.versionHash = await client.LatestVersionHash({
+        objectId: params.objectId
+      });
+    }
+
+    let metadata = (await client.ContentObjectMetadata({
+      versionHash: params.versionHash,
+      metadataSubtree: "public",
+      authorizationToken: params.authorizationToken,
+      select: [
+        "name",
+        "nft",
+        "asset_metadata/title",
+        "asset_metadata/display_title",
+        "asset_metadata/nft"
+      ]
+    })) || {};
+
+    const isNFT = !!metadata.nft || !!(metadata.asset_metadata || {}).nft;
+
+    if(isNFT) {
+      params.playerParameters.playerOptions.watermark = false;
+    }
+
+    metadata.asset_metadata = metadata.asset_metadata || {};
+    metadata.asset_metadata.nft = metadata.asset_metadata.nft || {};
+
+    if(metadata.asset_metadata.nft.background_color) {
+      target.style.backgroundColor = metadata.asset_metadata.nft.background_color.color;
+    }
+
+    if(params.imageOnly || !(await Playable(client, params.playerParameters))) {
+      LoadImage({client, params, metadata, target: playerTarget});
+    } else {
+      const player = new EluvioPlayer(playerTarget, params.playerParameters);
+      if(params.smallPlayer && params.width && params.height) {
+        playerTarget.style.width = `${params.width}px`;
+        playerTarget.style.height = `${params.height}px`;
+      }
+
+      window.player = player;
+    }
+
+    if(params.showShare) {
+      InitializeShareButtons(target, params.smallPlayer ? params.width : undefined);
+    }
+
+    InitializeTitle({target, params, metadata, width: params.smallPlayer ? params.width : undefined});
+  } catch(error) {
+    const urlParams = new URLSearchParams(
+      new URL(window.location.toString()).search
+    );
+    const node = urlParams.get("node");
+
+    if(error.status === 500 && node) {
+      const app = document.getElementById("app");
+      const errorContainer = document.createElement("div");
+      errorContainer.classList.add("-elv-error-container");
+
+      const error = document.createElement("div");
+      error.classList.add("-elv-error");
+
+      const errorText = document.createElement("h4");
+      errorText.innerHTML = "Error: there was a problem loading the specified node";
+      error.appendChild(errorText);
+
+      const button = document.createElement("button");
+      button.classList.add("-elv-button");
+      button.innerHTML = "Reload";
+      button.onclick = () => Initialize({client, target, url});
+      error.appendChild(button);
+
+      errorContainer.appendChild(error);
+      app.replaceChild(errorContainer, app.firstChild);
+    }
+  }
 };
