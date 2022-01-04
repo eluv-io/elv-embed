@@ -33,6 +33,7 @@ class Form extends React.Component {
       muted: false,
       width: 854,
       height: 480,
+      capLevelToPlayerSize: false,
       embedCode: ""
     };
 
@@ -167,6 +168,10 @@ class Form extends React.Component {
       params.h = parseInt(this.state.height);
     }
 
+    if(this.state.capLevelToPlayerSize) {
+      params.cap = true;
+    }
+
     if(this.state.autoplay === "When Visible") {
       params.scr = true;
     } else if(this.state.autoplay === "On") {
@@ -294,6 +299,7 @@ class Form extends React.Component {
             { this.LabelledField("Mute Audio", "muted", this.Checkbox("muted")) }
             { this.LabelledField("Loop", "loop", this.Checkbox("loop")) }
 
+            { this.LabelledField("Cap Quality to Player Size", "capLevelToPlayerSize", this.Checkbox("capLevelToPlayerSize")) }
             { this.LabelledField("Width", "width", this.Input("width", {type: "number", step: 1, required: true})) }
             { this.LabelledField("Height", "height", this.Input("height", {type: "number", step: 1, required: true})) }
 

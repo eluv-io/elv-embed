@@ -35,6 +35,7 @@ export const LoadParams = (url) => {
 
     w: "width",
     h: "height",
+    cap: "capLevelToPlayerSize",
 
     ath: "authorizationToken",
     ten: "tenantId",
@@ -106,6 +107,7 @@ export const LoadParams = (url) => {
       case "dk":
       case "dr":
       case "i":
+      case "cap":
         params[conversion[key]] = true;
         break;
 
@@ -194,7 +196,8 @@ export const LoadParams = (url) => {
         autoplay: params.scrollPlayPause ? EluvioPlayerParameters.autoplay.WHEN_VISIBLE : params.autoplay,
         muted: params.muted,
         loop: params.loop,
-        watermark: params.watermark
+        watermark: params.watermark,
+        capLevelToPlayerSize: params.capLevelToPlayerSize
       },
     }
   };

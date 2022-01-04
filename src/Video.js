@@ -100,9 +100,16 @@ const LoadImage = async ({client, params, metadata={}, target}) => {
   target.appendChild(image);
 };
 
-export const Initialize = async ({client, target, url}={}) => {
+export const Initialize = async ({client, target, url, playerOptions}={}) => {
   try {
     const params = LoadParams(url);
+
+    if(playerOptions) {
+      params.playerParameters.playerOptions = {
+        ...params.playerParameters.playerOptions,
+        ...playerOptions
+      };
+    }
 
     let playerTarget;
     if(!target) {
@@ -164,7 +171,11 @@ export const Initialize = async ({client, target, url}={}) => {
       target.style.backgroundColor = metadata.asset_metadata.nft.background_color.color;
     }
 
-    if(params.imageOnly || !(await Playable(client, params.playerParameters))) {
+    const playable =
+      (isNFT && (metadata.nft || metadata.asset_metadata.nft || {}).playable) ||
+      await Playable(client, params.playerParameters);
+
+    if(params.imageOnly || !playable) {
       LoadImage({client, params, metadata, target: playerTarget});
     } else {
       const player = new EluvioPlayer(playerTarget, params.playerParameters);
@@ -181,7 +192,7 @@ export const Initialize = async ({client, target, url}={}) => {
     }
 
     InitializeTitle({target, params, metadata, width: params.smallPlayer ? params.width : undefined});
-  } catch(error) {
+  } catch (error) {
     const urlParams = new URLSearchParams(
       new URL(window.location.toString()).search
     );
