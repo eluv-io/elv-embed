@@ -210,12 +210,6 @@ export const Initialize = async ({client, target, url, playerOptions}={}) => {
       errorText.innerHTML = "Error: there was a problem loading the specified node";
       error.appendChild(errorText);
 
-      const button = document.createElement("button");
-      button.classList.add("-elv-button");
-      button.innerHTML = "Reload";
-      button.onclick = () => Initialize({client, target, url});
-      error.appendChild(button);
-
       errorContainer.appendChild(error);
       app.replaceChild(errorContainer, app.firstChild);
     }

@@ -1,37 +1,5 @@
-$elv-color-lightblue: #0fafff;
-$elv-color-lighterblue: #60dfff;
-$elv-color-mediumblue: #1b73e8;
-$elv-color-bg-white: #fff;
-$elv-color-text-white: #fff;
+$elv-color-bg-black: #000;
 $elv-color-mediumred: #a33;
-$elv-spacing-mxs: 0.33rem;
-$elv-spacing-s: 1rem;
-
-@mixin elv-button {
-  background-color: $elv-color-mediumblue;
-  border: 1px solid $elv-color-mediumblue;
-  border-radius: 2px;
-  box-sizing: border-box;
-  color: $elv-color-text-white;
-  cursor: pointer;
-  display: inline-block;
-  font-size: 0.8rem;
-  min-width: 120px;
-  padding: $elv-spacing-mxs $elv-spacing-s;
-  text-align: center;
-  user-select: none;
-
-  &:not(:active):hover {
-    background-color: $elv-color-bg-white;
-    border: 1px solid $elv-color-mediumblue;
-    color: $elv-color-mediumblue;
-  }
-
-  &:focus {
-    box-shadow: 0 0 8px $elv-color-lightblue;
-    outline: 2px auto $elv-color-lighterblue;
-  }
-}
 
 .-elv-embed {
   align-items: center;
@@ -145,6 +113,7 @@ $elv-spacing-s: 1rem;
 
   .-elv-error-container {
     align-items: center;
+    background-color: $elv-color-bg-black;
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
@@ -161,12 +130,6 @@ $elv-spacing-s: 1rem;
 
       h4 {
         color: $elv-color-mediumred;
-        font-weight: 400;
-      }
-
-      .-elv-button {
-        @include elv-button();
-        margin-top: $elv-spacing-s;
       }
     }
   }
