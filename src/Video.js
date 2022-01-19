@@ -40,7 +40,7 @@ const InitializeShareButtons = (target, width) => {
   target.appendChild(container);
 };
 
-const InitializeTitle = async ({target, params, metadata, width}) => {
+const InitializeTitle = async ({target, params, metadata, width, setPageTitle=false}) => {
   try {
     const title =
       params.title ||
@@ -51,7 +51,9 @@ const InitializeTitle = async ({target, params, metadata, width}) => {
       metadata.name;
 
     if(title) {
-      document.title = title ? `${title} | Eluvio` : "Eluvio";
+      if(setPageTitle) {
+        document.title = title ? `${title} | Eluvio` : "Eluvio";
+      }
 
       if(params.showTitle) {
         const header = document.createElement("header");
@@ -100,9 +102,13 @@ const LoadImage = async ({client, params, metadata={}, target}) => {
   target.appendChild(image);
 };
 
-export const Initialize = async ({client, target, url, playerOptions}={}) => {
+export const Initialize = async ({client, target, url, playerOptions, setPageTitle=false}={}) => {
   try {
     const params = LoadParams(url);
+
+    if(setPageTitle) {
+      document.title = params.title ? `${params.title} | Eluvio` : "Eluvio";
+    }
 
     if(playerOptions) {
       params.playerParameters.playerOptions = {
@@ -191,7 +197,7 @@ export const Initialize = async ({client, target, url, playerOptions}={}) => {
       InitializeShareButtons(target, params.smallPlayer ? params.width : undefined);
     }
 
-    InitializeTitle({target, params, metadata, width: params.smallPlayer ? params.width : undefined});
+    InitializeTitle({target, params, metadata, width: params.smallPlayer ? params.width : undefined, setPageTitle});
   } catch (error) {
     const urlParams = new URLSearchParams(
       new URL(window.location.toString()).search

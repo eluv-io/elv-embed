@@ -149,8 +149,6 @@ export const LoadParams = (url) => {
     }
   }
 
-  document.title = title ? `${title} | Eluvio` : "Eluvio";
-
   return {
     title,
     darkMode: params.darkMode,
