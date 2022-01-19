@@ -35,6 +35,7 @@ export const LoadParams = (url) => {
 
     w: "width",
     h: "height",
+    cap: "capLevelToPlayerSize",
 
     ath: "authorizationToken",
     ten: "tenantId",
@@ -106,11 +107,16 @@ export const LoadParams = (url) => {
       case "dk":
       case "dr":
       case "i":
+      case "cap":
         params[conversion[key]] = true;
         break;
 
       case "nwm":
         params.watermark = false;
+        break;
+
+      case "node":
+        params.node = value;
         break;
     }
   }
@@ -143,8 +149,6 @@ export const LoadParams = (url) => {
     }
   }
 
-  document.title = title ? `${title} | Eluvio` : "Eluvio";
-
   return {
     title,
     darkMode: params.darkMode,
@@ -153,6 +157,7 @@ export const LoadParams = (url) => {
     showShare: params.showShare,
     network: params.network,
     objectId: params.objectId,
+    node: params.node,
     versionHash: params.versionHash,
     linkPath: params.linkPath,
     authorizationToken: params.authorizationToken,
@@ -189,7 +194,8 @@ export const LoadParams = (url) => {
         autoplay: params.scrollPlayPause ? EluvioPlayerParameters.autoplay.WHEN_VISIBLE : params.autoplay,
         muted: params.muted,
         loop: params.loop,
-        watermark: params.watermark
+        watermark: params.watermark,
+        capLevelToPlayerSize: params.capLevelToPlayerSize
       },
     }
   };

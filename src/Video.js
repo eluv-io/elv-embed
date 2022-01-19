@@ -40,7 +40,7 @@ const InitializeShareButtons = (target, width) => {
   target.appendChild(container);
 };
 
-const InitializeTitle = async ({target, params, metadata, width}) => {
+const InitializeTitle = async ({target, params, metadata, width, setPageTitle=false}) => {
   try {
     const title =
       params.title ||
@@ -51,7 +51,9 @@ const InitializeTitle = async ({target, params, metadata, width}) => {
       metadata.name;
 
     if(title) {
-      document.title = title ? `${title} | Eluvio` : "Eluvio";
+      if(setPageTitle) {
+        document.title = title ? `${title} | Eluvio` : "Eluvio";
+      }
 
       if(params.showTitle) {
         const header = document.createElement("header");
@@ -100,80 +102,122 @@ const LoadImage = async ({client, params, metadata={}, target}) => {
   target.appendChild(image);
 };
 
-export const Initialize = async ({client, target, url}={}) => {
-  const params = LoadParams(url);
+export const Initialize = async ({client, target, url, playerOptions, setPageTitle=false}={}) => {
+  try {
+    const params = LoadParams(url);
 
-  let playerTarget;
-  if(!target) {
-    target = document.getElementById("app");
-  }
-
-  target.classList.add("-elv-embed");
-  target.innerHTML = "";
-
-  if(params.darkMode) {
-    target.classList.add("-elv-dark");
-  }
-
-  playerTarget = document.createElement("div");
-  playerTarget.classList.add("-elv-player-target");
-  target.appendChild(playerTarget);
-
-  if(!client) {
-    client = await ElvClient.FromConfigurationUrl({
-      configUrl: params.network
-    });
-  }
-
-  params.playerParameters.clientOptions.client = client;
-
-  if(!params.versionHash) {
-    params.versionHash = await client.LatestVersionHash({
-      objectId: params.objectId
-    });
-  }
-
-  let metadata = (await client.ContentObjectMetadata({
-    versionHash: params.versionHash,
-    metadataSubtree: "public",
-    authorizationToken: params.authorizationToken,
-    select: [
-      "name",
-      "nft",
-      "asset_metadata/title",
-      "asset_metadata/display_title",
-      "asset_metadata/nft"
-    ]
-  })) || {};
-
-  const isNFT = !!metadata.nft || !!(metadata.asset_metadata || {}).nft;
-
-  if(isNFT) {
-    params.playerParameters.playerOptions.watermark = false;
-  }
-
-  metadata.asset_metadata = metadata.asset_metadata || {};
-  metadata.asset_metadata.nft = metadata.asset_metadata.nft || {};
-
-  if(metadata.asset_metadata.nft.background_color) {
-    target.style.backgroundColor = metadata.asset_metadata.nft.background_color.color;
-  }
-
-  if(params.imageOnly || !(await Playable(client, params.playerParameters))) {
-    LoadImage({client, params, metadata, target: playerTarget});
-  } else {
-    const player = new EluvioPlayer(playerTarget, params.playerParameters);
-    if(params.smallPlayer && params.width && params.height) {
-      playerTarget.style.width = `${params.width}px`;
-      playerTarget.style.height = `${params.height}px`;
+    if(setPageTitle) {
+      document.title = params.title ? `${params.title} | Eluvio` : "Eluvio";
     }
 
-    window.player = player;
-  }
+    if(playerOptions) {
+      params.playerParameters.playerOptions = {
+        ...params.playerParameters.playerOptions,
+        ...playerOptions
+      };
+    }
 
-  if(params.showShare) {
-    InitializeShareButtons(target, params.smallPlayer ? params.width : undefined);
-  }
+    let playerTarget;
+    if(!target) {
+      target = document.getElementById("app");
+    }
 
-  InitializeTitle({target, params, metadata, width: params.smallPlayer ? params.width : undefined});
+    target.classList.add("-elv-embed");
+    target.innerHTML = "";
+
+    if(params.darkMode) {
+      target.classList.add("-elv-dark");
+    }
+
+    playerTarget = document.createElement("div");
+    playerTarget.classList.add("-elv-player-target");
+    target.appendChild(playerTarget);
+
+    if(!client) {
+      client = await ElvClient.FromConfigurationUrl({
+        configUrl: params.network
+      });
+    }
+
+    params.playerParameters.clientOptions.client = client;
+
+    if(params.node) {
+      await client.SetNodes({fabricURIs: [params.node]});
+    }
+
+    if(!params.versionHash) {
+      params.versionHash = await client.LatestVersionHash({
+        objectId: params.objectId
+      });
+    }
+
+    let metadata = (await client.ContentObjectMetadata({
+      versionHash: params.versionHash,
+      metadataSubtree: "public",
+      authorizationToken: params.authorizationToken,
+      select: [
+        "name",
+        "nft",
+        "asset_metadata/title",
+        "asset_metadata/display_title",
+        "asset_metadata/nft"
+      ]
+    })) || {};
+
+    const isNFT = !!metadata.nft || !!(metadata.asset_metadata || {}).nft;
+
+    if(isNFT) {
+      params.playerParameters.playerOptions.watermark = false;
+    }
+
+    metadata.asset_metadata = metadata.asset_metadata || {};
+    metadata.asset_metadata.nft = metadata.asset_metadata.nft || {};
+
+    if(metadata.asset_metadata.nft.background_color) {
+      target.style.backgroundColor = metadata.asset_metadata.nft.background_color.color;
+    }
+
+    const playable =
+      (isNFT && (metadata.nft || metadata.asset_metadata.nft || {}).playable) ||
+      await Playable(client, params.playerParameters);
+
+    if(params.imageOnly || !playable) {
+      LoadImage({client, params, metadata, target: playerTarget});
+    } else {
+      const player = new EluvioPlayer(playerTarget, params.playerParameters);
+      if(params.smallPlayer && params.width && params.height) {
+        playerTarget.style.width = `${params.width}px`;
+        playerTarget.style.height = `${params.height}px`;
+      }
+
+      window.player = player;
+    }
+
+    if(params.showShare) {
+      InitializeShareButtons(target, params.smallPlayer ? params.width : undefined);
+    }
+
+    InitializeTitle({target, params, metadata, width: params.smallPlayer ? params.width : undefined, setPageTitle});
+  } catch (error) {
+    const urlParams = new URLSearchParams(
+      new URL(window.location.toString()).search
+    );
+    const node = urlParams.get("node");
+
+    if(error.status === 500 && node) {
+      const app = document.getElementById("app");
+      const errorContainer = document.createElement("div");
+      errorContainer.classList.add("-elv-error-container");
+
+      const error = document.createElement("div");
+      error.classList.add("-elv-error");
+
+      const errorText = document.createElement("h4");
+      errorText.innerHTML = "Error: there was a problem loading the specified node";
+      error.appendChild(errorText);
+
+      errorContainer.appendChild(error);
+      app.replaceChild(errorContainer, app.firstChild);
+    }
+  }
 };
