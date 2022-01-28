@@ -134,24 +134,6 @@ $elv-color-mediumred: #a33;
     }
   }
 
-  &.ebook {
-    padding: 0 50px;
-
-    .arrow {
-      font-size: 2rem;
-      position: fixed;
-      top: 45%;
-
-      &.prev-button {
-        left: 0;
-      }
-
-      &.next-button {
-        right: 0;
-      }
-    }
-  }
-
   @media screen and (max-width: 900px) {
     header {
       font-size: 16px;

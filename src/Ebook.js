@@ -1,12 +1,15 @@
-const Controls = (playerTarget) => {
+const Controls = (playerTarget, rendition) => {
   const leftArrow = document.createElement("button");
   const rightArrow = document.createElement("button");
 
   leftArrow.classList.add(...["arrow", "prev-button"]);
   rightArrow.classList.add(...["arrow", "next-button"]);
 
-  leftArrow.innerHTML = "&#8592;";
-  rightArrow.innerHTML = "&#8594;";
+  leftArrow.innerHTML = "&#8249;";
+  rightArrow.innerHTML = "&#8250;";
+
+  leftArrow.title = "Previous page";
+  rightArrow.title = "Next page";
 
   leftArrow.addEventListener("click", () => rendition.prev());
   rightArrow.addEventListener("click", () => rendition.next());
@@ -21,7 +24,7 @@ export const InitializeEbook = async (metadata, playerTarget, params) => {
 
   const rendition = await book.renderTo(playerTarget, {
     height: params.height,
-    width: `calc(${params.width} - 100px)`,
+    width: `calc(${params.width} - 70px)`,
     spread: "always",
     flow: "paginated"
   });
@@ -29,7 +32,7 @@ export const InitializeEbook = async (metadata, playerTarget, params) => {
   const app = document.getElementById("app");
   app.classList.add("ebook");
 
-  Controls(playerTarget);
+  Controls(playerTarget, rendition);
 
   const HandleKeyPress = ({key}) => {
     if(key === "ArrowRight") {
