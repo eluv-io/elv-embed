@@ -1,0 +1,26 @@
+.-elv-embed.ebook {
+  padding: 0 35px;
+
+  .arrow {
+    font-size: 4rem;
+    height: 100%;
+    position: fixed;
+    vertical-align: middle;
+
+    &.prev-button,
+    &.next-button {
+      cursor: pointer;
+      background: none;
+      border: none;
+      outline: none;
+    }
+
+    &.prev-button {
+      left: 0;
+    }
+
+    &.next-button {
+      right: 0;
+    }
+  }
+}

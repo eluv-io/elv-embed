@@ -1,4 +1,5 @@
 import "./static/stylesheets/video.scss";
+import "./static/stylesheets/ebook.scss";
 import EluvioPlayer from "@eluvio/elv-player-js";
 import {LoadParams} from "./Utils";
 import {ElvClient} from "@eluvio/elv-client-js/dist/src/ElvClient";
@@ -161,8 +162,17 @@ export const Initialize = async ({client, target, url, playerOptions, setPageTit
         "asset_metadata/title",
         "asset_metadata/display_title",
         "asset_metadata/nft"
-      ]
+      ],
+      produceLinkUrls: true
     })) || {};
+
+    if(metadata.asset_metadata?.nft?.media_type === "Ebook") {
+      import("./Ebook").then(async ({InitializeEbook}) => {
+        await InitializeEbook(metadata, playerTarget, params);
+      });
+
+      return;
+    }
 
     const isNFT = !!metadata.nft || !!(metadata.asset_metadata || {}).nft;
 
