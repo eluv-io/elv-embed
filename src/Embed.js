@@ -2,7 +2,7 @@ import "./static/stylesheets/video.scss";
 import "./static/stylesheets/ebook.scss";
 import EluvioPlayer from "@eluvio/elv-player-js";
 import {LoadParams} from "./Utils";
-import {ElvClient} from "@eluvio/elv-client-js/dist/src/ElvClient";
+import {ElvClient} from "@eluvio/elv-client-js";
 
 const robots = document.createElement("meta");
 robots.setAttribute("name", "robots");
