@@ -167,7 +167,7 @@ export const Initialize = async ({client, target, url, playerOptions, setPageTit
     })) || {};
 
     if(metadata.asset_metadata?.nft?.media_type === "Ebook") {
-      import("./Ebook").then(async ({InitializeEbook}) => {
+      import("./Ebook.js").then(async ({InitializeEbook}) => {
         await InitializeEbook(metadata, playerTarget, params);
       });
 
@@ -191,10 +191,11 @@ export const Initialize = async ({client, target, url, playerOptions, setPageTit
       (isNFT && (metadata.nft || metadata.asset_metadata.nft || {}).playable) ||
       await Playable(client, params.playerParameters);
 
+    let player;
     if(params.imageOnly || !playable) {
       LoadImage({client, params, metadata, target: playerTarget});
     } else {
-      const player = new EluvioPlayer(playerTarget, params.playerParameters);
+      player = new EluvioPlayer(playerTarget, params.playerParameters);
       if(params.smallPlayer && params.width && params.height) {
         playerTarget.style.width = `${params.width}px`;
         playerTarget.style.height = `${params.height}px`;
@@ -208,6 +209,8 @@ export const Initialize = async ({client, target, url, playerOptions, setPageTit
     }
 
     InitializeTitle({target, params, metadata, width: params.smallPlayer ? params.width : undefined, setPageTitle});
+
+    return player;
   } catch (error) {
     const urlParams = new URLSearchParams(
       new URL(window.location.toString()).search
