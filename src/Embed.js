@@ -91,8 +91,8 @@ const Playable = async (client, playerParams) => {
   }
 };
 
-const LoadImage = async ({client, params, metadata={}, target}) => {
-  const url = metadata.asset_metadata.nft.image || await client.ContentObjectImageUrl({versionHash: params.versionHash});
+const LoadImage = async ({client, params, imageUrl, metadata={}, target}) => {
+  const url = imageUrl || metadata.asset_metadata.nft.image || await client.ContentObjectImageUrl({versionHash: params.versionHash});
 
   if(!url) { return; }
 
@@ -166,9 +166,18 @@ export const Initialize = async ({client, target, url, playerOptions, setPageTit
       produceLinkUrls: true
     })) || {};
 
-    if(metadata.asset_metadata?.nft?.media_type === "Ebook") {
+    const mediaType = (params.mediaType || "").toLowerCase();
+
+    let mediaUrl;
+    if(["image", "ebook"].includes(mediaType)) {
+      mediaUrl = params.mediaUrl || client.utils.SafeTraverse(metadata, (params.linkPath || "").replace("/public", "").split("/").filter(part => part))?.url;
+    }
+
+    if(mediaType === "ebook" || metadata.asset_metadata?.nft?.media_type === "Ebook") {
+      const ebookUrl = mediaUrl || metadata.asset_metadata?.nft?.media?.url;
+
       import("./Ebook.js").then(async ({InitializeEbook}) => {
-        await InitializeEbook(metadata, playerTarget, params);
+        await InitializeEbook(ebookUrl, playerTarget, params);
       });
 
       return;
@@ -192,8 +201,8 @@ export const Initialize = async ({client, target, url, playerOptions, setPageTit
       await Playable(client, params.playerParameters);
 
     let player;
-    if(params.imageOnly || !playable) {
-      LoadImage({client, params, metadata, target: playerTarget});
+    if(mediaType === "image" || params.imageOnly || !playable) {
+      LoadImage({client, params, metadata, imageUrl: mediaUrl, target: playerTarget});
     } else {
       player = new EluvioPlayer(playerTarget, params.playerParameters);
       if(params.smallPlayer && params.width && params.height) {
@@ -212,6 +221,9 @@ export const Initialize = async ({client, target, url, playerOptions, setPageTit
 
     return player;
   } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+
     const urlParams = new URLSearchParams(
       new URL(window.location.toString()).search
     );

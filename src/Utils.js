@@ -45,6 +45,9 @@ export const LoadParams = (url) => {
     sbj: "ticketSubject",
     data: "data",
 
+    type: "mediaType",
+    murl: "mediaUrl",
+
     // Watermark defaults true except for NFTs
     wm: "watermark",
     nwm: "watermark"
@@ -78,6 +81,7 @@ export const LoadParams = (url) => {
       case "ct":
       case "ten":
       case "ntp":
+      case "type":
         params[conversion[key]] = value;
         break;
 
@@ -92,6 +96,7 @@ export const LoadParams = (url) => {
       case "tk":
       case "sbj":
       case "data":
+      case "murl":
         params[conversion[key]] = atob(value);
         break;
 
@@ -162,6 +167,8 @@ export const LoadParams = (url) => {
     linkPath: params.linkPath,
     authorizationToken: params.authorizationToken,
     imageOnly: params.imageOnly,
+    mediaType: params.mediaType,
+    mediaUrl: params.mediaUrl,
 
     tenantId: params.tenantId,
     ntpId: params.ntpId,

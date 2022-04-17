@@ -1,26 +1,41 @@
-.-elv-embed.ebook {
-  padding: 0 35px;
+.-elv-embed {
+  position: relative;
 
-  .arrow {
-    font-size: 4rem;
+  &__ebook {
+    background-color: #ffffff;
     height: 100%;
-    position: fixed;
-    vertical-align: middle;
+    padding: 0 35px;
+    position: relative;
+    width: 100%;
 
-    &.prev-button,
-    &.next-button {
-      cursor: pointer;
-      background: none;
-      border: none;
-      outline: none;
+    .arrow {
+      color: #000000;
+      font-size: 4rem;
+      height: 100%;
+      position: absolute;
+      user-select: none;
+      vertical-align: middle;
+
+      &.prev-button,
+      &.next-button {
+        background: none;
+        border: 0;
+        cursor: pointer;
+        outline: none;
+      }
+
+      &.prev-button {
+        left: 2px;
+      }
+
+      &.next-button {
+        right: 2px;
+      }
     }
 
-    &.prev-button {
-      left: 0;
-    }
-
-    &.next-button {
-      right: 0;
+    .epub-container {
+      height: 100%;
+      width: 100%;
     }
   }
 }

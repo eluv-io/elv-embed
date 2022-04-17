@@ -18,19 +18,18 @@ const Controls = (playerTarget, rendition) => {
   playerTarget.appendChild(rightArrow);
 };
 
-export const InitializeEbook = async (metadata, playerTarget, params) => {
+export const InitializeEbook = async (ebookUrl, playerTarget, params) => {
   const ePub = await import("epubjs");
-  const book = await ePub.default(metadata.asset_metadata.nft.media.url, {openAs: "epub"});
+  const book = await ePub.default(ebookUrl, {openAs: "epub"});
 
   const rendition = await book.renderTo(playerTarget, {
     height: params.height,
-    width: `calc(${params.width} - 70px)`,
+    width: `calc(${params.width || "100%"} - 70px)`,
     spread: "always",
     flow: "paginated"
   });
 
-  const app = document.getElementById("app");
-  app.classList.add("ebook");
+  playerTarget.classList.add("-elv-embed__ebook");
 
   Controls(playerTarget, rendition);
 
