@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@eluvio/elv-client-js": "^3.1.76",
-    "@eluvio/elv-player-js": "^1.0.72",
+    "@eluvio/elv-player-js": "^1.0.73",
     "epubjs": "^0.3.92",
     "hls.js": "^0.14.17",
     "react": "^16.8.6",

@@ -18,6 +18,7 @@ class Form extends React.Component {
       network: "main",
       objectId: "",
       versionHash: "hq__CcdV4wnCNq9wv6jXpYeCQ2GE4FLQBFtVSSSt2XKfBJMrH89DFDGsfkpWWvBy16QBGGYeF5mLGo",
+      offering: undefined,
       authorizationToken: "",
       promptTicket: false,
       tenantId: "",
@@ -34,7 +35,9 @@ class Form extends React.Component {
       width: 854,
       height: 480,
       capLevelToPlayerSize: false,
-      embedCode: ""
+      embedCode: "",
+      clipStart: "",
+      clipEnd: ""
     };
 
     this.Generate = this.Generate.bind(this);
@@ -115,6 +118,10 @@ class Form extends React.Component {
       params.vid = this.state.versionHash;
     }
 
+    if(this.state.offering) {
+      params.off = this.state.offering;
+    }
+
     if(this.state.linkPath) {
       params.ln = btoa(this.state.linkPath);
     }
@@ -149,6 +156,14 @@ class Form extends React.Component {
 
     if(this.state.darkMode) {
       params.dk = true;
+    }
+
+    if(this.state.clipStart) {
+      params.start = parseFloat(this.state.clipStart);
+    }
+
+    if(this.state.clipEnd) {
+      params.end = parseFloat(this.state.clipEnd);
     }
 
     if(this.state.showShare) {
@@ -272,8 +287,11 @@ class Form extends React.Component {
             { this.LabelledField("Network", "network", this.Select("network", ["main", "demo", "test"])) }
             { this.LabelledField("Object ID", "objectId", this.Input("objectId")) }
             { this.LabelledField("Version Hash", "versionHash", this.Input("versionHash")) }
+            { this.LabelledField("Offering", "offering", this.Input("offering")) }
             { this.LabelledField("Link Path", "linkPath", this.Input("linkPath")) }
             { this.LabelledField("Direct Link", "directLink", this.Checkbox("directLink")) }
+            { this.LabelledField("Clip Start", "clipStart", this.Input("clipStart", {type: "number", step: 0.001})) }
+            { this.LabelledField("Clip End", "clipEnd", this.Input("clipEnd", {type: "number", step: 0.001})) }
 
             <div />
             <h2>Authorization</h2>

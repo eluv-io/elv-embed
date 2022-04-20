@@ -18,6 +18,7 @@ export const LoadParams = (url) => {
     net: "network",
     oid: "objectId",
     vid: "versionHash",
+    off: "offering",
     ln: "linkPath",
     dr: "directLink",
     ap: "autoplay",
@@ -44,6 +45,9 @@ export const LoadParams = (url) => {
     tk: "ticketCode",
     sbj: "ticketSubject",
     data: "data",
+
+    start: "clipStart",
+    end: "clipEnd",
 
     type: "mediaType",
     murl: "mediaUrl",
@@ -78,6 +82,7 @@ export const LoadParams = (url) => {
       case "ath":
       case "oid":
       case "vid":
+      case "off":
       case "ct":
       case "ten":
       case "ntp":
@@ -88,6 +93,11 @@ export const LoadParams = (url) => {
       case "w":
       case "h":
         params[conversion[key]] = parseInt(value);
+        break;
+
+      case "start":
+      case "end":
+        params[conversion[key]] = parseFloat(value);
         break;
 
       case "ln":
@@ -164,11 +174,14 @@ export const LoadParams = (url) => {
     objectId: params.objectId,
     node: params.node,
     versionHash: params.versionHash,
+    offering: params.offering,
     linkPath: params.linkPath,
     authorizationToken: params.authorizationToken,
     imageOnly: params.imageOnly,
     mediaType: params.mediaType,
     mediaUrl: params.mediaUrl,
+    clipStart: params.clipStart,
+    clipEnd: params.clipEnd,
 
     tenantId: params.tenantId,
     ntpId: params.ntpId,
@@ -191,9 +204,12 @@ export const LoadParams = (url) => {
         playoutParameters: {
           objectId: params.objectId,
           versionHash: params.versionHash,
+          offering: params.offering,
           linkPath: params.linkPath,
           directLink: params.directLink,
-          authorizationToken: params.authorizationToken
+          authorizationToken: params.authorizationToken,
+          clipStart: params.clipStart,
+          clipEnd: params.clipEnd
         }
       },
       playerOptions: {
@@ -203,7 +219,7 @@ export const LoadParams = (url) => {
         loop: params.loop,
         watermark: params.watermark,
         capLevelToPlayerSize: params.capLevelToPlayerSize
-      },
+      }
     }
   };
 };
