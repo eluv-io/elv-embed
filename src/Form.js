@@ -284,7 +284,7 @@ class Form extends React.Component {
 
             <div />
             <h2>Target</h2>
-            { this.LabelledField("Network", "network", this.Select("network", ["main", "demo", "test", "testv4"])) }
+            { this.LabelledField("Network", "network", this.Select("network", ["main", "demo", "test"])) }
             { this.LabelledField("Object ID", "objectId", this.Input("objectId")) }
             { this.LabelledField("Version Hash", "versionHash", this.Input("versionHash")) }
             { this.LabelledField("Offering", "offering", this.Input("offering")) }
