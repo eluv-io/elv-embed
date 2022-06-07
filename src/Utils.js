@@ -60,7 +60,8 @@ export const LoadParams = (url) => {
   const networks = {
     main: EluvioPlayerParameters.networks.MAIN,
     demo: EluvioPlayerParameters.networks.DEMO,
-    test: EluvioPlayerParameters.networks.TEST
+    test: EluvioPlayerParameters.networks.TEST,
+    testv4: EluvioPlayerParameters.networks.TESTV4
   };
 
   const urlParams = new URLSearchParams(
