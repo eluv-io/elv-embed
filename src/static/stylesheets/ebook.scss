@@ -2,11 +2,17 @@
   position: relative;
 
   &__ebook {
+    align-items: center;
     background-color: #fff;
+    display: flex;
     height: 100%;
-    padding: 0 35px;
+    justify-content: center;
     position: relative;
     width: 100%;
+
+    .epub-view {
+      width: 100%;
+    }
 
     .arrow {
       color: #000;
@@ -15,6 +21,7 @@
       position: absolute;
       user-select: none;
       vertical-align: middle;
+      z-index: 100;
 
       &.prev-button,
       &.next-button {
