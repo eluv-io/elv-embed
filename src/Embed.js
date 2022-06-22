@@ -3,11 +3,29 @@ import "./static/stylesheets/ebook.scss";
 import EluvioPlayer from "@eluvio/elv-player-js";
 import {LoadParams} from "./Utils";
 import {ElvClient} from "@eluvio/elv-client-js";
+import UrlJoin from "url-join";
 
 const robots = document.createElement("meta");
 robots.setAttribute("name", "robots");
 robots.setAttribute("content", "noindex");
 document.head.appendChild(robots);
+
+const SandboxPermissions = () => {
+  return [
+    "allow-downloads",
+    "allow-scripts",
+    "allow-forms",
+    "allow-modals",
+    "allow-pointer-lock",
+    "allow-orientation-lock",
+    "allow-popups",
+    "allow-popups-to-escape-sandbox",
+    "allow-presentation",
+    "allow-same-origin",
+    "allow-downloads-without-user-activation",
+    "allow-storage-access-by-user-activation"
+  ].join(" ");
+};
 
 const InitializeShareButtons = (target, width) => {
   import("share-buttons");
@@ -171,6 +189,36 @@ export const Initialize = async ({client, target, url, playerOptions, setPageTit
     let mediaUrl;
     if(["image", "ebook"].includes(mediaType)) {
       mediaUrl = params.mediaUrl || client.utils.SafeTraverse(metadata, (params.linkPath || "").replace("/public", "").split("/").filter(part => part))?.url;
+    }
+
+    // HTML Media - embed iframe with link to HTML file
+    if(mediaType === "html" || metadata.asset_metadata?.nft?.media_type === "HTML") {
+      const fileLink = metadata.asset_metadata?.nft?.media;
+      const targetHash = await client.LinkTarget({
+        versionHash: params.versionHash,
+        linkPath: "/public/asset_metadata/nft/media"
+      });
+
+      const filePath = fileLink["/"].split("/files/")[1];
+
+      const mediaLink = new URL(
+        params.network.replace("/config", "")
+      );
+
+      mediaLink.pathname = UrlJoin("/s", await client.NetworkInfo().name, "q", targetHash, "files", filePath);
+
+      (metadata.asset_metadata?.nft?.media_parameters || []).forEach(({name, value}) =>
+        mediaLink.searchParams.set(name, value)
+      );
+
+      target = document.createElement("iframe");
+      target.classList.add("-elv-embed-frame");
+      target.sandbox = SandboxPermissions();
+      target.setAttribute("allowFullScreen", "");
+      target.allow = "encrypted-media *; autoplay; fullscreen; clipboard-read; clipboard-write";
+      target.src = mediaLink.toString();
+      playerTarget.appendChild(target);
+      return;
     }
 
     if(mediaType === "ebook" || metadata.asset_metadata?.nft?.media_type === "Ebook") {
