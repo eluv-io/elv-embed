@@ -13,8 +13,18 @@ const CreateMetaTags = (options={}) => {
   });
 };
 
+export const mediaTypes = {
+  "v": "Video",
+  "a": "Audio",
+  "i": "Image",
+  "h": "HTML",
+  "b": "EBook",
+  "g": "Gallery"
+};
+
 export const LoadParams = (url) => {
   const conversion = {
+    mt: "mediaType",
     net: "network",
     oid: "objectId",
     vid: "versionHash",
@@ -76,6 +86,10 @@ export const LoadParams = (url) => {
     const value = urlParams.get(key).toString();
 
     switch (key) {
+      case "mt":
+        params[conversion[key]] = mediaTypes[value] || "Video";
+        break;
+
       case "net":
         params[conversion[key]] = networks[value.toLowerCase()];
         break;

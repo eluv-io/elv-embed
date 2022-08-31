@@ -27,6 +27,7 @@
     "react-dom": "^16.8.6",
     "scroll-behavior-polyfill": "^2.0.13",
     "share-buttons": "^1.7.0",
+    "swiper": "^8.3.2",
     "urijs": "^1.19.11",
     "url-join": "^4.0.1"
   },

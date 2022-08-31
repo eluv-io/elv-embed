@@ -2,6 +2,7 @@ import "./static/stylesheets/form.scss";
 
 import React from "react";
 import {render} from "react-dom";
+import {mediaTypes} from "./Utils";
 
 import Logo from "./static/images/Logo.png";
 
@@ -19,6 +20,7 @@ class Form extends React.Component {
       objectId: "",
       versionHash: "hq__CcdV4wnCNq9wv6jXpYeCQ2GE4FLQBFtVSSSt2XKfBJMrH89DFDGsfkpWWvBy16QBGGYeF5mLGo",
       offering: undefined,
+      mediaType: "v",
       authorizationToken: "",
       promptTicket: false,
       tenantId: "",
@@ -120,6 +122,10 @@ class Form extends React.Component {
 
     if(this.state.offering) {
       params.off = this.state.offering;
+    }
+
+    if(this.state.mediaType) {
+      params.mt = this.state.mediaType;
     }
 
     if(this.state.linkPath) {
@@ -232,7 +238,11 @@ class Form extends React.Component {
   Select(name, options) {
     return (
       <select name={name} value={this.state[name]} onChange={this.Update}>
-        { options.map((o, i) => <option key={`option-${i}`} value={o}>{ o }</option>) }
+        {options.map((o, i) =>
+          Array.isArray(o) ?
+            <option key={`option-${i}`} value={o[1]}>{ o[0] }</option> :
+            <option key={`option-${i}`} value={o}>{ o }</option>
+        )}
       </select>
     );
   }
@@ -288,6 +298,7 @@ class Form extends React.Component {
             { this.LabelledField("Object ID", "objectId", this.Input("objectId")) }
             { this.LabelledField("Version Hash", "versionHash", this.Input("versionHash")) }
             { this.LabelledField("Offering", "offering", this.Input("offering")) }
+            { this.LabelledField("Media Type", "mediaType", this.Select("mediaType", Object.keys(mediaTypes).map(v => [mediaTypes[v], v]))) }
             { this.LabelledField("Link Path", "linkPath", this.Input("linkPath")) }
             { this.LabelledField("Direct Link", "directLink", this.Checkbox("directLink")) }
             { this.LabelledField("Clip Start", "clipStart", this.Input("clipStart", {type: "number", step: 0.001})) }
