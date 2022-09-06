@@ -2,9 +2,23 @@
   --carousel-item-height: 150px;
 }
 
-.app--gallery {
-  background: #000;
+.app-background {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #000000;
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
 
+.app {
+  z-index: 1;
+}
+
+.app--gallery {
   * {
     color: #eee;
   }
@@ -14,12 +28,21 @@
   flex: 1 0 100%;
   max-width: 100vw;
   width: 100%;
+  z-index: 1;
 
   &--with-title {
     .gallery__active-item {
-      height: calc(100vh - 250px);
-      max-height: calc(100vh - 250px);
-      min-height: calc(100vh - 250px);
+      &--carousel {
+        height: calc(100vh - 250px);
+        max-height: calc(100vh - 250px);
+        min-height: calc(100vh - 250px);
+      }
+
+      &--arrows {
+        height: calc(100vh - 125px);
+        max-height: calc(100vh - 125px);
+        min-height: calc(100vh - 125px);
+      }
     }
   }
 
@@ -32,12 +55,21 @@
 
   &__active-item {
     display: grid;
-    grid-template-rows: 1fr max-content;
-    height: calc(100vh - 200px);
-    max-height: calc(100vh - 200px);
-    min-height: calc(100vh - 200px);
+    grid-template-rows: max-content 1fr max-content;
     padding: 20px;
     width: 100%;
+
+    &--carousel {
+      height: calc(100vh - 200px);
+      max-height: calc(100vh - 200px);
+      min-height: calc(100vh - 200px);
+    }
+
+    &--arrows {
+      height: calc(100vh - 75px);
+      max-height: calc(100vh - 75px);
+      min-height: calc(100vh - 75px);
+    }
 
     &__content {
       height: 100%;
@@ -57,6 +89,10 @@
     &__info {
       padding: 20px;
       text-align: center;
+
+      &:empty {
+        padding: 0;
+      }
     }
 
     &__name {
@@ -76,6 +112,40 @@
 
   &__carousel-container {
     margin-inline: 20px;
+  }
+
+  &__arrows {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    height: 75px;
+  }
+
+  &__arrow {
+    border: 0;
+    outline: 0;
+    cursor: pointer;
+    color: #2d61e4;
+    background: #2d61e4;
+    width: 30px;
+    height: 20px;
+
+    &:disabled {
+      opacity: 0.5;
+    }
+
+    &--previous {
+      clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
+    }
+
+    &--next {
+      clip-path: polygon(0% 0%, 0% 100%, 100% 50%);
+    }
+  }
+
+  &__page {
+    user-select: none;
+    margin: 0 30px;
   }
 
   &__carousel {
@@ -147,6 +217,18 @@
         z-index: 100;
       }
     }
+  }
+}
+
+@media screen and (min-width: 800px) {
+  .app-background-mobile {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 799px) {
+  .app-background-desktop {
+    display: none;
   }
 }
 

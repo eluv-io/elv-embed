@@ -29,12 +29,48 @@ const LoadGallery = async () => {
     versionHash = await client.LatestVersionHash({objectId: versionHash});
   }
 
-  const galleryMetadata = await client.ContentObjectMetadata({
-    versionHash,
-    metadataSubtree: params.linkPath,
-    authorizationToken: params.authorizationToken,
-    produceLinkUrls: true
-  });
+  let galleryMetadata, backgroundImage, backgroundImageMobile, customCSS;
+  let controls = "Carousel";
+  if(params.linkPath?.includes("additional_media")) {
+    try {
+      const additionalMediaKey = params.linkPath.includes("additional_media_sections") ? "additional_media_sections" : "additional_media";
+      let [additionalMediaPath, galleryPath] = params.linkPath.split(additionalMediaKey);
+
+      const additionalMediaMetadata = await client.ContentObjectMetadata({
+        versionHash,
+        metadataSubtree: additionalMediaPath,
+        authorizationToken: params.authorizationToken,
+        produceLinkUrls: true,
+        select: [
+          "additional_media",
+          "additional_media_sections",
+          "additional_media_custom_css"
+        ]
+      });
+
+      customCSS = additionalMediaMetadata.additional_media_custom_css;
+
+      const mediaItemMetadata = client.utils.SafeTraverse(additionalMediaMetadata, UrlJoin(additionalMediaKey, galleryPath.split("/gallery")[0]).split("/"));
+      backgroundImage = mediaItemMetadata.background_image?.url;
+      backgroundImageMobile = mediaItemMetadata.background_image_mobile?.url;
+      controls = mediaItemMetadata.controls || "Carousel";
+      galleryMetadata = mediaItemMetadata.gallery;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Unable to load full additional media info:");
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
+  }
+
+  if(!galleryMetadata) {
+    galleryMetadata = await client.ContentObjectMetadata({
+      versionHash,
+      metadataSubtree: params.linkPath,
+      authorizationToken: params.authorizationToken,
+      produceLinkUrls: true
+    });
+  }
 
   if(!galleryMetadata || !Array.isArray(galleryMetadata)) {
     throw Error("Invalid gallery metadata");
@@ -42,7 +78,13 @@ const LoadGallery = async () => {
     throw Error("Empty gallery");
   }
 
-  return galleryMetadata;
+  return {
+    galleryMetadata,
+    backgroundImage,
+    backgroundImageMobile,
+    controls,
+    customCSS
+  };
 };
 
 const GalleryItemImageUrl = ({item, width}) => {
@@ -77,7 +119,7 @@ const GalleryItemImageUrl = ({item, width}) => {
   return url;
 };
 
-const GalleryItem = ({item, activeItemIndex}) => {
+const GalleryItem = ({controlType, item, activeItemIndex}) => {
   const [player, setPlayer] = useState(undefined);
 
   useEffect(() => {
@@ -88,7 +130,15 @@ const GalleryItem = ({item, activeItemIndex}) => {
   }, [item]);
 
   return (
-    <div className="gallery__active-item">
+    <div className={`gallery__active-item gallery__active-item--${controlType.toLowerCase()}`}>
+      <div className="gallery__active-item__info">
+        {
+          item?.name ?
+            <div className="gallery__active-item__name">
+              {item.name}
+            </div> : null
+        }
+      </div>
       {
         item?.video ?
           <div
@@ -97,7 +147,8 @@ const GalleryItem = ({item, activeItemIndex}) => {
             ref={element => {
               if(!element || player) { return; }
 
-              const videoHash = item.video["/"]?.split("/").find(token => token.startsWith("hq__"));
+              const videoHash = item.video["/"]?.split("/")
+                .find(token => token.startsWith("hq__"));
 
               if(!videoHash) { return; }
 
@@ -130,12 +181,6 @@ const GalleryItem = ({item, activeItemIndex}) => {
       }
       <div className="gallery__active-item__info">
         {
-          item?.name ?
-            <div className="gallery__active-item__name">
-              {item.name}
-            </div> : null
-        }
-        {
           item?.description ?
             <div className="gallery__active-item__description">
               {item.description}
@@ -148,47 +193,60 @@ const GalleryItem = ({item, activeItemIndex}) => {
 
 const GalleryCarousel = ({galleryMetadata, activeItemIndex, setActiveItemIndex}) => {
   return (
-    <Swiper
-      className="gallery__carousel"
-      scrollbar={{ draggable: true }}
-      navigation
-      spaceBetween={5}
-      keyboard
-      mousewheel
-      slidesPerView="auto"
-    >
-      {
-        galleryMetadata.map((item, index) =>
-          <SwiperSlide key={`item-${index}`} className={`gallery__carousel__item gallery__carousel__item--${(item?.image_aspect_ratio || "square").toLowerCase()}`}>
-            <button
-              title={item.name || ""}
-              onClick={() => {
-                setActiveItemIndex(index);
-                document.querySelector(".app").scrollTo(0, 0);
-              }}
-              className={`gallery__carousel__item__button ${index === activeItemIndex ? "gallery__carousel__item__button--active" : ""}`}
-            >
-              <img
-                alt={item.name}
-                src={GalleryItemImageUrl({item, width: 600})}
-                className={`gallery__carousel__item__image ${index === activeItemIndex ? "gallery__carousel__item__image--active" : ""}`}
-              />
-            </button>
-          </SwiperSlide>
-        )
-      }
-    </Swiper>
+    <div className="gallery__carousel-container">
+      <Swiper
+        className="gallery__carousel"
+        scrollbar={{ draggable: true }}
+        navigation
+        spaceBetween={5}
+        keyboard
+        mousewheel
+        slidesPerView="auto"
+      >
+        {
+          galleryMetadata.map((item, index) =>
+            <SwiperSlide key={`item-${index}`} className={`gallery__carousel__item gallery__carousel__item--${(item?.image_aspect_ratio || "square").toLowerCase()}`}>
+              <button
+                title={item.name || ""}
+                onClick={() => {
+                  setActiveItemIndex(index);
+                  document.querySelector(".app").scrollTo(0, 0);
+                }}
+                className={`gallery__carousel__item__button ${index === activeItemIndex ? "gallery__carousel__item__button--active" : ""}`}
+              >
+                <img
+                  alt={item.name}
+                  src={GalleryItemImageUrl({item, width: 600})}
+                  className={`gallery__carousel__item__image ${index === activeItemIndex ? "gallery__carousel__item__image--active" : ""}`}
+                />
+              </button>
+            </SwiperSlide>
+          )
+        }
+      </Swiper>
+    </div>
   );
 };
 
 const Gallery = () => {
   const [galleryMetadata, setGalleryMetadata] = useState(undefined);
+  const [backgroundImage, setBackgroundImage] = useState(undefined);
+  const [controls, setControls] = useState("Carousel");
   const [error, setError] = useState(undefined);
   const [activeItemIndex, setActiveItemIndex] = useState(0);
 
   useEffect(() => {
     LoadGallery()
-      .then(meta => setGalleryMetadata(meta))
+      .then(galleryInfo => {
+        setBackgroundImage({desktop: galleryInfo.backgroundImage, mobile: galleryInfo.backgroundImageMobile});
+        setGalleryMetadata(galleryInfo.galleryMetadata);
+
+        if(galleryInfo.customCSS) {
+          document.querySelector("#_custom-css").textContent = galleryInfo.customCSS;
+        }
+
+        setControls(galleryInfo.controls);
+      })
       .catch(error => setError(error));
   }, []);
 
@@ -214,20 +272,37 @@ const Gallery = () => {
   }
 
   return (
-    <div className={`gallery ${params.title ? "gallery--with-title" : ""}`}>
-      { params.title ? <h1 className="gallery__title">{params.title}</h1> : null }
-      <GalleryItem
-        item={galleryMetadata ? galleryMetadata[activeItemIndex] : undefined}
-        activeItemIndex={activeItemIndex}
-      />
-      <div className="gallery__carousel-container">
-        <GalleryCarousel
-          galleryMetadata={galleryMetadata}
+    <>
+      <div className="app-background app-background-desktop" style={backgroundImage?.desktop ? { backgroundImage: `url(${backgroundImage.desktop}` } : undefined} />
+      <div className="app-background app-background-mobile" style={backgroundImage?.mobile ? { backgroundImage: `url(${backgroundImage.mobile}` } : undefined} />
+      <div className={`gallery ${params.title ? "gallery--with-title" : ""} gallery--${controls.toLowerCase()}`}>
+        { params.title ? <h1 className="gallery__title">{params.title}</h1> : null }
+        <GalleryItem
+          controlType={controls}
+          item={galleryMetadata ? galleryMetadata[activeItemIndex] : undefined}
           activeItemIndex={activeItemIndex}
-          setActiveItemIndex={setActiveItemIndex}
         />
+
+        {
+          controls === "Carousel" ?
+            <GalleryCarousel
+              galleryMetadata={galleryMetadata}
+              activeItemIndex={activeItemIndex}
+              setActiveItemIndex={setActiveItemIndex}
+            /> :
+            <div className="gallery__arrows">
+              <button disabled={activeItemIndex === 0} onClick={() => setActiveItemIndex(activeItemIndex - 1)} className="gallery__arrow gallery__arrow--previous" />
+              {
+                galleryMetadata ?
+                  <span className="gallery__page">
+                    <span>{ activeItemIndex + 1 }</span> / <span>{ galleryMetadata.length }</span>
+                  </span> : undefined
+              }
+              <button disabled={!galleryMetadata || activeItemIndex >= (galleryMetadata.length - 1)} onClick={() => setActiveItemIndex(activeItemIndex + 1)} className="gallery__arrow gallery__arrow--next" />
+            </div>
+        }
       </div>
-    </div>
+    </>
   );
 };
 
