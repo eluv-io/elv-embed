@@ -5,12 +5,12 @@ import React, {useEffect, useState} from "react";
 import {render} from "react-dom";
 import {LoadParams} from "./Utils";
 import {ElvClient} from "@eluvio/elv-client-js";
-import SwiperCore, {Scrollbar, Keyboard, Mousewheel} from "swiper";
+import SwiperCore, {Navigation, Scrollbar, Keyboard, Mousewheel} from "swiper";
 import {Swiper, SwiperSlide} from "swiper/react";
 import UrlJoin from "url-join";
 import {EluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
-SwiperCore.use([Scrollbar, Keyboard, Mousewheel]);
+SwiperCore.use([Navigation, Scrollbar, Keyboard, Mousewheel]);
 
 const params = LoadParams(window.location.href);
 
@@ -151,6 +151,7 @@ const GalleryCarousel = ({galleryMetadata, activeItemIndex, setActiveItemIndex})
     <Swiper
       className="gallery__carousel"
       scrollbar={{ draggable: true }}
+      navigation
       spaceBetween={5}
       keyboard
       mousewheel
