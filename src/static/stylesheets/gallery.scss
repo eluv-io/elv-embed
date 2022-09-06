@@ -2,13 +2,32 @@
   --carousel-item-height: 150px;
 }
 
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeout {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@mixin page-fade-in($duration: 0.5s, $animation: ease-in) {
+  animation: $duration fadein $animation;
+}
+
+@mixin page-fade-out {
+  animation: 0.5s fadeout ease-in;
+}
+
 .app-background {
   width: 100%;
   height: 100%;
   position: absolute;
   top: 0;
   left: 0;
-  background-color: #000000;
+  background-color: #000;
   background-position: top center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -29,6 +48,10 @@
   max-width: 100vw;
   width: 100%;
   z-index: 1;
+
+  img {
+    font-size: 0;
+  }
 
   &--with-title {
     .gallery__active-item {
@@ -72,6 +95,7 @@
     }
 
     &__content {
+      animation: 0.25s fadein ease-out;
       height: 100%;
       margin-inline: auto;
       max-height: 100%;
@@ -129,6 +153,7 @@
     background: #2d61e4;
     width: 30px;
     height: 20px;
+    transition: opacity 0.25s ease-out;
 
     &:disabled {
       opacity: 0.5;

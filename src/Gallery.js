@@ -177,7 +177,7 @@ const GalleryItem = ({controlType, item, activeItemIndex}) => {
               );
             }}
           /> :
-          item?.image ? <img alt={item.name} src={GalleryItemImageUrl({item})} className="gallery__active-item__content gallery__active-item__image" /> : null
+          item?.image ? <img alt={item.name} key={`gallery-item-${activeItemIndex}`} src={GalleryItemImageUrl({item})} className="gallery__active-item__content gallery__active-item__image" /> : null
       }
       <div className="gallery__active-item__info">
         {
