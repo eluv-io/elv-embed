@@ -1,7 +1,10 @@
 :root {
   --carousel-item-height: 150px;
-}
 
+  --title-height: 65px;
+  --carousel-height: 200px;
+  --arrows-height: 75px;
+}
 
 @keyframes fadein {
   from { opacity: 0; }
@@ -21,13 +24,20 @@
   animation: 0.5s fadeout ease-in;
 }
 
+body,
+.app,
+.app-background,
+.gallery {
+  background: transparent;
+}
+
+
 .app-background {
   width: 100%;
   height: 100%;
   position: absolute;
   top: 0;
   left: 0;
-  background-color: #000;
   background-position: top center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -53,61 +63,58 @@
     font-size: 0;
   }
 
-  &--with-title {
-    .gallery__active-item {
-      &--carousel {
-        height: calc(100vh - 250px);
-        max-height: calc(100vh - 250px);
-        min-height: calc(100vh - 250px);
-      }
-
-      &--arrows {
-        height: calc(100vh - 125px);
-        max-height: calc(100vh - 125px);
-        min-height: calc(100vh - 125px);
-      }
-    }
-  }
-
   &__title {
     font-size: 20px;
-    height: 50px;
-    padding-top: 15px;
+    height: var(--title-height);
+    display: flex;
+    justify-content: center;
+    align-items: end;
     text-align: center;
   }
 
   &__active-item {
     display: grid;
     grid-template-rows: max-content 1fr max-content;
-    padding: 20px;
+    padding: 0 10px;
     width: 100%;
 
-    &--carousel {
-      height: calc(100vh - 200px);
-      max-height: calc(100vh - 200px);
-      min-height: calc(100vh - 200px);
-    }
-
-    &--arrows {
-      height: calc(100vh - 75px);
-      max-height: calc(100vh - 75px);
-      min-height: calc(100vh - 75px);
-    }
-
     &__content {
-      animation: 0.25s fadein ease-out;
-      height: 100%;
+      height: auto;
       margin-inline: auto;
-      max-height: 100%;
       max-width: 100%;
       object-fit: contain;
       overflow: hidden;
-      width: 100%;
+      width: auto;
+      min-height: 100%;
 
       &.eluvio-player {
         max-width: 100%;
         width: 100%;
       }
+    }
+
+    &__placeholder {
+      background: #ff0000;
+    }
+
+    &__image,
+    &__video,
+    &__placeholder {
+      max-height: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+      animation: 0.25s fadein ease-out;
+    }
+
+    &__video {
+      width: 100%;
+    }
+
+    &__image {
+      &:not(.gallery__active-item__image--loaded) {
+        opacity: 0;
+      }
+
     }
 
     &__info {
@@ -135,14 +142,15 @@
   }
 
   &__carousel-container {
-    margin-inline: 20px;
+    margin: 20px 20px 0;
   }
 
   &__arrows {
+    padding-top: 20px;
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    height: 75px;
+    height: var(--arrows-height);
   }
 
   &__arrow {
@@ -174,8 +182,7 @@
   }
 
   &__carousel {
-    //margin: 10px;
-    height: calc(#{var(--carousel-item-height)} + 50px);
+    height: var(--carousel-height);
     padding: 15px 0 35px;
     position: relative;
     width: auto;
@@ -209,7 +216,7 @@
       &__image {
         height: 100%;
         object-fit: cover;
-        opacity: 0.5;
+        opacity: 0.75;
         transition: opacity 0.15s ease-out;
         width: 100%;
 
@@ -254,6 +261,55 @@
 @media screen and (max-width: 799px) {
   .app-background-desktop {
     display: none;
+  }
+}
+
+@media screen and (min-width: 800px) and (min-height: 800px) {
+  .gallery {
+    &--with-title {
+      .gallery__active-item {
+        &--carousel {
+          height: calc(100vh - var(--carousel-height) - var(--title-height));
+          max-height: calc(100vh - var(--carousel-height) - var(--title-height));
+          min-height: calc(100vh - var(--carousel-height) - var(--title-height));
+
+          .gallery__active-item__content {
+            max-height: calc(100vh - var(--carousel-height) - var(--title-height));
+          }
+        }
+
+        &--arrows {
+          height: calc(100vh - var(--arrows-height) - var(--title-height));
+          max-height: calc(100vh - var(--arrows-height) - var(--title-height));
+          min-height: calc(100vh - var(--arrows-height) - var(--title-height));
+
+          .gallery__active-item__content {
+            max-height: calc(100vh - var(--carousel-height) - var(--title-height));
+          }
+        }
+      }
+    }
+
+    &__active-item {
+      &--carousel, {
+        height: calc(100vh - var(--carousel-height));
+        min-height: calc(100vh - var(--carousel-height));
+
+        .gallery__active-item__content {
+          max-height: calc(100vh - var(--carousel-height));
+        }
+      }
+
+      &--arrows, {
+        height: calc(100vh - var(--arrows-height));
+        max-height: calc(100vh - var(--arrows-height));
+        min-height: calc(100vh - var(--arrows-height));
+
+        .gallery__active-item__content {
+          max-height: calc(100vh - var(--arrows-height));
+        }
+      }
+    }
   }
 }
 

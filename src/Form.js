@@ -223,6 +223,7 @@ class Form extends React.Component {
   width=${width} height=${frameHeight} scrolling="no" marginheight="0" 
   marginwidth="0" frameborder="0" type="text/html" 
   src="${window.location.href}?${paramsString}"
+  allowtransparency="true"
 ></iframe>`
       )
     });

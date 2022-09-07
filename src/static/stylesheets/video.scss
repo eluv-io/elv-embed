@@ -3,6 +3,7 @@ $elv-color-mediumred: #a33;
 
 .-elv-embed {
   align-items: center;
+  background: $elv-color-bg-black;
   display: flex;
   flex-direction: column;
   height: 100%;
