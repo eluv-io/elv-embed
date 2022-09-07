@@ -202,8 +202,8 @@ const GalleryItem = ({controlType, item, activeItemIndex}) => {
                   src={GalleryItemImageUrl({item})}
                   className="gallery__active-item__image"
                   onLoad={event => {
-                    setPlaceholderHeight(event.target.height);
                     event.target.classList.add("gallery__active-item__image--loaded");
+                    setPlaceholderHeight(event.target.height + 7);
                   }}
                 />
               </> : null

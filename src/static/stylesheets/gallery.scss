@@ -94,7 +94,7 @@ body,
     }
 
     &__placeholder {
-      background: #ff0000;
+      background: #f00;
     }
 
     &__image,
@@ -103,7 +103,8 @@ body,
       max-height: 100%;
       max-width: 100%;
       margin: 0 auto;
-      animation: 0.25s fadein ease-out;
+      animation: 0.5s fadein linear;
+      transition: opacity 0.5s linear;
     }
 
     &__video {
@@ -113,8 +114,8 @@ body,
     &__image {
       &:not(.gallery__active-item__image--loaded) {
         opacity: 0;
+        display: none;
       }
-
     }
 
     &__info {
