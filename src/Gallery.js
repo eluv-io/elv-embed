@@ -5,14 +5,16 @@ import React, {useEffect, useState} from "react";
 import {render} from "react-dom";
 import {LoadParams} from "./Utils";
 import {ElvClient} from "@eluvio/elv-client-js";
-import SwiperCore, {Navigation, Scrollbar, Keyboard, Mousewheel} from "swiper";
+import SwiperCore, {Lazy, Navigation, Scrollbar, Keyboard, Mousewheel} from "swiper";
 import {Swiper, SwiperSlide} from "swiper/react";
 import UrlJoin from "url-join";
 import {EluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
-SwiperCore.use([Navigation, Scrollbar, Keyboard, Mousewheel]);
+SwiperCore.use([Lazy, Navigation, Scrollbar, Keyboard, Mousewheel]);
 
 const params = LoadParams(window.location.href);
+
+let GalleryItemsSwiper;
 
 const LoadGallery = async () => {
   window.client = await ElvClient.FromConfigurationUrl({
@@ -131,38 +133,34 @@ const GalleryItemImageUrl = ({item, width}) => {
   return url;
 };
 
-const GalleryItem = ({controlType, item, activeItemIndex}) => {
+const GalleryItem = ({controlType, item, itemIndex, isActive}) => {
   const [player, setPlayer] = useState(undefined);
-  const [placeholderHeight, setPlaceholderHeight] = useState(undefined);
 
   useEffect(() => {
     if(player) {
       player.Destroy();
       setPlayer(undefined);
     }
-  }, [item]);
+  }, [isActive]);
 
   return (
-    <div className={`gallery__active-item gallery__active-item--${controlType.toLowerCase()}`}>
-      <div className="gallery__active-item__info">
+    <div className={`gallery__item gallery__item--${controlType.toLowerCase()} ${isActive ? "gallery__item--active" : "gallery__item--inactive"}`}>
+      <div className="gallery__item__info">
         {
           item?.name ?
-            <div className="gallery__active-item__name">
+            <div className="gallery__item__name">
               {item.name}
             </div> : null
         }
       </div>
-      <div
-        className="gallery__active-item__content"
-        style={placeholderHeight && (window.innerWidth < 800 || window.innerHeight < 800) ? {minHeight: `${placeholderHeight}px`} : {}}
-      >
+      <div className={`gallery__item__content ${item.video ? "gallery__item__content--video" : "gallery__item__content--image"}`}>
         {
           item?.video ?
             <div
-              key={`gallery-video-${activeItemIndex}`}
-              className="gallery__active-item__video"
+              key={`gallery-video-${itemIndex}-${isActive}`}
+              className="gallery__item__video"
               ref={element => {
-                if(!element || player) { return; }
+                if(!element || player || !isActive) { return; }
 
                 const videoHash = item.video["/"]?.split("/")
                   .find(token => token.startsWith("hq__"));
@@ -187,37 +185,64 @@ const GalleryItem = ({controlType, item, activeItemIndex}) => {
                         autoplay: EluvioPlayerParameters.autoplay.ON,
                         muted: EluvioPlayerParameters.muted.OFF,
                         watermark: EluvioPlayerParameters.watermark.OFF,
-                        capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.OFF
+                        capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.OFF,
+                        playerCallback: () => {
+                          // Make sure swiper is disabled on player controls
+                          document.querySelector(".eluvio-player__controls").classList.add("swiper-no-swiping");
+                        }
                       }
                     }
                   )
                 );
               }}
             /> :
-            item?.image ?
-              <>
-                <img
-                  alt={item.name}
-                  key={`gallery-item-${activeItemIndex}`}
-                  src={GalleryItemImageUrl({item})}
-                  className="gallery__active-item__image"
-                  onLoad={event => {
-                    event.target.classList.add("gallery__active-item__image--loaded");
-                    setPlaceholderHeight(event.target.height + 7);
-                  }}
-                />
-              </> : null
+            <img
+              alt={item.name}
+              key={`gallery-item-${itemIndex}`}
+              data-src={GalleryItemImageUrl({item})}
+              className="swiper-lazy gallery__item__image"
+            />
         }
       </div>
-      <div className="gallery__active-item__info">
+      <div className="gallery__item__info">
         {
           item?.description ?
-            <div className="gallery__active-item__description">
+            <div className="gallery__item__description">
               {item.description}
             </div> : null
         }
       </div>
     </div>
+  );
+};
+
+const GalleryItems = ({galleryItems, activeItemIndex, setActiveItemIndex, controlType}) => {
+  return (
+    <Swiper
+      className={`gallery__items gallery__items--${controlType.toLowerCase()}`}
+      keyboard
+      slidesPerView={1}
+      lazy={{
+        enabled: true,
+        loadPrevNext: true,
+        loadOnTransitionStart: true
+      }}
+      onSlideChange={event => setActiveItemIndex(event.activeIndex)}
+      onSwiper={swiper => GalleryItemsSwiper = swiper}
+    >
+      {
+        galleryItems.map((item, index) =>
+          <SwiperSlide key={`slide-${index}`}>
+            <GalleryItem
+              controlType={controlType}
+              item={item}
+              itemIndex={index}
+              isActive={index === activeItemIndex}
+            />
+          </SwiperSlide>
+        )
+      }
+    </Swiper>
   );
 };
 
@@ -232,6 +257,11 @@ const GalleryCarousel = ({galleryItems, activeItemIndex, setActiveItemIndex}) =>
         keyboard
         mousewheel
         slidesPerView="auto"
+        lazy={{
+          enabled: true,
+          loadPrevNext: true,
+          loadOnTransitionStart: true
+        }}
       >
         {
           galleryItems.map((item, index) =>
@@ -269,6 +299,7 @@ const Gallery = () => {
   useEffect(() => {
     LoadGallery()
       .then(galleryInfo => {
+        setControls(galleryInfo.controls);
         setBackgroundImage({desktop: galleryInfo.backgroundImage, mobile: galleryInfo.backgroundImageMobile});
         setGalleryMetadata(galleryInfo.galleryMetadata);
         setGalleryItems(galleryInfo.galleryItems);
@@ -276,8 +307,6 @@ const Gallery = () => {
         if(galleryInfo.customCSS) {
           document.querySelector("#_custom-css").textContent = galleryInfo.customCSS;
         }
-
-        setControls(galleryInfo.controls);
       })
       .catch(error => setError(error));
   }, []);
@@ -287,6 +316,10 @@ const Gallery = () => {
     const pageTitle = params.title || galleryMetadata?.name || "Eluvio";
 
     document.title = itemName && pageTitle ? `${itemName} | ${pageTitle}` : itemName || pageTitle;
+
+    if(GalleryItemsSwiper && GalleryItemsSwiper.activeIndex !== activeItemIndex) {
+      GalleryItemsSwiper.slideTo(activeItemIndex);
+    }
   }, [activeItemIndex, galleryMetadata, galleryItems]);
 
   if(error) {
@@ -310,11 +343,7 @@ const Gallery = () => {
       <div className="app-background app-background-mobile" style={backgroundImage?.mobile ? { backgroundImage: `url(${backgroundImage.mobile}` } : undefined} />
       <div className={`gallery ${galleryTitle ? "gallery--with-title" : ""} gallery--${controls.toLowerCase()}`}>
         { galleryTitle ? <h1 className="gallery__title">{galleryTitle}</h1> : null }
-        <GalleryItem
-          controlType={controls}
-          item={galleryItems ? galleryItems[activeItemIndex] : undefined}
-          activeItemIndex={activeItemIndex}
-        />
+        <GalleryItems galleryItems={galleryItems} activeItemIndex={activeItemIndex} setActiveItemIndex={setActiveItemIndex} controlType={controls} />
 
         {
           controls === "Carousel" ?
@@ -324,11 +353,15 @@ const Gallery = () => {
               setActiveItemIndex={setActiveItemIndex}
             /> :
             <div className="gallery__arrows">
-              <button disabled={activeItemIndex === 0} onClick={() => setActiveItemIndex(activeItemIndex - 1)} className="gallery__arrow gallery__arrow--previous" />
+              <button disabled={activeItemIndex === 0} onClick={() => setActiveItemIndex(activeItemIndex - 1)} className="gallery__arrow-button gallery__arrow-button--previous">
+                <div className="gallery__arrow gallery__arrow--previous" />
+              </button>
               <span className="gallery__page">
                 <span>{ activeItemIndex + 1 }</span> / <span>{ galleryItems.length }</span>
               </span>
-              <button disabled={!galleryItems || activeItemIndex >= (galleryItems.length - 1)} onClick={() => setActiveItemIndex(activeItemIndex + 1)} className="gallery__arrow gallery__arrow--next" />
+              <button disabled={!galleryItems || activeItemIndex >= (galleryItems.length - 1)} onClick={() => setActiveItemIndex(activeItemIndex + 1)} className="gallery__arrow-button gallery__arrow-button--next">
+                <div className="gallery__arrow gallery__arrow--next" />
+              </button>
             </div>
         }
       </div>

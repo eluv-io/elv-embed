@@ -20,10 +20,6 @@
   animation: $duration fadein $animation;
 }
 
-@mixin page-fade-out {
-  animation: 0.5s fadeout ease-in;
-}
-
 body,
 .app,
 .app-background,
@@ -72,11 +68,22 @@ body,
     text-align: center;
   }
 
-  &__active-item {
+  &__items {
+    display: grid;
+    grid-template-rows: 1fr;
+  }
+
+  &__item {
     display: grid;
     grid-template-rows: max-content 1fr max-content;
-    padding: 0 10px;
+    padding: 0 20px;
     width: 100%;
+    height: 100%;
+    max-height: 100%;
+
+    &--inactive {
+      max-height: 0;
+    }
 
     &__content {
       height: auto;
@@ -87,8 +94,7 @@ body,
       width: auto;
       min-height: 100%;
 
-      &.eluvio-player {
-        max-width: 100%;
+      &--video {
         width: 100%;
       }
     }
@@ -103,18 +109,17 @@ body,
       max-height: 100%;
       max-width: 100%;
       margin: 0 auto;
-      animation: 0.5s fadein linear;
       transition: opacity 0.5s linear;
     }
 
     &__video {
       width: 100%;
-    }
+      max-height: 100%;
 
-    &__image {
-      &:not(.gallery__active-item__image--loaded) {
-        opacity: 0;
-        display: none;
+      &.eluvio-player,
+      .eluvio-player__video {
+        width: 100%;
+        object-fit: contain;
       }
     }
 
@@ -142,10 +147,6 @@ body,
     color: #f00;
   }
 
-  &__carousel-container {
-    margin: 20px 20px 0;
-  }
-
   &__arrows {
     padding-top: 20px;
     display: flex;
@@ -154,19 +155,26 @@ body,
     height: var(--arrows-height);
   }
 
-  &__arrow {
+  &__arrow-button {
     border: 0;
     outline: 0;
     cursor: pointer;
-    color: #2d61e4;
-    background: #2d61e4;
-    width: 30px;
-    height: 20px;
+    width: 50px;
+    height: 25px;
+    padding: 0 10px 5px;
+    background: transparent;
     transition: opacity 0.25s ease-out;
 
     &:disabled {
       opacity: 0.5;
     }
+  }
+
+  &__arrow {
+    background: #2d61e4;
+    color: #2d61e4;
+    width: 100%;
+    height: 100%;
 
     &--previous {
       clip-path: polygon(0% 50%, 100% 0%, 100% 100%);
@@ -182,9 +190,14 @@ body,
     margin: 0 30px;
   }
 
-  &__carousel {
+  &__carousel-container {
     height: var(--carousel-height);
-    padding: 15px 0 35px;
+    padding: 20px 20px 35px;
+  }
+
+  &__carousel {
+    height: 100%;
+    padding-top: 15px;
     position: relative;
     width: auto;
 
@@ -268,13 +281,14 @@ body,
 @media screen and (min-width: 800px) and (min-height: 800px) {
   .gallery {
     &--with-title {
-      .gallery__active-item {
+      .gallery__items,
+      .gallery__item {
         &--carousel {
           height: calc(100vh - var(--carousel-height) - var(--title-height));
           max-height: calc(100vh - var(--carousel-height) - var(--title-height));
           min-height: calc(100vh - var(--carousel-height) - var(--title-height));
 
-          .gallery__active-item__content {
+          .gallery__item__content {
             max-height: calc(100vh - var(--carousel-height) - var(--title-height));
           }
         }
@@ -284,19 +298,21 @@ body,
           max-height: calc(100vh - var(--arrows-height) - var(--title-height));
           min-height: calc(100vh - var(--arrows-height) - var(--title-height));
 
-          .gallery__active-item__content {
+          .gallery__item__content {
             max-height: calc(100vh - var(--carousel-height) - var(--title-height));
           }
         }
       }
     }
 
-    &__active-item {
+    &__items,
+    &__item {
       &--carousel, {
         height: calc(100vh - var(--carousel-height));
+        max-height: calc(100vh - var(--arrows-height));
         min-height: calc(100vh - var(--carousel-height));
 
-        .gallery__active-item__content {
+        .gallery__item__content {
           max-height: calc(100vh - var(--carousel-height));
         }
       }
@@ -306,13 +322,53 @@ body,
         max-height: calc(100vh - var(--arrows-height));
         min-height: calc(100vh - var(--arrows-height));
 
-        .gallery__active-item__content {
+        .gallery__item__content {
           max-height: calc(100vh - var(--arrows-height));
         }
       }
     }
   }
 }
+
+@media screen and (max-width: 799px) and (min-height: 800px) {
+  .gallery {
+    &--with-title {
+      .gallery__items,
+      .gallery__item {
+        &--carousel {
+          height: calc(100vh - var(--carousel-height) - var(--title-height));
+          max-height: calc(100vh - var(--carousel-height) - var(--title-height));
+          min-height: calc(100vh - var(--carousel-height) - var(--title-height));
+
+          .gallery__item__content {
+            max-height: calc(100vh - var(--carousel-height) - var(--title-height));
+          }
+        }
+      }
+
+      .gallery__item--inactive {
+        max-height: calc(100vh - var(--carousel-height) - var(--title-height));;
+      }
+    }
+
+    &__items,
+    &__item {
+      &--carousel, {
+        height: calc(100vh - var(--carousel-height));
+        min-height: calc(100vh - var(--carousel-height));
+
+        .gallery__item__content {
+          max-height: calc(100vh - var(--carousel-height));
+        }
+      }
+
+      .gallery__item--inactive {
+        max-height: calc(100vh - var(--carousel-height) - var(--title-height));;
+      }
+    }
+  }
+}
+
 
 @media
 screen and (max-width: 800px),
@@ -332,15 +388,15 @@ screen and (max-height: 800px) {
     padding-bottom: 100px;
   }
 
-  .gallery__active-item,
-  .gallery--with-title .gallery__active-item {
+  .gallery__items,
+  .gallery--with-title .gallery__items {
     height: max-content;
     max-height: unset;
     max-width: 100%;
     overflow: hidden;
   }
 
-  .gallery__active-item__content {
+  .gallery__item__content {
     max-height: 75vh;
   }
 }
