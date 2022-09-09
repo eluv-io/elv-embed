@@ -120,7 +120,7 @@ body,
     }
 
     &__info {
-      padding: 20px;
+      padding: 20px 0;
       text-align: center;
 
       &:empty {
@@ -333,7 +333,6 @@ body,
       .gallery__item {
         &--carousel {
           height: calc(100vh - var(--carousel-height) - var(--title-height));
-          max-height: calc(100vh - var(--carousel-height) - var(--title-height));
           min-height: calc(100vh - var(--carousel-height) - var(--title-height));
 
           .gallery__item__content {
