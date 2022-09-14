@@ -5,21 +5,22 @@ import React, {useEffect, useState} from "react";
 import {render} from "react-dom";
 import {LoadParams} from "./Utils";
 import {ElvClient} from "@eluvio/elv-client-js";
-import SwiperCore, {Lazy, Navigation, Scrollbar, Keyboard, Mousewheel} from "swiper";
+import SwiperCore, {Lazy, Navigation, Keyboard, Mousewheel} from "swiper";
 import {Swiper, SwiperSlide} from "swiper/react";
 import UrlJoin from "url-join";
 import {EluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
-SwiperCore.use([Lazy, Navigation, Scrollbar, Keyboard, Mousewheel]);
+SwiperCore.use([Lazy, Navigation, Keyboard, Mousewheel]);
 
-const params = LoadParams(window.location.href);
+let networkName;
+const LoadGallery = async ({params, client}) => {
+  if(!client) {
+    client = await ElvClient.FromConfigurationUrl({
+      configUrl: params.network
+    });
+  }
 
-let GalleryItemsSwiper;
-
-const LoadGallery = async () => {
-  window.client = await ElvClient.FromConfigurationUrl({
-    configUrl: params.network
-  });
+  networkName = await client.NetworkInfo().name;
 
   let versionHash = params.versionHash || params.objectId;
 
@@ -28,7 +29,7 @@ const LoadGallery = async () => {
   }
 
   if(versionHash.startsWith("iq__")) {
-    versionHash = await window.client.LatestVersionHash({objectId: versionHash});
+    versionHash = await client.LatestVersionHash({objectId: versionHash});
   }
 
   let galleryMetadata, galleryItems, title, backgroundImage, backgroundImageMobile, customCSS;
@@ -39,7 +40,7 @@ const LoadGallery = async () => {
       const additionalMediaKey = params.linkPath.includes("additional_media_sections") ? "additional_media_sections" : "additional_media";
       let [additionalMediaPath, galleryPath] = params.linkPath.split(additionalMediaKey);
 
-      const additionalMediaMetadata = await window.client.ContentObjectMetadata({
+      const additionalMediaMetadata = await client.ContentObjectMetadata({
         versionHash,
         metadataSubtree: additionalMediaPath,
         authorizationToken: params.authorizationToken,
@@ -53,7 +54,7 @@ const LoadGallery = async () => {
 
       customCSS = additionalMediaMetadata.additional_media_custom_css;
 
-      galleryMetadata = window.client.utils.SafeTraverse(additionalMediaMetadata, UrlJoin(additionalMediaKey, galleryPath.split("/gallery")[0]).split("/"));
+      galleryMetadata = client.utils.SafeTraverse(additionalMediaMetadata, UrlJoin(additionalMediaKey, galleryPath.split("/gallery")[0]).split("/"));
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error("Unable to load full additional media info:");
@@ -108,7 +109,7 @@ const GalleryItemImageUrl = ({item, width}) => {
 
     if(!videoHash) { return; }
 
-    switch (window.client.networkName) {
+    switch (networkName) {
       case "main":
         url = "https://main.net955305.contentfabric.io/s/main";
         break;
@@ -133,7 +134,7 @@ const GalleryItemImageUrl = ({item, width}) => {
   return url;
 };
 
-const GalleryItem = ({controlType, item, itemIndex, isActive}) => {
+const GalleryItem = ({params, controlType, item, itemIndex, isActive}) => {
   const [player, setPlayer] = useState(undefined);
 
   useEffect(() => {
@@ -144,21 +145,21 @@ const GalleryItem = ({controlType, item, itemIndex, isActive}) => {
   }, [isActive]);
 
   return (
-    <div className={`gallery__item gallery__item--${controlType.toLowerCase()} ${isActive ? "gallery__item--active" : "gallery__item--inactive"}`}>
-      <div className="gallery__item__info">
+    <div className={`elv-gallery__item elv-gallery__item--${controlType.toLowerCase()} ${isActive ? "elv-gallery__item--active" : "elv-gallery__item--inactive"}`}>
+      <div className="elv-gallery__item__info">
         {
           item?.name ?
-            <div className="gallery__item__name">
+            <div className="elv-gallery__item__name">
               {item.name}
             </div> : null
         }
       </div>
-      <div className={`gallery__item__content ${item.video ? "gallery__item__content--video" : "gallery__item__content--image"}`}>
+      <div className={`elv-gallery__item__content ${item.video ? "elv-gallery__item__content--video" : "elv-gallery__item__content--image"}`}>
         {
           item?.video ?
             <div
               key={`gallery-video-${itemIndex}-${isActive}`}
-              className="gallery__item__video"
+              className="elv-gallery__item__video"
               ref={element => {
                 if(!element || player || !isActive) { return; }
 
@@ -181,15 +182,12 @@ const GalleryItem = ({controlType, item, itemIndex, isActive}) => {
                         }
                       },
                       playerOptions: {
+                        controlsClassName: "swiper-no-swiping",
                         controls: EluvioPlayerParameters.controls.AUTO_HIDE,
                         autoplay: EluvioPlayerParameters.autoplay.ON,
                         muted: EluvioPlayerParameters.muted.OFF,
                         watermark: EluvioPlayerParameters.watermark.OFF,
-                        capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.OFF,
-                        playerCallback: () => {
-                          // Make sure swiper is disabled on player controls
-                          document.querySelector(".eluvio-player__controls").classList.add("swiper-no-swiping");
-                        }
+                        capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.OFF
                       }
                     }
                   )
@@ -200,14 +198,14 @@ const GalleryItem = ({controlType, item, itemIndex, isActive}) => {
               alt={item.name}
               key={`gallery-item-${itemIndex}`}
               data-src={GalleryItemImageUrl({item})}
-              className="swiper-lazy gallery__item__image"
+              className="swiper-lazy elv-gallery__item__image"
             />
         }
       </div>
-      <div className="gallery__item__info">
+      <div className="elv-gallery__item__info">
         {
           item?.description ?
-            <div className="gallery__item__description">
+            <div className="elv-gallery__item__description">
               {item.description}
             </div> : null
         }
@@ -216,10 +214,10 @@ const GalleryItem = ({controlType, item, itemIndex, isActive}) => {
   );
 };
 
-const GalleryItems = ({galleryItems, activeItemIndex, setActiveItemIndex, controlType}) => {
+const GalleryItems = ({params, galleryItems, activeItemIndex, setActiveItemIndex, setGalleryItemSwiper, controlType}) => {
   return (
     <Swiper
-      className={`gallery__items gallery__items--${controlType.toLowerCase()}`}
+      className={`elv-gallery__items elv-gallery__items--${controlType.toLowerCase()}`}
       keyboard
       slidesPerView={1}
       lazy={{
@@ -228,12 +226,13 @@ const GalleryItems = ({galleryItems, activeItemIndex, setActiveItemIndex, contro
         loadOnTransitionStart: true
       }}
       onSlideChange={event => setActiveItemIndex(event.activeIndex)}
-      onSwiper={swiper => GalleryItemsSwiper = swiper}
+      onSwiper={swiper => setGalleryItemSwiper(swiper)}
     >
       {
         galleryItems.map((item, index) =>
           <SwiperSlide key={`slide-${index}`}>
             <GalleryItem
+              params={params}
               controlType={controlType}
               item={item}
               itemIndex={index}
@@ -248,10 +247,9 @@ const GalleryItems = ({galleryItems, activeItemIndex, setActiveItemIndex, contro
 
 const GalleryCarousel = ({galleryItems, activeItemIndex, setActiveItemIndex}) => {
   return (
-    <div className="gallery__carousel-container">
+    <div className="elv-gallery__carousel-container">
       <Swiper
-        className="gallery__carousel"
-        scrollbar={{ draggable: true }}
+        className="elv-gallery__carousel"
         navigation
         spaceBetween={5}
         keyboard
@@ -265,19 +263,19 @@ const GalleryCarousel = ({galleryItems, activeItemIndex, setActiveItemIndex}) =>
       >
         {
           galleryItems.map((item, index) =>
-            <SwiperSlide key={`item-${index}`} className={`gallery__carousel__item gallery__carousel__item--${(item?.image_aspect_ratio || "square").toLowerCase()}`}>
+            <SwiperSlide key={`item-${index}`} className={`elv-gallery__carousel__item elv-gallery__carousel__item--${(item?.image_aspect_ratio || "square").toLowerCase()}`}>
               <button
                 title={item.name || ""}
                 onClick={() => {
                   setActiveItemIndex(index);
                   document.querySelector(".app").scrollTo(0, 0);
                 }}
-                className={`gallery__carousel__item__button ${index === activeItemIndex ? "gallery__carousel__item__button--active" : ""}`}
+                className={`elv-gallery__carousel__item__button ${index === activeItemIndex ? "elv-gallery__carousel__item__button--active" : ""}`}
               >
                 <img
                   alt={item.name}
                   src={GalleryItemImageUrl({item, width: 600})}
-                  className={`gallery__carousel__item__image ${index === activeItemIndex ? "gallery__carousel__item__image--active" : ""}`}
+                  className={`elv-gallery__carousel__item__image ${index === activeItemIndex ? "elv-gallery__carousel__item__image--active" : ""}`}
                 />
               </button>
             </SwiperSlide>
@@ -288,7 +286,8 @@ const GalleryCarousel = ({galleryItems, activeItemIndex, setActiveItemIndex}) =>
   );
 };
 
-const Gallery = () => {
+const Gallery = ({client, params, setPageTitle}) => {
+  const [galleryItemSwiper, setGalleryItemSwiper] = useState(undefined);
   const [galleryMetadata, setGalleryMetadata] = useState(undefined);
   const [galleryItems, setGalleryItems] = useState(undefined);
   const [backgroundImage, setBackgroundImage] = useState(undefined);
@@ -297,7 +296,7 @@ const Gallery = () => {
   const [activeItemIndex, setActiveItemIndex] = useState(0);
 
   useEffect(() => {
-    LoadGallery()
+    LoadGallery({client, params})
       .then(galleryInfo => {
         setControls(galleryInfo.controls);
         setBackgroundImage({desktop: galleryInfo.backgroundImage, mobile: galleryInfo.backgroundImageMobile});
@@ -312,20 +311,22 @@ const Gallery = () => {
   }, []);
 
   useEffect(() => {
-    const itemName = galleryItems && galleryItems[activeItemIndex]?.name || "";
-    const pageTitle = params.title || galleryMetadata?.name || "Eluvio";
+    if(setPageTitle) {
+      const itemName = galleryItems && galleryItems[activeItemIndex]?.name || "";
+      const pageTitle = params.title || galleryMetadata?.name || "Eluvio";
 
-    document.title = itemName && pageTitle ? `${itemName} | ${pageTitle}` : itemName || pageTitle;
+      document.title = itemName && pageTitle ? `${itemName} | ${pageTitle}` : itemName || pageTitle;
+    }
 
-    if(GalleryItemsSwiper && GalleryItemsSwiper.activeIndex !== activeItemIndex) {
-      GalleryItemsSwiper.slideTo(activeItemIndex);
+    if(galleryItemSwiper && galleryItemSwiper.activeIndex !== activeItemIndex) {
+      galleryItemSwiper.slideTo(activeItemIndex);
     }
   }, [activeItemIndex, galleryMetadata, galleryItems]);
 
   if(error) {
     return (
       <div className="gallery">
-        <div className="gallery__error">
+        <div className="elv-gallery__error">
           { error.message || error }
         </div>
       </div>
@@ -333,17 +334,24 @@ const Gallery = () => {
   }
 
   if(!galleryItems) {
-    return <div className="gallery gallery--empty" />;
+    return <div className="elv-gallery elv-gallery--empty" />;
   }
 
-  const galleryTitle = params.title || galleryMetadata?.name;
+  const galleryTitle = params.hideTitle ? undefined : (params.title || galleryMetadata?.name);
   return (
     <>
-      <div className="app-background app-background-desktop" style={backgroundImage?.desktop ? { backgroundImage: `url(${backgroundImage.desktop}` } : undefined} />
-      <div className="app-background app-background-mobile" style={backgroundImage?.mobile ? { backgroundImage: `url(${backgroundImage.mobile}` } : undefined} />
-      <div className={`gallery ${galleryTitle ? "gallery--with-title" : ""} gallery--${controls.toLowerCase()}`}>
-        { galleryTitle ? <h1 className="gallery__title">{galleryTitle}</h1> : null }
-        <GalleryItems galleryItems={galleryItems} activeItemIndex={activeItemIndex} setActiveItemIndex={setActiveItemIndex} controlType={controls} />
+      <div className="elv-gallery__background elv-gallery__background-desktop" style={backgroundImage?.desktop ? { backgroundImage: `url(${backgroundImage.desktop}` } : undefined} />
+      <div className="elv-gallery__background elv-gallery__background-mobile" style={backgroundImage?.mobile ? { backgroundImage: `url(${backgroundImage.mobile}` } : undefined} />
+      <div className={`elv-gallery ${galleryTitle ? "elv-gallery--with-title" : ""} elv-gallery--${controls.toLowerCase()}`}>
+        { galleryTitle ? <h1 className="elv-gallery__title">{galleryTitle}</h1> : null }
+        <GalleryItems
+          params={params}
+          galleryItems={galleryItems}
+          activeItemIndex={activeItemIndex}
+          setActiveItemIndex={setActiveItemIndex}
+          setGalleryItemSwiper={setGalleryItemSwiper}
+          controlType={controls}
+        />
 
         {
           controls === "Carousel" ?
@@ -352,15 +360,15 @@ const Gallery = () => {
               activeItemIndex={activeItemIndex}
               setActiveItemIndex={setActiveItemIndex}
             /> :
-            <div className="gallery__arrows">
-              <button disabled={activeItemIndex === 0} onClick={() => setActiveItemIndex(activeItemIndex - 1)} className="gallery__arrow-button gallery__arrow-button--previous">
-                <div className="gallery__arrow gallery__arrow--previous" />
+            <div className="elv-gallery__arrows">
+              <button disabled={activeItemIndex === 0} onClick={() => setActiveItemIndex(activeItemIndex - 1)} className="elv-gallery__arrow-button elv-gallery__arrow-button--previous">
+                <div className="elv-gallery__arrow elv-gallery__arrow--previous" />
               </button>
-              <span className="gallery__page">
+              <span className="elv-gallery__page">
                 <span>{ activeItemIndex + 1 }</span> / <span>{ galleryItems.length }</span>
               </span>
-              <button disabled={!galleryItems || activeItemIndex >= (galleryItems.length - 1)} onClick={() => setActiveItemIndex(activeItemIndex + 1)} className="gallery__arrow-button gallery__arrow-button--next">
-                <div className="gallery__arrow gallery__arrow--next" />
+              <button disabled={!galleryItems || activeItemIndex >= (galleryItems.length - 1)} onClick={() => setActiveItemIndex(activeItemIndex + 1)} className="elv-gallery__arrow-button elv-gallery__arrow-button--next">
+                <div className="elv-gallery__arrow elv-gallery__arrow--next" />
               </button>
             </div>
         }
@@ -369,9 +377,16 @@ const Gallery = () => {
   );
 };
 
-document.getElementById("app").classList.add("app--gallery");
+export const Initialize = async ({client, target, url, setPageTitle=false}={}) => {
+  if(!target) {
+    target = document.getElementById("app");
+  }
 
-render(
-  <Gallery />,
-  document.getElementById("app")
-);
+  const params = LoadParams(url);
+
+  render(
+    <Gallery client={client} params={params} setPageTitle={setPageTitle} />,
+    target
+  );
+};
+

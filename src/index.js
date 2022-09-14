@@ -6,7 +6,10 @@ const urlParams = new URLSearchParams(window.location.search);
 if(urlParams.has("p")) {
   switch (urlParams.get("mt")) {
     case "g":
-      import("./Gallery");
+      import("./Gallery")
+        .then(({Initialize}) =>
+          Initialize({target: document.getElementById("app"), setPageTitle: true})
+        );
       break;
 
     default:

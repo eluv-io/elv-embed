@@ -42,6 +42,7 @@ export const LoadParams = (url) => {
     i: "imageOnly",
     sh: "showShare",
     st: "showTitle",
+    ht: "hideTitle",
     dk: "darkMode",
 
     w: "width",
@@ -134,6 +135,7 @@ export const LoadParams = (url) => {
       case "sm":
       case "sh":
       case "st":
+      case "ht":
       case "dk":
       case "dr":
       case "i":
@@ -184,6 +186,7 @@ export const LoadParams = (url) => {
     darkMode: params.darkMode,
     smallPlayer: params.smallPlayer,
     showTitle: params.showTitle,
+    hideTitle: params.hideTitle,
     showShare: params.showShare,
     network: params.network,
     objectId: params.objectId,
@@ -228,6 +231,7 @@ export const LoadParams = (url) => {
         }
       },
       playerOptions: {
+        controlsClassName: "swiper-no-swiping",
         controls,
         autoplay: params.scrollPlayPause ? EluvioPlayerParameters.autoplay.WHEN_VISIBLE : params.autoplay,
         muted: params.muted,
