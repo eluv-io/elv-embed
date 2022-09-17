@@ -350,13 +350,13 @@ const Gallery = ({client, params, setPageTitle}) => {
     return <div className="elv-gallery elv-gallery--empty" />;
   }
 
-  const galleryTitle = params.hideTitle ? undefined : (params.title || galleryMetadata?.name);
+  const galleryTitle = params.hideTitle ? "" : (params.title || galleryMetadata?.name);
   return (
     <>
       <div className="elv-gallery__background elv-gallery__background-desktop" style={backgroundImage?.desktop ? { backgroundImage: `url(${backgroundImage.desktop}` } : undefined} />
       <div className="elv-gallery__background elv-gallery__background-mobile" style={backgroundImage?.mobile ? { backgroundImage: `url(${backgroundImage.mobile}` } : undefined} />
       <div className={`elv-gallery ${galleryTitle ? "elv-gallery--with-title" : ""} elv-gallery--${controls.toLowerCase()}`}>
-        { galleryTitle ? <h1 className="elv-gallery__title">{galleryTitle}</h1> : null }
+        <h1 className="elv-gallery__title">{galleryTitle}</h1>
         <GalleryItems
           params={params}
           galleryItems={galleryItems}
