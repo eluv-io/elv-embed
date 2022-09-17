@@ -182,12 +182,42 @@
   &__carousel-container {
     height: var(--elv-carousel-height);
     padding: 20px;
+    display: flex;
+    align-items: center;
   }
 
   &__carousel {
     height: 100%;
     position: relative;
     width: auto;
+
+    &__arrow {
+      background: transparent;
+      border: 0;
+      outline: 0;
+      padding: 10px 5px;
+      cursor: pointer;
+      transition: opacity 0.35s ease-out;
+      height: max-content;
+
+      svg {
+        height: 14px;
+        width: 8px;
+      }
+
+      &--next {
+        padding-left: 15px;
+      }
+
+      &--previous {
+        padding-right: 15px;
+      }
+
+      &.swiper-button-disabled {
+        opacity: 0;
+        cursor: auto;
+      }
+    }
 
     &__item {
       max-width: var(--elv-carousel-item-height);

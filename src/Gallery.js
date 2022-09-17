@@ -9,6 +9,10 @@ import SwiperCore, {Lazy, Navigation, Keyboard, Mousewheel} from "swiper";
 import {Swiper, SwiperSlide} from "swiper/react";
 import UrlJoin from "url-join";
 import {EluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import SVG from "react-inlinesvg";
+
+import LeftArrow from "./static/icons/left-arrow.svg";
+import RightArrow from "./static/icons/right-arrow.svg";
 
 SwiperCore.use([Lazy, Navigation, Keyboard, Mousewheel]);
 
@@ -248,9 +252,15 @@ const GalleryItems = ({params, galleryItems, activeItemIndex, setActiveItemIndex
 const GalleryCarousel = ({galleryItems, activeItemIndex, setActiveItemIndex}) => {
   return (
     <div className="elv-gallery__carousel-container">
+      <button className="elv-gallery__carousel__arrow elv-gallery__carousel__arrow--previous">
+        <SVG src={LeftArrow} />
+      </button>
       <Swiper
         className="elv-gallery__carousel"
-        navigation
+        navigation={{
+          nextEl: ".elv-gallery__carousel__arrow--next",
+          prevEl: ".elv-gallery__carousel__arrow--previous"
+        }}
         spaceBetween={5}
         keyboard
         mousewheel
@@ -282,6 +292,9 @@ const GalleryCarousel = ({galleryItems, activeItemIndex, setActiveItemIndex}) =>
           )
         }
       </Swiper>
+      <button className="elv-gallery__carousel__arrow elv-gallery__carousel__arrow--next">
+        <SVG src={RightArrow} />
+      </button>
     </div>
   );
 };
