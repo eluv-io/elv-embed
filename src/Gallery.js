@@ -265,6 +265,7 @@ const GalleryCarousel = ({galleryItems, activeItemIndex, setActiveItemIndex}) =>
         keyboard
         mousewheel
         slidesPerView="auto"
+        slidesPerGroup={3}
         lazy={{
           enabled: true,
           loadPrevNext: true,
