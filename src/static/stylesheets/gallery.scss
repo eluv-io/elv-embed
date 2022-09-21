@@ -311,7 +311,7 @@
   }
 }
 
-@media screen and (min-width: 800px) and (min-height: 600px) {
+@media screen and (min-width: 800px) and (min-height: 550px) {
   .elv-gallery {
     &__items,
     &__item {
@@ -338,7 +338,7 @@
   }
 }
 
-@media screen and (max-width: 799px) and (min-height: 600px) {
+@media screen and (max-width: 799px) and (min-height: 550px) {
   .elv-gallery {
     &__items,
     &__item {
@@ -357,7 +357,7 @@
 
 @media
 screen and (max-width: 800px),
-screen and (max-height: 600px) {
+screen and (max-height: 550px) {
   :root {
     --elv-carousel-item-height: 100px;
   }
