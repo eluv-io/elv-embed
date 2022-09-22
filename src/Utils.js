@@ -36,6 +36,7 @@ export const LoadParams = (url) => {
     m: "muted",
     ct: "controls",
     lp: "loop",
+    ptc: "protocols",
     ttl: "title",
     dsc: "description",
     sm: "smallPlayer",
@@ -143,6 +144,10 @@ export const LoadParams = (url) => {
         params[conversion[key]] = true;
         break;
 
+      case "ptc":
+        params[conversion[key]] = (value || "").split(",");
+        break;
+
       case "nwm":
         params.watermark = false;
         break;
@@ -219,6 +224,7 @@ export const LoadParams = (url) => {
         ticketSubject: params.ticketSubject
       },
       sourceOptions: {
+        protocols: params.protocols,
         playoutParameters: {
           objectId: params.objectId,
           versionHash: params.versionHash,
