@@ -103,9 +103,12 @@ const Playable = async (client, playerParams) => {
       authorizationToken: playerParams.sourceOptions.playoutParameters.authorizationToken
     });
 
-    return availableOfferings && Object.keys(availableOfferings).length > 0;
+    return {
+      playable: availableOfferings && Object.keys(availableOfferings).length > 0,
+      availableOfferings
+    };
   } catch (error) {
-    return false;
+    return { playable: false };
   }
 };
 
@@ -244,14 +247,20 @@ export const Initialize = async ({client, target, url, playerOptions, setPageTit
       target.style.backgroundColor = metadata.asset_metadata.nft.background_color.color;
     }
 
-    const playable =
-      (isNFT && (metadata.nft || metadata.asset_metadata.nft || {}).playable) ||
-      await Playable(client, params.playerParameters);
+    let { playable, availableOfferings } = await Playable(client, params.playerParameters);
+    if(isNFT && !(metadata.nft || metadata.asset_metadata.nft || {}).playable) {
+      playable = false;
+    }
 
     let player;
     if(mediaType === "image" || params.imageOnly || !playable) {
       LoadImage({client, params, metadata, imageUrl: mediaUrl, target: playerTarget});
     } else {
+      // Select specified offering - highest priority offering that is actually available
+      if(params.offerings?.length > 0) {
+        params.playerParameters.sourceOptions.playoutParameters.offering = params.offerings.find(offeringKey => availableOfferings[offeringKey]);
+      }
+
       player = new EluvioPlayer(playerTarget, params.playerParameters);
       if(params.smallPlayer && params.width && params.height) {
         playerTarget.style.width = `${params.width}px`;

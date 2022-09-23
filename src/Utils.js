@@ -28,7 +28,7 @@ export const LoadParams = (url) => {
     net: "network",
     oid: "objectId",
     vid: "versionHash",
-    off: "offering",
+    off: "offerings",
     ln: "linkPath",
     dr: "directLink",
     ap: "autoplay",
@@ -99,7 +99,6 @@ export const LoadParams = (url) => {
       case "ath":
       case "oid":
       case "vid":
-      case "off":
       case "ct":
       case "ten":
       case "ntp":
@@ -145,6 +144,7 @@ export const LoadParams = (url) => {
         break;
 
       case "ptc":
+      case "off":
         params[conversion[key]] = (value || "").split(",");
         break;
 
@@ -197,7 +197,7 @@ export const LoadParams = (url) => {
     objectId: params.objectId,
     node: params.node,
     versionHash: params.versionHash,
-    offering: params.offering,
+    offerings: params.offerings,
     linkPath: params.linkPath,
     authorizationToken: params.authorizationToken,
     imageOnly: params.imageOnly,
@@ -228,7 +228,7 @@ export const LoadParams = (url) => {
         playoutParameters: {
           objectId: params.objectId,
           versionHash: params.versionHash,
-          offering: params.offering,
+          offering: (params.offerings || [])[0],
           linkPath: params.linkPath,
           directLink: params.directLink,
           authorizationToken: params.authorizationToken,

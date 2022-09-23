@@ -19,7 +19,7 @@ class Form extends React.Component {
       network: "main",
       objectId: "",
       versionHash: "hq__CcdV4wnCNq9wv6jXpYeCQ2GE4FLQBFtVSSSt2XKfBJMrH89DFDGsfkpWWvBy16QBGGYeF5mLGo",
-      offering: undefined,
+      offerings: undefined,
       mediaType: "v",
       authorizationToken: "",
       promptTicket: false,
@@ -120,8 +120,8 @@ class Form extends React.Component {
       params.vid = this.state.versionHash;
     }
 
-    if(this.state.offering) {
-      params.off = this.state.offering;
+    if(this.state.offerings) {
+      params.off = this.state.offerings.split(",").map(off => off.trim()).join(",");
     }
 
     if(this.state.mediaType) {
@@ -298,7 +298,7 @@ class Form extends React.Component {
             { this.LabelledField("Network", "network", this.Select("network", ["main", "demo", "test"])) }
             { this.LabelledField("Object ID", "objectId", this.Input("objectId")) }
             { this.LabelledField("Version Hash", "versionHash", this.Input("versionHash")) }
-            { this.LabelledField("Offering", "offering", this.Input("offering")) }
+            { this.LabelledField("Offerings", "offerings", this.Input("offerings")) }
             { this.LabelledField("Media Type", "mediaType", this.Select("mediaType", Object.keys(mediaTypes).map(v => [mediaTypes[v], v]))) }
             { this.LabelledField("Link Path", "linkPath", this.Input("linkPath")) }
             { this.LabelledField("Direct Link", "directLink", this.Checkbox("directLink")) }
