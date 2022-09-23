@@ -247,10 +247,12 @@ export const Initialize = async ({client, target, url, playerOptions, setPageTit
       target.style.backgroundColor = metadata.asset_metadata.nft.background_color.color;
     }
 
-    let { playable, availableOfferings } = await Playable(client, params.playerParameters);
-    if(isNFT && !(metadata.nft || metadata.asset_metadata.nft || {}).playable) {
-      playable = false;
-    }
+    const nonPlayableNFT =
+      isNFT &&
+      typeof (metadata.nft || metadata.asset_metadata.nft || {}).playable !== "undefined" &&
+      !(metadata.nft || metadata.asset_metadata.nft || {}).playable;
+
+    let { playable, availableOfferings } = nonPlayableNFT ? { playable: false } : await Playable(client, params.playerParameters);
 
     let player;
     if(mediaType === "image" || params.imageOnly || !playable) {
