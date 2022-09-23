@@ -1,4 +1,5 @@
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import {ElvWalletClient} from "@eluvio/elv-client-js";
 
 const CreateMetaTags = (options={}) => {
   Object.keys(options).forEach(tag => {
@@ -63,6 +64,7 @@ export const LoadParams = (url) => {
 
     type: "mediaType",
     murl: "mediaUrl",
+    vrk: "viewRecordKey",
 
     // Watermark defaults true except for NFTs
     wm: "watermark",
@@ -123,6 +125,7 @@ export const LoadParams = (url) => {
       case "sbj":
       case "data":
       case "murl":
+      case "vrk":
         params[conversion[key]] = atob(value);
         break;
 
@@ -214,6 +217,8 @@ export const LoadParams = (url) => {
     width: params.width,
     height: params.height,
 
+    viewRecordKey: params.viewRecordKey,
+
     playerParameters: {
       clientOptions: {
         network: params.network,
@@ -247,4 +252,28 @@ export const LoadParams = (url) => {
       }
     }
   };
+};
+
+export const RecordView = async ({client, viewRecordKey, authorizationToken}) => {
+  try {
+    const [appId, recordKey] = viewRecordKey.split(":");
+    const walletClient = await ElvWalletClient.Initialize({
+      client,
+      appId,
+      network: client.networkName
+    });
+
+    await walletClient.SetAuthorization({fabricToken: authorizationToken});
+
+    await walletClient.SetProfileMetadata({
+      type: "app",
+      mode: "private",
+      appId: appId,
+      key: recordKey,
+      value: true
+    });
+  } catch(error) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to record view:", error);
+  }
 };

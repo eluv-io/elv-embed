@@ -19,7 +19,7 @@
     "fix-scss": "./node_modules/sass-lint-auto-fix/dist/index.js"
   },
   "dependencies": {
-    "@eluvio/elv-client-js": "^3.1.76",
+    "@eluvio/elv-client-js": "^3.2.26",
     "@eluvio/elv-player-js": "^1.0.78",
     "epubjs": "^0.3.92",
     "hls.js": "^0.14.17",

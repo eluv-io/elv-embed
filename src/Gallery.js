@@ -3,7 +3,7 @@ import "./static/stylesheets/gallery.scss";
 
 import React, {useEffect, useState} from "react";
 import {render} from "react-dom";
-import {LoadParams} from "./Utils";
+import {LoadParams, RecordView} from "./Utils";
 import {ElvClient} from "@eluvio/elv-client-js";
 import SwiperCore, {Lazy, Navigation, Keyboard, Mousewheel} from "swiper";
 import {Swiper, SwiperSlide} from "swiper/react";
@@ -93,6 +93,14 @@ const LoadGallery = async ({params, client}) => {
     throw Error("Invalid gallery metadata");
   } else if(galleryItems.length === 0) {
     throw Error("Empty gallery");
+  }
+
+  if(params.viewRecordKey) {
+    RecordView({
+      client,
+      authorizationToken: params.authorizationToken,
+      viewRecordKey: params.viewRecordKey
+    });
   }
 
   return {
