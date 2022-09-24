@@ -20,7 +20,8 @@ export const mediaTypes = {
   "i": "Image",
   "h": "HTML",
   "b": "EBook",
-  "g": "Gallery"
+  "g": "Gallery",
+  "l": "Link"
 };
 
 export const LoadParams = (url) => {

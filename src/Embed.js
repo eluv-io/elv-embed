@@ -161,31 +161,43 @@ export const Initialize = async ({client, target, url, playerOptions, setPageTit
       });
     }
 
+    let recordViewPromise;
+    if(params.viewRecordKey) {
+      recordViewPromise = RecordView({
+        client,
+        authorizationToken: params.authorizationToken,
+        viewRecordKey: params.viewRecordKey
+      });
+    }
+
     params.playerParameters.clientOptions.client = client;
 
     if(params.node) {
       await client.SetNodes({fabricURIs: [params.node]});
     }
 
-    if(!params.versionHash) {
+    if(!params.versionHash && params.objectId) {
       params.versionHash = await client.LatestVersionHash({
         objectId: params.objectId
       });
     }
 
-    let metadata = (await client.ContentObjectMetadata({
-      versionHash: params.versionHash,
-      metadataSubtree: "public",
-      authorizationToken: params.authorizationToken,
-      select: [
-        "name",
-        "nft",
-        "asset_metadata/title",
-        "asset_metadata/display_title",
-        "asset_metadata/nft"
-      ],
-      produceLinkUrls: true
-    })) || {};
+    let metadata = {};
+    if(params.versionHash) {
+      metadata = (await client.ContentObjectMetadata({
+        versionHash: params.versionHash,
+        metadataSubtree: "public",
+        authorizationToken: params.authorizationToken,
+        select: [
+          "name",
+          "nft",
+          "asset_metadata/title",
+          "asset_metadata/display_title",
+          "asset_metadata/nft"
+        ],
+        produceLinkUrls: true
+      })) || {};
+    }
 
     const mediaType = (params.mediaType || "").toLowerCase();
 
@@ -195,32 +207,30 @@ export const Initialize = async ({client, target, url, playerOptions, setPageTit
     }
 
     // HTML Media - embed iframe with link to HTML file
-    if(mediaType === "html" || metadata.asset_metadata?.nft?.media_type === "HTML") {
-      const fileLink = metadata.asset_metadata?.nft?.media;
-      const targetHash = await client.LinkTarget({
-        versionHash: params.versionHash,
-        linkPath: "/public/asset_metadata/nft/media"
-      });
+    if(["html", "link"].includes(mediaType) || metadata.asset_metadata?.nft?.media_type === "HTML") {
+      let mediaUrl = params.mediaUrl;
+      if(!mediaUrl) {
+        const fileLink = metadata.asset_metadata?.nft?.media;
+        const targetHash = await client.LinkTarget({
+          versionHash: params.versionHash,
+          linkPath: "/public/asset_metadata/nft/media"
+        });
 
-      const filePath = fileLink["/"].split("/files/")[1];
+        const filePath = fileLink["/"].split("/files/")[1];
 
-      const mediaLink = new URL(
-        params.network.replace("/config", "")
-      );
+        const mediaUrl= new URL(
+          params.network.replace("/config", "")
+        );
 
-      mediaLink.pathname = UrlJoin("/s", await client.NetworkInfo().name, "q", targetHash, "files", filePath);
+        mediaUrl.pathname = UrlJoin("/s", await client.NetworkInfo().name, "q", targetHash, "files", filePath);
 
-      (metadata.asset_metadata?.nft?.media_parameters || []).forEach(({name, value}) =>
-        mediaLink.searchParams.set(name, value)
-      );
+        (metadata.asset_metadata?.nft?.media_parameters || []).forEach(({name, value}) =>
+          mediaUrl.searchParams.set(name, value)
+        );
+      }
 
-      target = document.createElement("iframe");
-      target.classList.add("-elv-embed-frame");
-      target.sandbox = SandboxPermissions();
-      target.setAttribute("allowFullScreen", "");
-      target.allow = "encrypted-media *; autoplay; fullscreen; clipboard-read; clipboard-write";
-      target.src = mediaLink.toString();
-      playerTarget.appendChild(target);
+      await recordViewPromise;
+      window.location.href = mediaUrl.toString();
       return;
     }
 
@@ -277,14 +287,6 @@ export const Initialize = async ({client, target, url, playerOptions, setPageTit
     }
 
     InitializeTitle({target, params, metadata, width: params.smallPlayer ? params.width : undefined, setPageTitle});
-
-    if(params.viewRecordKey) {
-      RecordView({
-        client,
-        authorizationToken: params.authorizationToken,
-        viewRecordKey: params.viewRecordKey
-      });
-    }
 
     return player;
   } catch (error) {
