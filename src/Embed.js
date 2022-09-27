@@ -124,7 +124,7 @@ const LoadImage = async ({client, params, imageUrl, metadata={}, target}) => {
   target.appendChild(image);
 };
 
-export const Initialize = async ({client, target, url, playerOptions, setPageTitle=false}={}) => {
+export const Initialize = async ({client, target, url, playerOptions, errorCallback, setPageTitle=false}={}) => {
   try {
     const params = LoadParams(url);
 
@@ -273,6 +273,10 @@ export const Initialize = async ({client, target, url, playerOptions, setPageTit
         params.playerParameters.sourceOptions.playoutParameters.offering = params.offerings.find(offeringKey => availableOfferings[offeringKey]);
       }
 
+      if(errorCallback) {
+        params.playerParameters.playerOptions.errorCallback = errorCallback;
+      }
+
       player = new EluvioPlayer(playerTarget, params.playerParameters);
       if(params.smallPlayer && params.width && params.height) {
         playerTarget.style.width = `${params.width}px`;
@@ -292,6 +296,8 @@ export const Initialize = async ({client, target, url, playerOptions, setPageTit
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log(error);
+
+    errorCallback && errorCallback(error);
 
     const urlParams = new URLSearchParams(
       new URL(window.location.toString()).search

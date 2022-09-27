@@ -308,7 +308,7 @@ const GalleryCarousel = ({galleryItems, activeItemIndex, setActiveItemIndex}) =>
   );
 };
 
-const Gallery = ({client, params, setPageTitle}) => {
+const Gallery = ({client, params, errorCallback, setPageTitle}) => {
   const [galleryItemSwiper, setGalleryItemSwiper] = useState(undefined);
   const [galleryMetadata, setGalleryMetadata] = useState(undefined);
   const [galleryItems, setGalleryItems] = useState(undefined);
@@ -329,7 +329,11 @@ const Gallery = ({client, params, setPageTitle}) => {
           document.querySelector("#_custom-css").textContent = galleryInfo.customCSS;
         }
       })
-      .catch(error => setError(error));
+      .catch(error => {
+        setError(error);
+
+        errorCallback && errorCallback(error);
+      });
   }, []);
 
   useEffect(() => {
@@ -399,7 +403,7 @@ const Gallery = ({client, params, setPageTitle}) => {
   );
 };
 
-export const Initialize = async ({client, target, url, setPageTitle=false}={}) => {
+export const Initialize = async ({client, target, url, errorCallback, setPageTitle=false}={}) => {
   if(!target) {
     target = document.getElementById("app");
   }
@@ -407,7 +411,7 @@ export const Initialize = async ({client, target, url, setPageTitle=false}={}) =
   const params = LoadParams(url);
 
   render(
-    <Gallery client={client} params={params} setPageTitle={setPageTitle} />,
+    <Gallery client={client} params={params} errorCallback={errorCallback} setPageTitle={setPageTitle} />,
     target
   );
 };

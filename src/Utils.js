@@ -273,7 +273,7 @@ export const RecordView = async ({client, viewRecordKey, authorizationToken}) =>
       key: recordKey,
       value: true
     });
-  } catch(error) {
+  } catch (error) {
     // eslint-disable-next-line no-console
     console.error("Failed to record view:", error);
   }
