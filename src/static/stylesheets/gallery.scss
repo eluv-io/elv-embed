@@ -79,16 +79,19 @@
     &__fullscreen-button {
       cursor: pointer;
       position: absolute;
-      height: 20px;
-      width: 20px;
+      height: 28px;
+      width: 28px;
       border: 0;
       outline: 0;
-      background: transparent;
-      right: 50px;
+      background: rgba(0, 0, 0, 0.25);
+      right: 42px;
       bottom: 0;
       z-index: 100;
-      border-radius: 5px;
-      padding: 0;
+      border-radius: 3px;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       &--fullscreen {
         right: 20px;
@@ -98,10 +101,11 @@
       svg {
         height: 100%;
         width: 100%;
-        opacity: 0.5;
 
         * {
-          color: #000;
+          color: white;
+          opacity: 0.75;
+          stroke-width: 3px!important;
         }
       }
     }

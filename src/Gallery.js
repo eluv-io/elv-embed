@@ -275,6 +275,7 @@ const GalleryItems = ({params, galleryItems, activeItemIndex, setActiveItemIndex
         )
       }
       <button
+        aria-label="Toggle Fullscreen"
         onClick={() => ToggleFullscreen(document.querySelector(".elv-gallery__items"))}
         className={`elv-gallery__item__fullscreen-button ${IsFullscreen() ? "elv-gallery__item__fullscreen-button--fullscreen" : ""}`}
       >
