@@ -5,7 +5,7 @@ import React, {useEffect, useState} from "react";
 import {render} from "react-dom";
 import {FullscreenAllowed, IsFullscreen, LoadParams, RecordView, ToggleFullscreen} from "./Utils";
 import {ElvClient} from "@eluvio/elv-client-js";
-import SwiperCore, {Lazy, Navigation, Keyboard} from "swiper";
+import SwiperCore, {Lazy, Navigation} from "swiper";
 import {Swiper, SwiperSlide} from "swiper/react";
 import UrlJoin from "url-join";
 import {EluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js";
@@ -16,7 +16,7 @@ import RightArrow from "./static/icons/right-arrow.svg";
 import FullScreenIcon from "./static/icons/full screen.svg";
 import MinimizeIcon from "./static/icons/minimize.svg";
 
-SwiperCore.use([Lazy, Navigation, Keyboard]);
+SwiperCore.use([Lazy, Navigation]);
 
 let networkName;
 const LoadGallery = async ({params, client}) => {
@@ -250,7 +250,6 @@ const GalleryItems = ({params, galleryItems, activeItemIndex, setActiveItemIndex
   return (
     <Swiper
       className={`elv-gallery__items elv-gallery__items--${controlType.toLowerCase()}`}
-      keyboard
       slidesPerView={1}
       threshold={5}
       lazy={{
@@ -383,6 +382,22 @@ const Gallery = ({client, params, errorCallback, setPageTitle}) => {
       galleryItemSwiper.slideTo(activeItemIndex);
     }
   }, [activeItemIndex, galleryMetadata, galleryItems]);
+
+  useEffect(() => {
+    if(!galleryItemSwiper) { return; }
+
+    const HandleKeydown = event => {
+      if(event.key === "ArrowLeft") {
+        galleryItemSwiper.slideTo(galleryItemSwiper.activeIndex - 1);
+      } else if(event.key === "ArrowRight") {
+        galleryItemSwiper.slideTo(galleryItemSwiper.activeIndex + 1);
+      }
+    };
+
+    window.addEventListener("keydown", HandleKeydown);
+
+    return () => window.removeEventListener("keydown", HandleKeydown);
+  }, [galleryItemSwiper]);
 
   if(error) {
     return (
