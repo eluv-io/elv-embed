@@ -252,6 +252,7 @@ const GalleryItems = ({params, galleryItems, activeItemIndex, setActiveItemIndex
       className={`elv-gallery__items elv-gallery__items--${controlType.toLowerCase()}`}
       keyboard
       slidesPerView={1}
+      threshold={5}
       lazy={{
         enabled: true,
         loadPrevNext: true,
@@ -295,6 +296,7 @@ const GalleryCarousel = ({galleryItems, activeItemIndex, setActiveItemIndex}) =>
         <SVG src={LeftArrow} />
       </button>
       <Swiper
+        threshold={5}
         className="elv-gallery__carousel"
         navigation={{
           nextEl: ".elv-gallery__carousel__arrow--next",
