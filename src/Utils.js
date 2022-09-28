@@ -279,6 +279,10 @@ export const RecordView = async ({client, viewRecordKey, authorizationToken}) =>
   }
 };
 
+export const FullscreenAllowed = () => {
+  return document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled || document.webkitEnterFullScreen;
+};
+
 export const IsFullscreen = () => {
   return !!(document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
 };
@@ -305,7 +309,7 @@ export const ToggleFullscreen = (target) => {
       target.msRequestFullscreen({navigationUI: "hide"});
     } else {
       // iPhone - Use native fullscreen on video element only
-      target.querySelector("video").webkitEnterFullScreen();
+      target.querySelector("img, video, iframe").webkitEnterFullScreen();
     }
   }
 };

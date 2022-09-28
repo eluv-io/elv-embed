@@ -3,7 +3,7 @@ import "./static/stylesheets/gallery.scss";
 
 import React, {useEffect, useState} from "react";
 import {render} from "react-dom";
-import {IsFullscreen, LoadParams, RecordView, ToggleFullscreen} from "./Utils";
+import {FullscreenAllowed, IsFullscreen, LoadParams, RecordView, ToggleFullscreen} from "./Utils";
 import {ElvClient} from "@eluvio/elv-client-js";
 import SwiperCore, {Lazy, Navigation, Keyboard} from "swiper";
 import {Swiper, SwiperSlide} from "swiper/react";
@@ -274,13 +274,16 @@ const GalleryItems = ({params, galleryItems, activeItemIndex, setActiveItemIndex
           </SwiperSlide>
         )
       }
-      <button
-        aria-label="Toggle Fullscreen"
-        onClick={() => ToggleFullscreen(document.querySelector(".elv-gallery__items"))}
-        className={`elv-gallery__item__fullscreen-button ${IsFullscreen() ? "elv-gallery__item__fullscreen-button--fullscreen" : ""}`}
-      >
-        <SVG src={IsFullscreen() ? MinimizeIcon : FullScreenIcon}/>
-      </button>
+      {
+        FullscreenAllowed() ?
+          <button
+            aria-label="Toggle Fullscreen"
+            onClick={() => ToggleFullscreen(document.querySelector(".elv-gallery__items"))}
+            className={`elv-gallery__item__fullscreen-button ${IsFullscreen() ? "elv-gallery__item__fullscreen-button--fullscreen" : ""}`}
+          >
+            <SVG src={IsFullscreen() ? MinimizeIcon : FullScreenIcon}/>
+          </button> : null
+      }
     </Swiper>
   );
 };
