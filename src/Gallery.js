@@ -262,6 +262,12 @@ const GalleryItems = ({params, galleryItems, activeItemIndex, setActiveItemIndex
       onSwiper={swiper => setGalleryItemSwiper(swiper)}
     >
       {
+        activeItemIndex > 0 ?
+          <button onClick={() => setActiveItemIndex(activeItemIndex - 1)} className="elv-gallery__item__arrow elv-gallery__item__arrow--previous">
+            <SVG src={LeftArrow} />
+          </button> : null
+      }
+      {
         galleryItems.map((item, index) =>
           <SwiperSlide key={`slide-${index}`}>
             <GalleryItem
@@ -270,10 +276,17 @@ const GalleryItems = ({params, galleryItems, activeItemIndex, setActiveItemIndex
               item={item}
               itemIndex={index}
               isActive={index === activeItemIndex}
+              isLast={index === galleryItems.length - 1}
               isFullscreen={isFullscreen}
             />
           </SwiperSlide>
         )
+      }
+      {
+        activeItemIndex < galleryItems.length - 1 ?
+          <button onClick={() => setActiveItemIndex(activeItemIndex + 1)} className="elv-gallery__item__arrow elv-gallery__item__arrow--next">
+            <SVG src={RightArrow} />
+          </button> : null
       }
       {
         FullscreenAllowed() ?
