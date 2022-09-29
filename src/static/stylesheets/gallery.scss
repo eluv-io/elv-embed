@@ -92,7 +92,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      opacity: 0.75;
+      opacity: 0.5;
       transition: opacity 0.35s ease;
 
       &:hover {
@@ -144,7 +144,7 @@
       border: 0;
       cursor: pointer;
       z-index: 1;
-      opacity: 0.5;
+      opacity: 0.25;
       transition: opacity 0.35s ease;
       padding: 0;
 
@@ -276,7 +276,7 @@
       transition: opacity 0.35s ease;
       height: max-content;
       z-index: 0;
-      opacity: 0.5;
+      opacity: 0.25;
 
       &:hover {
         opacity: 1;
