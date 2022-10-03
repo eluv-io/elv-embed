@@ -208,7 +208,7 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
 
     // HTML Media - embed iframe with link to HTML file
     if(["html", "link"].includes(mediaType) || metadata.asset_metadata?.nft?.media_type === "HTML") {
-      let mediaUrl = params.mediaUrl;
+      let mediaUrl = params.mediaUrl ? new URL(params.mediaUrl) : "";
       if(!mediaUrl) {
         const fileLink = metadata.asset_metadata?.nft?.media;
         const targetHash = await client.LinkTarget({
@@ -218,7 +218,7 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
 
         const filePath = fileLink["/"].split("/files/")[1];
 
-        const mediaUrl= new URL(
+        const mediaUrl = new URL(
           params.network.replace("/config", "")
         );
 
@@ -227,6 +227,10 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
         (metadata.asset_metadata?.nft?.media_parameters || []).forEach(({name, value}) =>
           mediaUrl.searchParams.set(name, value)
         );
+      }
+
+      if(params.authorizationToken) {
+        mediaUrl.searchParams.set("authorization", params.authorizationToken);
       }
 
       await recordViewPromise;
