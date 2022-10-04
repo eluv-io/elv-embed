@@ -65,6 +65,28 @@
     display: grid;
     grid-template-rows: 1fr;
     position: relative;
+
+    &--fullscreen {
+      max-width: 100vw;
+      max-height: 100vh;
+      width: 100vw;
+      height: 100vh;
+
+      .elv-gallery {
+        &__items {
+          height: 100vh;
+          width: 100vw;
+        }
+
+        &__item,
+        &__item__content,
+        &__item__image {
+          max-width: 100vw;
+          max-height: 100vh;
+          background: #000000 !important;
+        }
+      }
+    }
   }
 
   &__item {
@@ -331,7 +353,8 @@
       &__image {
         height: 100%;
         object-fit: cover;
-        opacity: 0.75;
+        object-position: top;
+        opacity: 0.65;
         transition: opacity 0.35s ease;
         width: 100%;
 
@@ -395,9 +418,9 @@
 }
 
 @media screen and (min-width: 800px) and (min-height: 550px) {
-  .elv-gallery {
-    &__items,
-    &__item {
+  .elv-gallery__items--contained {
+    &.elv-gallery__items,
+    .elv-gallery__item {
       &--carousel {
         height: calc(var(--elv-gallery-max-height) - var(--elv-carousel-height) - var(--elv-title-height));
         max-height: calc(var(--elv-gallery-max-height) - var(--elv-carousel-height) - var(--elv-title-height));
@@ -422,9 +445,9 @@
 }
 
 @media screen and (max-width: 799px) and (min-height: 550px) {
-  .elv-gallery {
-    &__items,
-    &__item {
+  .elv-gallery__items--contained {
+    &.elv-gallery__items,
+    .elv-gallery__item {
       &--carousel {
         height: calc(var(--elv-gallery-max-height) - var(--elv-carousel-height) - var(--elv-title-height));
         min-height: calc(var(--elv-gallery-max-height) - var(--elv-carousel-height) - var(--elv-title-height));

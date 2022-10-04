@@ -236,20 +236,10 @@ const GalleryItem = ({params, controlType, item, itemIndex, isActive, isFullscre
   );
 };
 
-const GalleryItems = ({params, galleryItems, activeItemIndex, setActiveItemIndex, setGalleryItemSwiper, controlType}) => {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
-    const SetFullscreen = () => setIsFullscreen(IsFullscreen());
-
-    window.addEventListener("fullscreenchange", SetFullscreen);
-
-    return () => window.removeEventListener("fullscreenchange", SetFullscreen);
-  }, []);
-
+const GalleryItems = ({params, galleryItems, activeItemIndex, setActiveItemIndex, setGalleryItemSwiper, controlType, isFullscreen}) => {
   return (
     <Swiper
-      className={`elv-gallery__items elv-gallery__items--${controlType.toLowerCase()}`}
+      className={`elv-gallery__items elv-gallery__items--${controlType.toLowerCase()} ${isFullscreen ? "elv-gallery__items--fullscreen" : "elv-gallery__items--contained"}`}
       keyboard
       slidesPerView={1}
       threshold={5}
@@ -302,7 +292,7 @@ const GalleryItems = ({params, galleryItems, activeItemIndex, setActiveItemIndex
   );
 };
 
-const GalleryCarousel = ({galleryItems, activeItemIndex, setActiveItemIndex}) => {
+const GalleryCarousel = ({galleryItems, activeItemIndex, setActiveItemIndex, setGalleryCarouselSwiper}) => {
   return (
     <div className="elv-gallery__carousel-container">
       <button className="elv-gallery__carousel__arrow elv-gallery__carousel__arrow--previous">
@@ -323,6 +313,7 @@ const GalleryCarousel = ({galleryItems, activeItemIndex, setActiveItemIndex}) =>
           loadPrevNext: true,
           loadOnTransitionStart: true
         }}
+        onSwiper={setGalleryCarouselSwiper}
       >
         {
           galleryItems.map((item, index) =>
@@ -354,6 +345,7 @@ const GalleryCarousel = ({galleryItems, activeItemIndex, setActiveItemIndex}) =>
 
 const Gallery = ({client, params, errorCallback, setPageTitle}) => {
   const [galleryItemSwiper, setGalleryItemSwiper] = useState(undefined);
+  const [galleryCarouselSwiper, setGalleryCarouselSwiper] = useState(undefined);
   const [galleryMetadata, setGalleryMetadata] = useState(undefined);
   const [galleryItems, setGalleryItems] = useState(undefined);
   const [backgroundImage, setBackgroundImage] = useState(undefined);
@@ -361,6 +353,17 @@ const Gallery = ({client, params, errorCallback, setPageTitle}) => {
   const [error, setError] = useState(undefined);
   const [activeItemIndex, setActiveItemIndex] = useState(0);
   const [showGalleryCarousel, setShowGalleryCarousel] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const SetFullscreen = () => setIsFullscreen(IsFullscreen());
+
+    const prefixes = ["", "moz", "webkit", "ms"];
+
+    prefixes.forEach(prefix => window.addEventListener(`${prefix}fullscreenchange`, SetFullscreen));
+
+    return () => prefixes.forEach(prefix => window.removeEventListener(`${prefix}fullscreenchange`, SetFullscreen));
+  }, []);
 
   useEffect(() => {
     LoadGallery({client, params})
@@ -395,6 +398,16 @@ const Gallery = ({client, params, errorCallback, setPageTitle}) => {
     if(galleryItemSwiper && galleryItemSwiper.activeIndex !== activeItemIndex) {
       galleryItemSwiper.slideTo(activeItemIndex);
     }
+
+    if(galleryCarouselSwiper) {
+      const currentSlideDimensions = galleryCarouselSwiper.slides[activeItemIndex].getBoundingClientRect();
+      const swiperDimensions = galleryCarouselSwiper.el.getBoundingClientRect();
+      const slideX = currentSlideDimensions.x - swiperDimensions.x;
+
+      if(slideX < 0 || (slideX + currentSlideDimensions.width > swiperDimensions.width)) {
+        galleryCarouselSwiper.slideTo(activeItemIndex);
+      }
+    }
   }, [activeItemIndex, galleryMetadata, galleryItems]);
 
   if(error) {
@@ -425,6 +438,7 @@ const Gallery = ({client, params, errorCallback, setPageTitle}) => {
           setActiveItemIndex={setActiveItemIndex}
           setGalleryItemSwiper={setGalleryItemSwiper}
           controlType={controls}
+          isFullscreen={isFullscreen}
         />
 
         {
@@ -434,6 +448,7 @@ const Gallery = ({client, params, errorCallback, setPageTitle}) => {
                 galleryItems={galleryItems}
                 activeItemIndex={activeItemIndex}
                 setActiveItemIndex={setActiveItemIndex}
+                setGalleryCarouselSwiper={setGalleryCarouselSwiper}
               /> :
               <div className="elv-gallery__arrows">
                 <button disabled={activeItemIndex === 0} onClick={() => setActiveItemIndex(activeItemIndex - 1)} className="elv-gallery__arrow-button elv-gallery__arrow-button--previous">
