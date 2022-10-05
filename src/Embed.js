@@ -125,6 +125,8 @@ const LoadImage = async ({client, params, imageUrl, metadata={}, target}) => {
 };
 
 export const Initialize = async ({client, target, url, playerOptions, errorCallback, setPageTitle=false}={}) => {
+  let player, playerTarget;
+
   try {
     const params = LoadParams(url);
 
@@ -301,11 +303,16 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
     // eslint-disable-next-line no-console
     console.log(error);
 
-    errorCallback && errorCallback(error);
+    errorCallback && errorCallback(error, player);
+
+    if(playerTarget) {
+      playerTarget.remove();
+    }
 
     const urlParams = new URLSearchParams(
       new URL(window.location.toString()).search
     );
+
     const node = urlParams.get("node");
 
     if(error.status === 500 && node) {
