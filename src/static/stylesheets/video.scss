@@ -16,6 +16,7 @@ $elv-color-mediumred: #a33;
   .-elv-player-target {
     height: 100%;
     width: 100%;
+    background: $elv-color-bg-black;
 
     &__image {
       height: 100%;
@@ -53,13 +54,13 @@ $elv-color-mediumred: #a33;
   video {
     background: #000;
     cursor: pointer;
-    height: 100%;
     max-height: 100%;
     max-width: 100%;
     min-width: 100%;
     object-fit: contain;
     object-position: center;
     z-index: 0;
+    background: $elv-color-bg-black;
   }
 
   .-elv-social-buttons {

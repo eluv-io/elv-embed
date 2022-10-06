@@ -17,11 +17,14 @@ module.exports = {
     chunkFilename: "[name].[contenthash].bundle.js"
   },
   devServer: {
+    /*
     https: {
       key: fs.readFileSync("./https/private.key"),
       cert: fs.readFileSync("./https/dev.local.crt"),
       ca: fs.readFileSync("./https/private.pem")
     },
+
+     */
     disableHostCheck: true,
     inline: true,
     port: 8088,
