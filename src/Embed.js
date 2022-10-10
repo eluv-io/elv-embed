@@ -118,7 +118,7 @@ const LoadImage = async ({client, params, imageUrl, metadata={}, target}) => {
   if(!url) { return; }
 
   const image = document.createElement("img");
-  image.classList.add("-elv-player-target__image");
+  image.classList.add("-elv-target__image");
   image.src = url;
 
   target.appendChild(image);
@@ -154,7 +154,7 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
     }
 
     playerTarget = document.createElement("div");
-    playerTarget.classList.add("-elv-player-target");
+    playerTarget.classList.add("-elv-target");
     target.appendChild(playerTarget);
 
     if(!client) {
@@ -249,6 +249,9 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
 
       return;
     }
+
+
+    playerTarget.classList.add("-elv-player-target");
 
     const isNFT = !!metadata.nft || !!(metadata.asset_metadata || {}).nft;
 

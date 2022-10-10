@@ -13,8 +13,7 @@ $elv-color-mediumred: #a33;
   position: relative;
   width: 100%;
 
-  .-elv-player-target {
-    background: $elv-color-bg-black;
+  .-elv-target {
     height: 100%;
     width: 100%;
 
@@ -24,6 +23,10 @@ $elv-color-mediumred: #a33;
       object-position: center;
       width: 100%;
     }
+  }
+
+  .-elv-player-target {
+    background: $elv-color-bg-black;
   }
 
   &.-elv-dark {
