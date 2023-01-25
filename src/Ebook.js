@@ -24,7 +24,7 @@ export const InitializeEbook = async (ebookUrl, playerTarget, params) => {
 
   const rendition = await book.renderTo(playerTarget, {
     height: params.height,
-    width: playerTarget.getBoundingClientRect().width - 50,
+    width: playerTarget.getBoundingClientRect().width - 65,
     spread: "always",
     flow: "paginated"
   });
