@@ -1,10 +1,10 @@
 {
-  "name": "elv-fabric-browser-app-template",
+  "name": "elv-embed",
   "version": "1.0.8",
   "description": "",
   "main": "index.js",
   "license": "MIT",
-  "homepage": "https://github.com/eluv-io/elv-fabric-browser-app-template",
+  "homepage": "https://github.com/eluv-io/elv-embed",
   "scripts": {
     "bump-version": "npm --git-tag-version --no-commit-hooks version patch",
     "serve": "webpack-dev-server --hot --port 8088 --host=0.0.0.0",
@@ -22,7 +22,6 @@
     "@eluvio/elv-client-js": "^3.2.26",
     "@eluvio/elv-player-js": "^1.0.78",
     "epubjs": "^0.3.92",
-    "hls.js": "^0.14.17",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-inlinesvg": "^3.0.1",
