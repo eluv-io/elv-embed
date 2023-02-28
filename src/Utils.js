@@ -47,6 +47,7 @@ export const LoadParams = (url) => {
     st: "showTitle",
     ht: "hideTitle",
     dk: "darkMode",
+    pst: "posterUrl",
 
     w: "width",
     h: "height",
@@ -106,6 +107,7 @@ export const LoadParams = (url) => {
       case "ten":
       case "ntp":
       case "type":
+      case "pst":
         params[conversion[key]] = value;
         break;
 
@@ -227,7 +229,8 @@ export const LoadParams = (url) => {
         tenantId: params.tenantId,
         ntpId: params.ntpId,
         ticketCode: params.ticketCode,
-        ticketSubject: params.ticketSubject
+        ticketSubject: params.ticketSubject,
+        posterUrl: params.posterUrl
       },
       sourceOptions: {
         protocols: params.protocols,
