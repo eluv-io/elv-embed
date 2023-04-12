@@ -229,8 +229,7 @@ export const LoadParams = (url) => {
         tenantId: params.tenantId,
         ntpId: params.ntpId,
         ticketCode: params.ticketCode,
-        ticketSubject: params.ticketSubject,
-        posterUrl: params.posterUrl
+        ticketSubject: params.ticketSubject
       },
       sourceOptions: {
         protocols: params.protocols,
@@ -252,7 +251,8 @@ export const LoadParams = (url) => {
         muted: params.muted,
         loop: params.loop,
         watermark: params.watermark,
-        capLevelToPlayerSize: params.capLevelToPlayerSize
+        capLevelToPlayerSize: params.capLevelToPlayerSize,
+        posterUrl: params.posterUrl
       }
     }
   };
