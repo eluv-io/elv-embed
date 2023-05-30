@@ -1,7 +1,7 @@
 import "./static/stylesheets/video.scss";
 import "./static/stylesheets/ebook.scss";
 import EluvioPlayer from "@eluvio/elv-player-js";
-import {LoadParams, RecordView} from "./Utils";
+import {EmitEvent, LoadParams, RecordView} from "./Utils";
 import {ElvClient} from "@eluvio/elv-client-js";
 import UrlJoin from "url-join";
 
@@ -285,6 +285,28 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
       if(errorCallback) {
         params.playerParameters.playerOptions.errorCallback = errorCallback;
       }
+
+      params.playerParameters.playerOptions.playerCallback = ({videoElement}) => {
+        [
+          "abort",
+          "canplay",
+          "ended",
+          "error",
+          "pause",
+          "play"
+        ].forEach(eventName => {
+          videoElement.addEventListener(eventName, event => {
+            EmitEvent({
+              eventType: "video",
+              eventKey: params.eventKey,
+              eventData: {
+                eventName,
+                timeStamp: event.timeStamp,
+              }
+            });
+          });
+        });
+      };
 
       player = new EluvioPlayer(playerTarget, params.playerParameters);
       if(params.smallPlayer && params.width && params.height) {

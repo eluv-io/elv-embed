@@ -67,6 +67,7 @@ export const LoadParams = (url) => {
     type: "mediaType",
     murl: "mediaUrl",
     vrk: "viewRecordKey",
+    ek: "eventKey",
 
     // Watermark defaults true except for NFTs
     wm: "watermark",
@@ -108,6 +109,7 @@ export const LoadParams = (url) => {
       case "ntp":
       case "type":
       case "pst":
+      case "ek":
         params[conversion[key]] = value;
         break;
 
@@ -221,6 +223,7 @@ export const LoadParams = (url) => {
     height: params.height,
 
     viewRecordKey: params.viewRecordKey,
+    eventKey: params.eventKey,
 
     playerParameters: {
       clientOptions: {
@@ -315,4 +318,15 @@ export const ToggleFullscreen = (target) => {
       target.querySelector("img, video, iframe").webkitEnterFullScreen();
     }
   }
+};
+
+export const EmitEvent = ({eventType, eventKey, eventData}) => {
+  if(!window.parent) { return; }
+
+  window.parent.postMessage({
+    type: "ElvEmbedEvent",
+    eventType,
+    eventKey: eventKey || "",
+    eventData
+  }, "*");
 };
