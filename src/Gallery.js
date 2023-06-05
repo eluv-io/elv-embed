@@ -279,7 +279,7 @@ const GalleryItems = ({params, galleryItems, activeItemIndex, setActiveItemIndex
           </button> : null
       }
       {
-        FullscreenAllowed() ?
+        FullscreenAllowed() && !galleryItems?.[activeItemIndex]?.video ?
           <button
             aria-label="Toggle Fullscreen"
             onClick={() => ToggleFullscreen(document.querySelector(".elv-gallery__items"))}

@@ -292,7 +292,7 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
           try {
             OriginalPlayerCallback(params);
           // eslint-disable-next-line no-empty
-          } catch(error) {}
+          } catch (error) {}
         }
 
         [
