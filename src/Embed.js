@@ -286,7 +286,15 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
         params.playerParameters.playerOptions.errorCallback = errorCallback;
       }
 
-      params.playerParameters.playerOptions.playerCallback = ({videoElement}) => {
+      const OriginalPlayerCallback = params.playerParameters.playerOptions.playerCallback;
+      params.playerParameters.playerOptions.playerCallback = (params) => {
+        if(OriginalPlayerCallback) {
+          try {
+            OriginalPlayerCallback(params);
+          // eslint-disable-next-line no-empty
+          } catch(error) {}
+        }
+
         [
           "abort",
           "canplay",
@@ -295,7 +303,7 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
           "pause",
           "play"
         ].forEach(eventName => {
-          videoElement.addEventListener(eventName, event => {
+          params.videoElement.addEventListener(eventName, event => {
             EmitEvent({
               eventType: "video",
               eventKey: params.eventKey,
