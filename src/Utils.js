@@ -290,7 +290,10 @@ export const FullscreenAllowed = () => {
 };
 
 export const IsFullscreen = () => {
-  return !!(document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+  const fullscreenElement = (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+
+  // Ignore fullscreen video case - player will handle that case
+  return fullscreenElement && !fullscreenElement.classList.contains("eluvio-player");
 };
 
 export const ToggleFullscreen = (target) => {
