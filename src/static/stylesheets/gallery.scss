@@ -204,6 +204,7 @@ $elv-color-bg-black: #000;
 
     &__image {
       display: block;
+      user-select: none;
     }
 
     &__video {
@@ -371,6 +372,7 @@ $elv-color-bg-black: #000;
         opacity: 0.65;
         transition: opacity 0.35s ease;
         width: 100%;
+        user-select: none;
 
         &:hover,
         &--active {

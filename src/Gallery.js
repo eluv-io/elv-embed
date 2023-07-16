@@ -307,7 +307,7 @@ const GalleryCarousel = ({galleryItems, activeItemIndex, setActiveItemIndex, set
         }}
         spaceBetween={5}
         slidesPerView="auto"
-        slidesPerGroup={3}
+        slidesPerGroup={window.innerWidth > 800 ? 3 : 1}
         lazy={{
           enabled: true,
           loadPrevNext: true,
