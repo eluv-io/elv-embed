@@ -120,6 +120,10 @@ const LoadImage = async ({client, params, imageUrl, metadata={}, target}) => {
   const image = document.createElement("img");
   image.classList.add("-elv-target__image");
   image.src = url;
+  image.onerror = () => {
+    // Hide broken image on error
+    image.style.display = "none";
+  };
 
   target.appendChild(image);
 };
@@ -274,7 +278,7 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
     let { playable, availableOfferings } = nonPlayableNFT ? { playable: false } : await Playable(client, params.playerParameters);
 
     let player;
-    if(mediaType === "image" || params.imageOnly || !playable) {
+    if(mediaType !== "video" && (mediaType === "image" || params.imageOnly || !playable)) {
       LoadImage({client, params, metadata, imageUrl: mediaUrl, target: playerTarget});
     } else {
       // Select specified offering - highest priority offering that is actually available
