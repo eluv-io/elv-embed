@@ -177,6 +177,9 @@ export const LoadParams = (url) => {
     case "s":
       controls = EluvioPlayerParameters.controls.ON;
       break;
+    case "hv":
+      controls = EluvioPlayerParameters.controls.OFF_WITH_VOLUME_TOGGLE;
+      break;
     default:
       controls = ("controls" in params) ? EluvioPlayerParameters.controls.DEFAULT : EluvioPlayerParameters.controls.OFF;
       break;
