@@ -102,6 +102,9 @@ class Form extends React.Component {
       case "Show":
         params.ct = "s";
         break;
+      case "Hide Except for Volume Toggle":
+        params.ct = "hv";
+        break;
     }
 
     if(this.state.muted) {
@@ -325,7 +328,7 @@ class Form extends React.Component {
             { this.LabelledField("Small Player", "smallPlayer", this.Checkbox("smallPlayer")) }
             { this.LabelledField("Dark Mode", "darkMode", this.Checkbox("darkMode")) }
             { this.LabelledField("Autoplay", "autoplay", this.Select("autoplay", ["Off", "When Visible", "On"])) }
-            { this.LabelledField("Controls", "controls", this.Select("controls", ["Hide", "Browser Default", "Auto Hide", "Show"])) }
+            { this.LabelledField("Controls", "controls", this.Select("controls", ["Hide", "Hide Except for Volume Toggle", "Browser Default", "Auto Hide", "Show"])) }
             { this.LabelledField("Mute Audio", "muted", this.Checkbox("muted")) }
             { this.LabelledField("Loop", "loop", this.Checkbox("loop")) }
 
