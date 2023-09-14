@@ -29,22 +29,6 @@ $elv-color-mediumred: #a33;
     background: $elv-color-bg-black;
   }
 
-  &.-elv-dark {
-    .-elv-social-buttons {
-      background: #000;
-
-      &__text {
-        color: #bababa;
-      }
-
-      svg {
-        background: #fff;
-        border-radius: 5px;
-        padding: 2px;
-      }
-    }
-  }
-
   iframe {
     border: 0;
     height: 100%;

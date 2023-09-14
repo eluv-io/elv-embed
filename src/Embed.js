@@ -128,7 +128,7 @@ const LoadImage = async ({client, params, imageUrl, metadata={}, target}) => {
   target.appendChild(image);
 };
 
-export const Initialize = async ({client, target, url, playerOptions, errorCallback, setPageTitle=false}={}) => {
+export const Initialize = async ({client, target, url, playerOptions, errorCallback, setPageTitle=false, embedApp=false}={}) => {
   let player, playerTarget;
 
   try {
@@ -145,17 +145,12 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
       };
     }
 
-    let playerTarget;
     if(!target) {
       target = document.getElementById("app");
     }
 
     target.classList.add("-elv-embed");
     target.innerHTML = "";
-
-    if(params.darkMode) {
-      target.classList.add("-elv-dark");
-    }
 
     playerTarget = document.createElement("div");
     playerTarget.classList.add("-elv-target");
@@ -177,6 +172,8 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
     }
 
     params.playerParameters.clientOptions.client = client;
+    // Allow the player to redeem tickets on our client instead of initializing a new one
+    params.playerParameters.clientOptions.allowClientTicketRedemption = embedApp;
 
     if(params.node) {
       await client.SetNodes({fabricURIs: [params.node]});
@@ -190,19 +187,23 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
 
     let metadata = {};
     if(params.versionHash) {
-      metadata = (await client.ContentObjectMetadata({
-        versionHash: params.versionHash,
-        metadataSubtree: "public",
-        authorizationToken: params.authorizationToken,
-        select: [
-          "name",
-          "nft",
-          "asset_metadata/title",
-          "asset_metadata/display_title",
-          "asset_metadata/nft"
-        ],
-        produceLinkUrls: true
-      })) || {};
+      try {
+        metadata = (await client.ContentObjectMetadata({
+          versionHash: params.versionHash,
+          metadataSubtree: "public",
+          authorizationToken: params.authorizationToken,
+          select: [
+            "name",
+            "nft",
+            "asset_metadata/title",
+            "asset_metadata/display_title",
+            "asset_metadata/nft"
+          ],
+          produceLinkUrls: true
+        })) || {};
+      } catch(error) {
+        console.log(error);
+      }
     }
 
     const mediaType = (params.mediaType || "").toLowerCase();
@@ -277,7 +278,6 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
 
     let { playable, availableOfferings } = nonPlayableNFT ? { playable: false } : await Playable(client, params.playerParameters);
 
-    let player;
     if(mediaType !== "video" && (mediaType === "image" || params.imageOnly || !playable)) {
       LoadImage({client, params, metadata, imageUrl: mediaUrl, target: playerTarget});
     } else {

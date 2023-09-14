@@ -46,8 +46,6 @@ export const LoadParams = (url) => {
     sh: "showShare",
     st: "showTitle",
     ht: "hideTitle",
-    dk: "darkMode",
-    pst: "posterUrl",
 
     w: "width",
     h: "height",
@@ -199,7 +197,6 @@ export const LoadParams = (url) => {
 
   return {
     title,
-    darkMode: params.darkMode,
     smallPlayer: params.smallPlayer,
     showTitle: params.showTitle,
     hideTitle: params.hideTitle,
@@ -257,8 +254,7 @@ export const LoadParams = (url) => {
         muted: params.muted,
         loop: params.loop,
         watermark: params.watermark,
-        capLevelToPlayerSize: params.capLevelToPlayerSize,
-        posterUrl: params.posterUrl
+        capLevelToPlayerSize: params.capLevelToPlayerSize
       }
     }
   };

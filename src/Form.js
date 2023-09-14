@@ -13,7 +13,6 @@ class Form extends React.Component {
     this.state = {
       showTitle: false,
       showShare: false,
-      darkMode: false,
       title: "",
       description: "",
       network: "main",
@@ -163,10 +162,6 @@ class Form extends React.Component {
       params.ath = this.state.authorizationToken;
     }
 
-    if(this.state.darkMode) {
-      params.dk = true;
-    }
-
     if(this.state.clipStart) {
       params.start = parseFloat(this.state.clipStart);
     }
@@ -312,11 +307,16 @@ class Form extends React.Component {
             <h2>Authorization</h2>
 
             { this.LabelledField("Auth Token", "authorizationToken", this.Input("authorizationToken")) }
-            { this.LabelledField("Tenant ID", "tenantId", this.Input("tenantId")) }
-            { this.LabelledField("NTP ID", "ntpId", this.Input("ntpId")) }
             { this.LabelledField("Prompt for Ticket", "promptTicket", this.Checkbox("promptTicket")) }
-            { this.LabelledField("Ticket Code", "ticketCode", this.Input("ticketCode")) }
-            { this.LabelledField("Ticket Subject", "ticketSubject", this.Input("ticketSubject")) }
+            {
+              !this.state.promptTicket ? null :
+                <>
+                  {this.LabelledField("Tenant ID", "tenantId", this.Input("tenantId"))}
+                  {this.LabelledField("NTP ID", "ntpId", this.Input("ntpId"))}
+                  {this.LabelledField("Ticket Code", "ticketCode", this.Input("ticketCode"))}
+                  {this.LabelledField("Ticket Subject", "ticketSubject", this.Input("ticketSubject"))}
+                </>
+            }
 
             <div />
             <h2>Player</h2>
@@ -326,7 +326,6 @@ class Form extends React.Component {
             { this.LabelledField("Show Video Title", "showTitle", this.Checkbox("showTitle")) }
             { this.LabelledField("Show Share Buttons", "showShare", this.Checkbox("showShare")) }
             { this.LabelledField("Small Player", "smallPlayer", this.Checkbox("smallPlayer")) }
-            { this.LabelledField("Dark Mode", "darkMode", this.Checkbox("darkMode")) }
             { this.LabelledField("Autoplay", "autoplay", this.Select("autoplay", ["Off", "When Visible", "On"])) }
             { this.LabelledField("Controls", "controls", this.Select("controls", ["Hide", "Hide Except for Volume Toggle", "Browser Default", "Auto Hide", "Show"])) }
             { this.LabelledField("Mute Audio", "muted", this.Checkbox("muted")) }

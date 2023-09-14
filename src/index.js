@@ -15,7 +15,7 @@ if(urlParams.has("p")) {
     default:
       import("./Embed.js")
         .then(({Initialize}) =>
-          Initialize({target: document.getElementById("app"), setPageTitle: true})
+          Initialize({target: document.getElementById("app"), setPageTitle: true, embedApp: true})
         );
   }
 // Collection
