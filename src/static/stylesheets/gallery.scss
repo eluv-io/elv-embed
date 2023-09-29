@@ -345,8 +345,8 @@ $elv-color-bg-black: #000;
       max-height: var(--elv-carousel-item-height);
 
       &--wide {
-        max-width: calc(#{var(--elv-carousel-item-height)} * 1.5);
-        width: calc(#{var(--elv-carousel-item-height)} * 1.5);
+        max-width: calc(#{var(--elv-carousel-item-height)} * 16/9);
+        width: calc(#{var(--elv-carousel-item-height)} * 16/9);
       }
 
       &--tall {

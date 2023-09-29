@@ -201,7 +201,8 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
           ],
           produceLinkUrls: true
         })) || {};
-      } catch(error) {
+      } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       }
     }
@@ -278,7 +279,7 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
 
     let { playable, availableOfferings } = nonPlayableNFT ? { playable: false } : await Playable(client, params.playerParameters);
 
-    if(mediaType !== "video" && (mediaType === "image" || params.imageOnly || !playable)) {
+    if(mediaType !== "video" && mediaType !== "live video" && (mediaType === "image" || params.imageOnly || !playable)) {
       LoadImage({client, params, metadata, imageUrl: mediaUrl, target: playerTarget});
     } else {
       // Select specified offering - highest priority offering that is actually available

@@ -16,12 +16,24 @@ const CreateMetaTags = (options={}) => {
 
 export const mediaTypes = {
   "v": "Video",
+  "lv": "Live Video",
   "a": "Audio",
   "i": "Image",
   "h": "HTML",
   "b": "EBook",
   "g": "Gallery",
   "l": "Link"
+};
+
+export const LowLatencyLiveHLSOptions = {
+  "enableWorker": true,
+  "lowLatencyMode": true,
+  "maxBufferLength": 5,
+  "backBufferLength": 5,
+  "liveSyncDuration": 5,
+  "liveMaxLatencyDuration": 15,
+  "liveDurationInfinity": true,
+  "highBufferWatchdogPeriod": 1
 };
 
 export const LoadParams = (url) => {
@@ -46,6 +58,7 @@ export const LoadParams = (url) => {
     sh: "showShare",
     st: "showTitle",
     ht: "hideTitle",
+    prf: "playerProfile",
 
     w: "width",
     h: "height",
@@ -108,6 +121,7 @@ export const LoadParams = (url) => {
       case "type":
       case "pst":
       case "ek":
+      case "prf":
         params[conversion[key]] = value;
         break;
 
@@ -195,6 +209,10 @@ export const LoadParams = (url) => {
     }
   }
 
+  if(params.mediaType === "Live Video") {
+    params.playerProfile = params.playerProfile || "live";
+  }
+
   return {
     title,
     smallPlayer: params.smallPlayer,
@@ -213,6 +231,7 @@ export const LoadParams = (url) => {
     mediaUrl: params.mediaUrl,
     clipStart: params.clipStart,
     clipEnd: params.clipEnd,
+    playerProfile: params.playerProfile,
 
     tenantId: params.tenantId,
     ntpId: params.ntpId,
@@ -254,7 +273,8 @@ export const LoadParams = (url) => {
         muted: params.muted,
         loop: params.loop,
         watermark: params.watermark,
-        capLevelToPlayerSize: params.capLevelToPlayerSize
+        capLevelToPlayerSize: params.capLevelToPlayerSize,
+        hlsjsOptions: params.playerProfile === "live" ? LowLatencyLiveHLSOptions : {}
       }
     }
   };
