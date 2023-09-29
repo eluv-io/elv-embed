@@ -32,7 +32,7 @@ export const LowLatencyLiveHLSOptions = {
   "backBufferLength": 5,
   "liveSyncDuration": 5,
   "liveMaxLatencyDuration": 15,
-  "liveDurationInfinity": true,
+  "liveDurationInfinity": false,
   "highBufferWatchdogPeriod": 1
 };
 
@@ -105,7 +105,7 @@ export const LoadParams = (url) => {
 
     switch (key) {
       case "mt":
-        params[conversion[key]] = mediaTypes[value] || "Video";
+        params[conversion[key]] = mediaTypes[value] || mediaTypes["v"];
         break;
 
       case "net":
@@ -209,7 +209,7 @@ export const LoadParams = (url) => {
     }
   }
 
-  if(params.mediaType === "Live Video") {
+  if(params.mediaType === mediaTypes["lv"]) {
     params.playerProfile = params.playerProfile || "live";
   }
 
