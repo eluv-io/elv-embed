@@ -1,5 +1,5 @@
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
-import {ElvWalletClient} from "@eluvio/elv-client-js";
+import {ElvWalletClient, Utils} from "@eluvio/elv-client-js";
 
 const CreateMetaTags = (options={}) => {
   Object.keys(options).forEach(tag => {
@@ -23,17 +23,6 @@ export const mediaTypes = {
   "b": "EBook",
   "g": "Gallery",
   "l": "Link"
-};
-
-export const LowLatencyLiveHLSOptions = {
-  "enableWorker": true,
-  "lowLatencyMode": true,
-  "maxBufferLength": 5,
-  "backBufferLength": 5,
-  "liveSyncDuration": 5,
-  "liveMaxLatencyDuration": 15,
-  "liveDurationInfinity": false,
-  "highBufferWatchdogPeriod": 1
 };
 
 export const LoadParams = (url) => {
@@ -82,7 +71,8 @@ export const LoadParams = (url) => {
 
     // Watermark defaults true except for NFTs
     wm: "watermark",
-    nwm: "watermark"
+    nwm: "watermark",
+    awm: "accountWatermark"
   };
 
   const networks = {
@@ -147,6 +137,7 @@ export const LoadParams = (url) => {
         break;
 
       case "wm":
+      case "awm":
       case "ap":
       case "scr":
       case "m":
@@ -273,8 +264,9 @@ export const LoadParams = (url) => {
         muted: params.muted,
         loop: params.loop,
         watermark: params.watermark,
+        accountWatermark: params.accountWatermark,
         capLevelToPlayerSize: params.capLevelToPlayerSize,
-        hlsjsOptions: params.playerProfile === "live" ? LowLatencyLiveHLSOptions : {}
+        hlsjsOptions: params.playerProfile === "live" ? Utils.LiveHLSJSSettings({lowLatency: true}) : {}
       }
     }
   };
