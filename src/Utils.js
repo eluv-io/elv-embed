@@ -1,5 +1,5 @@
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
-import {ElvWalletClient, Utils} from "@eluvio/elv-client-js";
+import {ElvWalletClient} from "@eluvio/elv-client-js";
 
 const CreateMetaTags = (options={}) => {
   Object.keys(options).forEach(tag => {
@@ -200,8 +200,13 @@ export const LoadParams = (url) => {
     }
   }
 
+  // Set player profile based on media type
   if(params.mediaType === mediaTypes["lv"]) {
-    params.playerProfile = params.playerProfile || "live";
+    params.playerProfile = params.playerProfile || EluvioPlayerParameters.playerProfile.LOW_LATENCY;
+  }
+
+  if(params.playerProfile === "live") {
+    params.playerProfile = EluvioPlayerParameters.playerProfile.LOW_LATENCY;
   }
 
   return {
@@ -266,7 +271,7 @@ export const LoadParams = (url) => {
         watermark: params.watermark,
         accountWatermark: params.accountWatermark,
         capLevelToPlayerSize: params.capLevelToPlayerSize,
-        hlsjsOptions: params.playerProfile === "live" ? Utils.LiveHLSJSSettings({lowLatency: true}) : {}
+        playerProfile: params.playerProfile
       }
     }
   };
