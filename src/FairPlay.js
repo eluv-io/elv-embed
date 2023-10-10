@@ -134,7 +134,7 @@ const licenseRequestReady = async (event, licenseURLs, authToken) => {
       await session.update(key);
 
       return;
-    } catch (error) {
+    } catch(error) {
       // eslint-disable-next-line no-console
       console.error("License request to", licenseURL, "failed");
       // eslint-disable-next-line no-console
@@ -192,7 +192,7 @@ export function InitializeFairPlayStream({playoutOptions, video}) {
         try {
           await onNeedKey(event, cert, licenseURLs, authToken);
           resolve();
-        } catch (error) {
+        } catch(error) {
           reject(error);
         }
       },

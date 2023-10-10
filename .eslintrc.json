@@ -4,19 +4,20 @@
     "es6": true
   },
   "extends": "eslint:recommended",
-  "parser": "babel-eslint",
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true,
-      "modules": true
+      "modules": true,
+      "legacyDecorators": true
     },
-    "ecmaVersion": 2018,
+    "ecmaVersion": "latest",
     "sourceType": "module"
   },
   "plugins": [
     "react"
   ],
   "rules": {
+    "no-misspelled-properties": "off",
     "no-case-declarations": "off",
     "no-undef": "off",
     "no-useless-escape": "off",
@@ -28,7 +29,9 @@
         "overrides": {
           "if": { "after": false },
           "for": { "after": false },
-          "while": { "after": false }
+          "while": { "after": false },
+          "switch": { "after": false },
+          "catch": { "after": false }
         }
       }],
     "indent": [

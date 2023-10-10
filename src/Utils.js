@@ -1,5 +1,5 @@
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
-import {ElvWalletClient} from "@eluvio/elv-client-js";
+import {ElvWalletClient, Utils} from "@eluvio/elv-client-js";
 
 const CreateMetaTags = (options={}) => {
   Object.keys(options).forEach(tag => {
@@ -48,6 +48,7 @@ export const LoadParams = (url) => {
     st: "showTitle",
     ht: "hideTitle",
     prf: "playerProfile",
+    hls: "hlsOptions",
 
     w: "width",
     h: "height",
@@ -93,7 +94,7 @@ export const LoadParams = (url) => {
   for(const key of urlParams.keys()) {
     const value = urlParams.get(key).toString();
 
-    switch (key) {
+    switch(key) {
       case "mt":
         params[conversion[key]] = mediaTypes[value] || mediaTypes["v"];
         break;
@@ -166,11 +167,19 @@ export const LoadParams = (url) => {
       case "node":
         params.node = value;
         break;
+      case "hls":
+        try {
+          params[conversion[key]] = JSON.parse(Utils.FromB58ToStr(value));
+        } catch(error) {
+          console.error("Invalid HLS options parameter");
+        }
+
+        break;
     }
   }
 
   let controls;
-  switch (params.controls) {
+  switch(params.controls) {
     case "d":
       controls = EluvioPlayerParameters.controls.DEFAULT;
       break;
@@ -192,7 +201,7 @@ export const LoadParams = (url) => {
   if(params.data) {
     try {
       title = JSON.parse(params.data).meta_tags["og:title"];
-    } catch (error) {
+    } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Failed to parse 'data' parameter:");
       // eslint-disable-next-line no-console
@@ -271,7 +280,8 @@ export const LoadParams = (url) => {
         watermark: params.watermark,
         accountWatermark: params.accountWatermark,
         capLevelToPlayerSize: params.capLevelToPlayerSize,
-        playerProfile: params.playerProfile
+        playerProfile: params.playerProfile,
+        hlsjsOptions: params.hlsOptions
       }
     }
   };
@@ -295,7 +305,7 @@ export const RecordView = async ({client, viewRecordKey, authorizationToken}) =>
       key: recordKey,
       value: true
     });
-  } catch (error) {
+  } catch(error) {
     // eslint-disable-next-line no-console
     console.error("Failed to record view:", error);
   }

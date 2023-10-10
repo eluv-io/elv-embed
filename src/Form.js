@@ -5,6 +5,7 @@ import {render} from "react-dom";
 import {mediaTypes} from "./Utils";
 
 import Logo from "./static/images/Logo.png";
+import {Utils} from "@eluvio/elv-client-js";
 
 class Form extends React.Component {
   constructor(props) {
@@ -38,7 +39,9 @@ class Form extends React.Component {
       capLevelToPlayerSize: false,
       embedCode: "",
       clipStart: "",
-      clipEnd: ""
+      clipEnd: "",
+      hlsOptions: "{\n}",
+      hlsOptionsValid: true
     };
 
     this.Generate = this.Generate.bind(this);
@@ -91,7 +94,7 @@ class Form extends React.Component {
       p: true
     };
 
-    switch (this.state.controls) {
+    switch(this.state.controls) {
       case "Browser Default":
         params.ct = "d";
         break;
@@ -128,6 +131,18 @@ class Form extends React.Component {
 
     if(this.state.mediaType) {
       params.mt = this.state.mediaType;
+    }
+
+    if(this.state.hlsOptions) {
+      try {
+        const options = JSON.parse(this.state.hlsOptions);
+        if(options && Object.keys(options).length > 0) {
+          params.hls = Utils.B58(JSON.stringify(options));
+        }
+      } catch(error) {
+        console.error("Unable to convert HLS options:");
+        console.error(error);
+      }
     }
 
     if(this.state.linkPath) {
@@ -280,6 +295,27 @@ class Form extends React.Component {
     );
   }
 
+  HLSOptions() {
+    return (
+      <textarea
+        name="hlsOptions"
+        value={this.state.hlsOptions}
+        onChange={event => this.setState({hlsOptions: event.target.value, embedCode: ""})}
+        className={!this.state.hlsOptionsValid ? "invalid" : ""}
+        onBlur={() => {
+          try {
+            this.setState({
+              hlsOptions: JSON.stringify(JSON.parse(this.state.hlsOptions || "{}"), null, 2),
+              hlsOptionsValid: true
+            });
+          } catch(error) {
+            this.setState({hlsOptionsValid: false});
+          }
+        }}
+      />
+    );
+  }
+
   render() {
     return (
       <>
@@ -335,8 +371,10 @@ class Form extends React.Component {
             { this.LabelledField("Width", "width", this.Input("width", {type: "number", step: 1, required: true})) }
             { this.LabelledField("Height", "height", this.Input("height", {type: "number", step: 1, required: true})) }
 
+            { this.LabelledField("HLS.js Options", "hlsOptions", this.HLSOptions()) }
+
             <div className="spacer" />
-            <button type="submit">Generate Embed Code</button>
+            <button type="submit" disabled={!this.state.hlsOptionsValid}>Generate Embed Code</button>
           </form>
 
           { this.EmbedCode() }

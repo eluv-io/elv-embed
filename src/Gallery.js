@@ -1,4 +1,4 @@
-import "swiper/swiper-bundle.min.css";
+import "./static/stylesheets/swiper-bundle.min.css";
 import "./static/stylesheets/gallery.scss";
 
 import React, {useEffect, useState} from "react";
@@ -61,7 +61,7 @@ const LoadGallery = async ({params, client}) => {
       customCSS = additionalMediaMetadata.additional_media_custom_css;
 
       galleryMetadata = client.utils.SafeTraverse(additionalMediaMetadata, UrlJoin(additionalMediaKey, galleryPath.split("/gallery")[0]).split("/"));
-    } catch (error) {
+    } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Unable to load full additional media info:");
       // eslint-disable-next-line no-console
@@ -123,7 +123,7 @@ const GalleryItemImageUrl = ({item, width}) => {
 
     if(!videoHash) { return; }
 
-    switch (networkName) {
+    switch(networkName) {
       case "main":
         url = "https://main.net955305.contentfabric.io/s/main";
         break;

@@ -4,7 +4,7 @@ const urlParams = new URLSearchParams(window.location.search);
 
 // Player
 if(urlParams.has("p")) {
-  switch (urlParams.get("mt")) {
+  switch(urlParams.get("mt")) {
     case "g":
       import("./Gallery")
         .then(({Initialize}) =>

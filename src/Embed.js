@@ -85,7 +85,7 @@ const InitializeTitle = async ({target, params, metadata, width, setPageTitle=fa
         header.innerHTML = title;
       }
     }
-  } catch (error) {
+  } catch(error) {
     // eslint-disable-next-line no-console
     console.error(error);
   }
@@ -107,7 +107,7 @@ const Playable = async (client, playerParams) => {
       playable: availableOfferings && Object.keys(availableOfferings).length > 0,
       availableOfferings
     };
-  } catch (error) {
+  } catch(error) {
     return { playable: false };
   }
 };
@@ -201,7 +201,7 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
           ],
           produceLinkUrls: true
         })) || {};
-      } catch (error) {
+      } catch(error) {
         // eslint-disable-next-line no-console
         console.log(error);
       }
@@ -297,7 +297,7 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
           try {
             OriginalPlayerCallback(params);
           // eslint-disable-next-line no-empty
-          } catch (error) {}
+          } catch(error) {}
         }
 
         [
@@ -337,7 +337,7 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
     InitializeTitle({target, params, metadata, width: params.smallPlayer ? params.width : undefined, setPageTitle});
 
     return player;
-  } catch (error) {
+  } catch(error) {
     // eslint-disable-next-line no-console
     console.log(error);
 

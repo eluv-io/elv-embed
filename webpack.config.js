@@ -1,11 +1,9 @@
 const webpack = require("webpack");
 const Path = require("path");
 const autoprefixer = require("autoprefixer");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
-const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
 const fs = require("fs");
 
 module.exports = {
@@ -13,53 +11,55 @@ module.exports = {
   target: "web",
   output: {
     path: Path.resolve(__dirname, "dist"),
-    filename: "index.js",
-    chunkFilename: "[name].[contenthash].bundle.js"
+    clean: true,
+    filename: "[name].bundle.js",
+    publicPath: "/",
+    chunkFilename: "bundle.[id].[chunkhash].js"
   },
   devServer: {
-    /*
-    https: {
-      key: fs.readFileSync("./https/private.key"),
-      cert: fs.readFileSync("./https/dev.local.crt"),
-      ca: fs.readFileSync("./https/private.pem")
-    },
-
-     */
-    disableHostCheck: true,
-    inline: true,
+    hot: true,
+    historyApiFallback: true,
+    allowedHosts: "all",
     port: 8088,
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Headers": "Content-Type, Accept",
       "Access-Control-Allow-Methods": "POST"
+    },
+    // This is to allow configuration.js to be accessed
+    static: {
+      directory: Path.resolve(__dirname, "./config"),
+      publicPath: "/"
     }
   },
   optimization: {
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          keep_classnames: true,
-          keep_fnames: true
-        }
-      })
-    ],
     splitChunks: {
-      chunks: "all"
-    }
+      chunks: "all",
+    },
   },
-  node: {
-    fs: "empty"
+  resolve: {
+    fallback: {
+      stream: require.resolve("stream-browserify"),
+      url: require.resolve("url")
+    },
+    extensions: [".js", ".jsx", ".mjs", ".scss", ".png", ".svg"],
+  },
+  externals: {
+    crypto: "crypto"
   },
   mode: "development",
   devtool: "eval-source-map",
+  snapshot: {
+    // Watch node_modules
+    managedPaths: []
+  },
   plugins: [
     new HtmlWebpackPlugin({
-      title: "Eluvio Embeded Video Generator",
+      title: "Eluvio Embedded Video",
       template: Path.join(__dirname, "src", "index.html"),
       inject: "body",
       cache: false,
       filename: "index.html",
-      inlineSource: ".(js|css)$",
       favicon: "./src/static/icons/favicon.png"
     }),
     process.env.ANALYZE_BUNDLE ? new BundleAnalyzerPlugin() : undefined
@@ -68,6 +68,7 @@ module.exports = {
     rules: [
       {
         test: /\.(css|scss)$/,
+        exclude: /\.(theme|font)\.(css|scss)$/i,
         use: [
           "style-loader",
           {
@@ -76,25 +77,17 @@ module.exports = {
               importLoaders: 2
             }
           },
-          {
-            loader: "postcss-loader",
-            options: {
-              plugins: () => [autoprefixer({})]
-            }
-          },
+          "postcss-loader",
           "sass-loader"
         ]
       },
       {
-        test: /\.(js|mjs)$/,
-        exclude: /node_modules\/(?!elv-components-js)/,
+        test: /\.(js|mjs|jsx)$/,
         loader: "babel-loader",
         options: {
-          presets: ["@babel/preset-env", "@babel/preset-react", "babel-preset-mobx"],
-          plugins: [
-            require("@babel/plugin-proposal-object-rest-spread"),
-            require("@babel/plugin-transform-regenerator"),
-            require("@babel/plugin-transform-runtime")
+          presets: [
+            "@babel/preset-env",
+            "@babel/preset-react",
           ]
         }
       },
@@ -103,17 +96,21 @@ module.exports = {
         loader: "svg-inline-loader"
       },
       {
-        test: /\.(gif|png|jpe?g)$/i,
-        use: [
-          "file-loader",
-          {
-            loader: "image-webpack-loader"
-          },
-        ],
+        test: /\.(gif|png|jpe?g|otf|woff2?|ttf)$/i,
+        include: [ Path.resolve(__dirname, "src/static/public")],
+        type: "asset/inline",
+        generator: {
+          filename: "public/[name][ext]"
+        }
       },
       {
-        test: /\.(txt|bin|abi)$/i,
-        loader: "raw-loader"
+        test: /\.(gif|png|jpe?g|otf|woff2?|ttf)$/i,
+        type: "asset/resource",
+      },
+      {
+        test: /\.(txt|bin|abi|html)$/i,
+        exclude: [ Path.resolve(__dirname, "src/index.html") ],
+        type: "asset/source"
       }
     ]
   }
