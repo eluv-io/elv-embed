@@ -25,6 +25,14 @@ export const mediaTypes = {
   "l": "Link"
 };
 
+export const playerProfiles = {
+  "live": EluvioPlayerParameters.playerProfile.LOW_LATENCY,
+  "ll": EluvioPlayerParameters.playerProfile.LOW_LATENCY,
+  "low_latency": EluvioPlayerParameters.playerProfile.LOW_LATENCY,
+  "ull": EluvioPlayerParameters.playerProfile.ULTRA_LOW_LATENCY,
+  "ultra_low_latency": EluvioPlayerParameters.playerProfile.ULTRA_LOW_LATENCY
+};
+
 export const LoadParams = (url) => {
   const conversion = {
     mt: "mediaType",
@@ -112,7 +120,6 @@ export const LoadParams = (url) => {
       case "type":
       case "pst":
       case "ek":
-      case "prf":
         params[conversion[key]] = value;
         break;
 
@@ -167,6 +174,10 @@ export const LoadParams = (url) => {
       case "node":
         params.node = value;
         break;
+
+      case "prf":
+        params.playerProfile = playerProfiles[value];
+        break;
       case "hls":
         try {
           params[conversion[key]] = JSON.parse(Utils.FromB58ToStr(value));
@@ -209,13 +220,9 @@ export const LoadParams = (url) => {
     }
   }
 
-  // Set player profile based on media type
-  if(params.mediaType === mediaTypes["lv"]) {
+  if(!params.playerProfile && params.mediaType === mediaTypes["lv"]) {
+    // Set player profile based on media type
     params.playerProfile = params.playerProfile || EluvioPlayerParameters.playerProfile.LOW_LATENCY;
-  }
-
-  if(params.playerProfile === "live") {
-    params.playerProfile = EluvioPlayerParameters.playerProfile.LOW_LATENCY;
   }
 
   return {

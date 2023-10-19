@@ -21,6 +21,7 @@ class Form extends React.Component {
       versionHash: "hq__CcdV4wnCNq9wv6jXpYeCQ2GE4FLQBFtVSSSt2XKfBJMrH89DFDGsfkpWWvBy16QBGGYeF5mLGo",
       offerings: undefined,
       mediaType: "v",
+      playerProfile: "",
       authorizationToken: "",
       promptTicket: false,
       tenantId: "",
@@ -131,6 +132,10 @@ class Form extends React.Component {
 
     if(this.state.mediaType) {
       params.mt = this.state.mediaType;
+    }
+
+    if(this.state.playerProfile) {
+      params.prf = this.state.playerProfile;
     }
 
     if(this.state.hlsOptions) {
@@ -334,6 +339,18 @@ class Form extends React.Component {
             { this.LabelledField("Version Hash", "versionHash", this.Input("versionHash")) }
             { this.LabelledField("Offerings", "offerings", this.Input("offerings")) }
             { this.LabelledField("Media Type", "mediaType", this.Select("mediaType", Object.keys(mediaTypes).map(v => [mediaTypes[v], v]))) }
+            { this.LabelledField(
+              "Player Profile",
+              "playerProfile",
+              this.Select(
+                "playerProfile",
+                [
+                  ["Default", ""],
+                  ["Low Latency Live", "ll"],
+                  ["Ultra Low Latency Live", "ull"]
+                ]
+              ))
+            }
             { this.LabelledField("Link Path", "linkPath", this.Input("linkPath")) }
             { this.LabelledField("Direct Link", "directLink", this.Checkbox("directLink")) }
             { this.LabelledField("Clip Start", "clipStart", this.Input("clipStart", {type: "number", step: 0.001})) }
