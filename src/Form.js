@@ -32,21 +32,21 @@ import {useForm} from "@mantine/form";
 let initialParams = LoadParams({playerParams: false});
 initialParams.autoplay = initialParams.scrollPlayPause ? "Only When Visible" : initialParams.autoplay ? "On" : "Off";
 
+const ScrollTo = (top) => {
+  // Mobile has a bug that prevents scroll top from working
+  if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+    document.querySelector("#app").scrollTo(0, top);
+  } else {
+    document.querySelector("#app").scrollTo({top, behavior: "smooth"});
+  }
+};
+
 const EmbedFrame = ({dimensions, embedUrl}) => {
   const ref = useRef();
   useEffect(() => {
     if(!ref.current) { return; }
 
-    setTimeout(() => {
-      const top = ref.current.offsetTop;
-
-      // Mobile has a bug that prevents scroll top from working
-      if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-        document.querySelector("#app").scrollTo(0, top);
-      } else {
-        document.querySelector("#app").scrollTo({top, behavior: "smooth"});
-      }
-    }, 200);
+    setTimeout(() => ScrollTo(ref.current.offsetTop), 200);
   }, [ref]);
 
   const embedFrameString =
@@ -125,8 +125,8 @@ const Form = () => {
     initialValues,
     validate: {
       contentId: value => {
-        if(!value.startsWith("iq__")) {
-          if(Utils.ValidAddress(Utils.HashToAddress(value))) {
+        if(value.startsWith("iq__")) {
+          if(!Utils.ValidAddress(Utils.HashToAddress(value))) {
             return "Invalid Object ID";
           }
         } else if(value.startsWith("hq__")) {
@@ -165,9 +165,12 @@ const Form = () => {
       <Container w="100%" py="xl" pb={50}>
         <Paper withBorder p="xl" maw={800} mx="auto">
           <form
-            onSubmit={form.onSubmit(values => {
-              setEmbedUrl(GenerateEmbedURL({values}));
-            })}
+            onSubmit={form.onSubmit(
+              values => {
+                setEmbedUrl(GenerateEmbedURL({values}));
+              },
+              () => ScrollTo(0)
+            )}
           >
             <Title fw={500} order={3} mb="xl" ta="center">Create an Eluvio Embed URL</Title>
 
@@ -307,6 +310,8 @@ const Form = () => {
                     />
                     <JsonInput
                       label="Custom HLS.js Options"
+                      autosize
+                      minRows={2}
                       {...form.getInputProps("hlsOptions")}
                     />
                   </Stack>

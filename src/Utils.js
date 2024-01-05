@@ -136,16 +136,8 @@ export const GenerateEmbedURL = ({values}) => {
         break;
 
       case "offerings":
-        if(value && value.trim()) {
+        if(value?.trim()) {
           url.searchParams.set(param, value.trim().split(/[ ,]+/).join(","));
-        }
-        break;
-
-      case "contentId":
-        if(value.startsWith("iq__")) {
-          url.searchParams.set("oid", value);
-        } else {
-          url.searchParams.set("vid", value);
         }
         break;
 
@@ -203,15 +195,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
 
     switch(key) {
       case "cid":
-        if(value.startsWith("iq__")) {
-          params[paramsToName["oid"]] = value;
-        } else {
-          params[paramsToName["vid"]] = value;
-        }
-
-        params[paramsToName[key]] = value;
-        break;
-
+      case "ptc":
+      case "off":
       case "prf":
       case "mt":
       case "net":
@@ -248,6 +233,20 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         params[paramsToName[key]] = atob(value);
         break;
 
+      case "hls":
+        try {
+          params[paramsToName[key]] = JSON.stringify(
+            JSON.parse(
+              Utils.FromB58ToStr(value)
+            ),
+            null,
+            2
+          );
+        } catch(error) {
+          console.error("Invalid HLS options parameter:", params.hlsOptions, error);
+        }
+        break;
+
       case "wm":
       case "awm":
       case "ap":
@@ -264,28 +263,6 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "i":
       case "cap":
         params[paramsToName[key]] = true;
-        break;
-
-      case "ptc":
-      case "off":
-        params[paramsToName[key]] = (value || "").split(",");
-        break;
-
-      case "nwm":
-        params.watermark = false;
-        break;
-
-      case "node":
-        params.node = value;
-        break;
-
-      case "hls":
-        try {
-          params[paramsToName[key]] = JSON.parse(Utils.FromB58ToStr(value));
-        } catch(error) {
-          console.error("Invalid HLS options parameter");
-        }
-
         break;
     }
   }
@@ -315,6 +292,30 @@ export const LoadParams = ({url, playerParams=true}={}) => {
   params.mediaType = mediaTypes[params.mediaType] || mediaTypes["v"];
   params.playerProfile = playerProfiles[params.playerProfile];
   params.controls = controls[params.controls] || EluvioPlayerParameters.controls.OFF;
+
+  if(params.contentId) {
+    if(params.contentId.startsWith("iq__")) {
+      params[paramsToName["oid"]] = params.contentId;
+    } else {
+      params[paramsToName["vid"]] = params.contentId;
+    }
+  }
+
+  if(params.offerings) {
+    params.offerings = params.offerings.split(/[ ,]+/);
+  }
+
+  if(params.protocols) {
+    params.protocols = params.protocols.split(/[ ,]+/);
+  }
+
+  if(params.hlsOptions) {
+    try {
+      params.hlsOptions = JSON.parse(params.hlsOptions);
+    } catch(error) {
+      console.error("Invalid HLS options parameter:", params.hlsOptions);
+    }
+  }
 
   return {
     title,
