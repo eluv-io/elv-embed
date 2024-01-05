@@ -472,7 +472,7 @@ export const Initialize = async ({client, target, url, errorCallback, setPageTit
     target = document.getElementById("app");
   }
 
-  const params = LoadParams(url);
+  const params = LoadParams({url});
 
   render(
     <Gallery client={client} params={params} errorCallback={errorCallback} setPageTitle={setPageTitle} />,

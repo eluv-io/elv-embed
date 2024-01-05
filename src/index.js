@@ -1,4 +1,6 @@
 import "./static/stylesheets/app.scss";
+// TODO: remove
+import "./Form";
 
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -18,7 +20,6 @@ if(urlParams.has("p")) {
           Initialize({target: document.getElementById("app"), setPageTitle: true, embedApp: true})
         );
   }
-// Collection
 } else {
-  import("./Form.js");
+  //Form()
 }

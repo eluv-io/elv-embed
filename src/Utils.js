@@ -14,6 +14,13 @@ const CreateMetaTags = (options={}) => {
   });
 };
 
+export const controls = {
+  "d": EluvioPlayerParameters.controls.DEFAULT,
+  "h": EluvioPlayerParameters.controls.AUTO_HIDE,
+  "s": EluvioPlayerParameters.controls.ON,
+  "hv": EluvioPlayerParameters.controls.OFF_WITH_VOLUME_TOGGLE
+};
+
 export const mediaTypes = {
   "v": "Video",
   "lv": "Live Video",
@@ -26,64 +33,156 @@ export const mediaTypes = {
 };
 
 export const playerProfiles = {
-  "live": EluvioPlayerParameters.playerProfile.LOW_LATENCY,
+  "default": EluvioPlayerParameters.playerProfile.DEFAULT,
   "ll": EluvioPlayerParameters.playerProfile.LOW_LATENCY,
-  "low_latency": EluvioPlayerParameters.playerProfile.LOW_LATENCY,
   "ull": EluvioPlayerParameters.playerProfile.ULTRA_LOW_LATENCY,
-  "ultra_low_latency": EluvioPlayerParameters.playerProfile.ULTRA_LOW_LATENCY
 };
 
-export const LoadParams = (url) => {
-  const conversion = {
-    mt: "mediaType",
-    net: "network",
-    oid: "objectId",
-    vid: "versionHash",
-    off: "offerings",
-    ln: "linkPath",
-    dr: "directLink",
-    ap: "autoplay",
-    scr: "scrollPlayPause",
-    m: "muted",
-    ct: "controls",
-    lp: "loop",
-    ptc: "protocols",
-    ttl: "title",
-    dsc: "description",
-    sm: "smallPlayer",
-    i: "imageOnly",
-    sh: "showShare",
-    st: "showTitle",
-    ht: "hideTitle",
-    prf: "playerProfile",
-    hls: "hlsOptions",
+export const paramsToName = {
+  mt: "mediaType",
+  net: "network",
+  cid: "contentId",
+  oid: "objectId",
+  vid: "versionHash",
+  off: "offerings",
+  ln: "linkPath",
+  dr: "directLink",
+  ap: "autoplay",
+  scr: "scrollPlayPause",
+  m: "muted",
+  ct: "controls",
+  lp: "loop",
+  ptc: "protocols",
+  ttl: "title",
+  dsc: "description",
+  sm: "smallPlayer",
+  i: "imageOnly",
+  sh: "showShare",
+  st: "showTitle",
+  ht: "hideTitle",
+  prf: "playerProfile",
+  hls: "hlsOptions",
 
-    w: "width",
-    h: "height",
-    cap: "capLevelToPlayerSize",
+  w: "width",
+  h: "height",
+  cap: "capLevelToPlayerSize",
 
-    ath: "authorizationToken",
-    ten: "tenantId",
-    ntp: "ntpId",
-    ptk: "promptTicket",
-    tk: "ticketCode",
-    sbj: "ticketSubject",
-    data: "data",
+  ath: "authorizationToken",
+  ten: "tenantId",
+  ntp: "ntpId",
+  ptk: "promptTicket",
+  tk: "ticketCode",
+  sbj: "ticketSubject",
+  data: "data",
 
-    start: "clipStart",
-    end: "clipEnd",
+  start: "clipStart",
+  end: "clipEnd",
 
-    type: "mediaType",
-    murl: "mediaUrl",
-    vrk: "viewRecordKey",
-    ek: "eventKey",
+  type: "mediaType",
+  murl: "mediaUrl",
+  vrk: "viewRecordKey",
+  ek: "eventKey",
 
-    // Watermark defaults true except for NFTs
-    wm: "watermark",
-    nwm: "watermark",
-    awm: "accountWatermark"
-  };
+  // Watermark defaults true except for NFTs
+  wm: "watermark",
+  nwm: "watermark",
+  awm: "accountWatermark"
+};
 
+let reverseMap = {};
+Object.keys(paramsToName).forEach(key =>
+  reverseMap[paramsToName[key]] = key
+);
+
+export const GenerateEmbedURL = ({values}) => {
+  const url = new URL(window.location.origin);
+  url.searchParams.set("p", "");
+
+  let ogData = {};
+  Object.keys(values).forEach(key => {
+    const param = reverseMap[key];
+    const value = values[key];
+
+    if(typeof value === "undefined" || (typeof value === "boolean" && !value) || value === "") {
+      return;
+    }
+
+    switch(key) {
+      case "title":
+        data["og:title"] = value;
+        break;
+
+      case "description":
+        data["og:description"] = value;
+        break;
+
+      case "autoplay":
+        if(value === "Only When Visible") {
+          url.searchParams.set("scr", "");
+        } else if(value === "On") {
+          url.searchParams.set(param, "");
+        }
+        break;
+
+      case "clipStart":
+      case "clipEnd":
+        url.searchParams.set(param, parseFloat(value));
+        break;
+
+      case "linkPath":
+      case "ticketCode":
+      case "ticketSubject":
+        url.searchParams.set(param, Utils.B64(value));
+        break;
+
+      case "offerings":
+        if(value && value.trim()) {
+          url.searchParams.set(param, value.trim().split(/[ ,]+/).join(","));
+        }
+        break;
+
+      case "contentId":
+        if(value.startsWith("iq__")) {
+          url.searchParams.set("oid", value);
+        } else {
+          url.searchParams.set("vid", value);
+        }
+        break;
+
+      case "hlsOptions":
+        try {
+          const options = JSON.parse(value);
+          if(options && Object.keys(options).length > 0) {
+            url.searchParams.set(param, Utils.B58(JSON.stringify(options)));
+          }
+        } catch(error) {
+          console.error("Unable to convert HLS options:");
+          console.error(error);
+        }
+        break;
+
+      default:
+        if(!param) {
+          console.warn(`Unknown parameter ${key} = ${value}`);
+          return;
+        }
+
+        if(typeof value === "boolean") {
+          url.searchParams.set(param, "");
+        } else {
+          url.searchParams.set(param, value);
+        }
+    }
+  });
+
+  if(Object.keys(ogData).length > 0) {
+    url.searchParams.set("data", Utils.B64(JSON.stringify({meta_tags: data})));
+  }
+
+  return url;
+};
+
+export const LoadParams = ({url, playerParams=true}={}) => {
   const networks = {
     main: EluvioPlayerParameters.networks.MAIN,
     demo: EluvioPlayerParameters.networks.DEMO,
@@ -103,14 +202,19 @@ export const LoadParams = (url) => {
     const value = urlParams.get(key).toString();
 
     switch(key) {
+      case "cid":
+        if(value.startsWith("iq__")) {
+          params[paramsToName["oid"]] = value;
+        } else {
+          params[paramsToName["vid"]] = value;
+        }
+
+        params[paramsToName[key]] = value;
+        break;
+
+      case "prf":
       case "mt":
-        params[conversion[key]] = mediaTypes[value] || mediaTypes["v"];
-        break;
-
       case "net":
-        params[conversion[key]] = networks[value.toLowerCase()];
-        break;
-
       case "ath":
       case "oid":
       case "vid":
@@ -120,17 +224,17 @@ export const LoadParams = (url) => {
       case "type":
       case "pst":
       case "ek":
-        params[conversion[key]] = value;
+        params[paramsToName[key]] = value;
         break;
 
       case "w":
       case "h":
-        params[conversion[key]] = parseInt(value);
+        params[paramsToName[key]] = parseInt(value);
         break;
 
       case "start":
       case "end":
-        params[conversion[key]] = parseFloat(value);
+        params[paramsToName[key]] = parseFloat(value);
         break;
 
       case "ln":
@@ -141,7 +245,7 @@ export const LoadParams = (url) => {
       case "data":
       case "murl":
       case "vrk":
-        params[conversion[key]] = atob(value);
+        params[paramsToName[key]] = atob(value);
         break;
 
       case "wm":
@@ -159,12 +263,12 @@ export const LoadParams = (url) => {
       case "dr":
       case "i":
       case "cap":
-        params[conversion[key]] = true;
+        params[paramsToName[key]] = true;
         break;
 
       case "ptc":
       case "off":
-        params[conversion[key]] = (value || "").split(",");
+        params[paramsToName[key]] = (value || "").split(",");
         break;
 
       case "nwm":
@@ -175,37 +279,15 @@ export const LoadParams = (url) => {
         params.node = value;
         break;
 
-      case "prf":
-        params.playerProfile = playerProfiles[value];
-        break;
       case "hls":
         try {
-          params[conversion[key]] = JSON.parse(Utils.FromB58ToStr(value));
+          params[paramsToName[key]] = JSON.parse(Utils.FromB58ToStr(value));
         } catch(error) {
           console.error("Invalid HLS options parameter");
         }
 
         break;
     }
-  }
-
-  let controls;
-  switch(params.controls) {
-    case "d":
-      controls = EluvioPlayerParameters.controls.DEFAULT;
-      break;
-    case "h":
-      controls = EluvioPlayerParameters.controls.AUTO_HIDE;
-      break;
-    case "s":
-      controls = EluvioPlayerParameters.controls.ON;
-      break;
-    case "hv":
-      controls = EluvioPlayerParameters.controls.OFF_WITH_VOLUME_TOGGLE;
-      break;
-    default:
-      controls = ("controls" in params) ? EluvioPlayerParameters.controls.DEFAULT : EluvioPlayerParameters.controls.OFF;
-      break;
   }
 
   let title;
@@ -224,6 +306,15 @@ export const LoadParams = (url) => {
     // Set player profile based on media type
     params.playerProfile = params.playerProfile || EluvioPlayerParameters.playerProfile.LOW_LATENCY;
   }
+
+  if(!playerParams) {
+    return params;
+  }
+
+  params.network = networks[params.network.toLowerCase()];
+  params.mediaType = mediaTypes[params.mediaType] || mediaTypes["v"];
+  params.playerProfile = playerProfiles[params.playerProfile];
+  params.controls = controls[params.controls] || EluvioPlayerParameters.controls.OFF;
 
   return {
     title,
@@ -280,7 +371,7 @@ export const LoadParams = (url) => {
       },
       playerOptions: {
         controlsClassName: "swiper-no-swiping",
-        controls,
+        controls: params.controls,
         autoplay: params.scrollPlayPause ? EluvioPlayerParameters.autoplay.WHEN_VISIBLE : params.autoplay,
         muted: params.muted,
         loop: params.loop,
