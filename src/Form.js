@@ -20,7 +20,8 @@ import {
   TextInput,
   NumberInput,
   JsonInput,
-  Code
+  Code,
+  Accordion
 } from "@mantine/core";
 import {createRoot} from "react-dom/client";
 import {mediaTypes, LoadParams, GenerateEmbedURL} from "./Utils";
@@ -177,22 +178,76 @@ const Form = () => {
             <Stack gap="xs">
               <Title fw={500} order={4}>Content</Title>
               <Select
+                required
                 label="Network"
                 data={[{label: "Main", value: "main"}, {label: "Demo", value: "demo"}]}
                 {...form.getInputProps("network")}
               />
               <TextInput
-                label="Content ID"
                 required
+                label="Content ID"
                 placeholder="Version Hash or Object ID of the Content"
                 {...form.getInputProps("contentId")}
               />
               <Select
+                required
                 label="Media Type"
                 data={Object.keys(mediaTypes).map(key => ({label: mediaTypes[key], value: key}))}
                 {...form.getInputProps("mediaType")}
               />
             </Stack>
+            {
+              !["v", "lv", "a"].includes(form.values.mediaType) ? null :
+                <Stack gap="xs" mt="xl">
+                  <Title fw={500} order={4}>Playout</Title>
+                  <TextInput
+                    label="Offering(s)"
+                    placeholder="Comma separated"
+                    {...form.getInputProps("offerings")}
+                  />
+                  <Accordion variant="contained">
+                    <Accordion.Item key="advanced" value="advanced">
+                      <Accordion.Control>Advanced Options</Accordion.Control>
+                      <Accordion.Panel>
+                        <Stack gap="xs">
+                          <Select
+                            label="Player Profile"
+                            data={[{label: "Default", value: ""}, {
+                              label: "Low Latency Live",
+                              value: "ll"
+                            }, {label: "Ultra Low Latency Live", value: "ull"}]}
+                            {...form.getInputProps("playerProfile")}
+                          />
+                          <TextInput
+                            label="Link Path"
+                            {...form.getInputProps("linkPath")}
+                          />
+                          <Checkbox
+                            mt="xs"
+                            mb="md"
+                            label="Direct Link"
+                            {...form.getInputProps("directLink", {type: "checkbox"})}
+                          />
+                          <NumberInput
+                            label="Clip Start Time"
+                            allowNegative={false}
+                            decimalScale={1}
+                            step={0.1}
+                            {...form.getInputProps("clipStart")}
+                          />
+                          <NumberInput
+                            label="Clip End Time"
+                            allowNegative={false}
+                            decimalScale={1}
+                            step={0.1}
+                            {...form.getInputProps("clipEnd")}
+                          />
+                        </Stack>
+                      </Accordion.Panel>
+                    </Accordion.Item>
+                  </Accordion>
+                </Stack>
+            }
 
             <Stack gap="xs" mt="xl">
               <Title fw={500} order={4}>Authorization</Title>
@@ -236,86 +291,45 @@ const Form = () => {
 
             {
               !["v", "lv", "a"].includes(form.values.mediaType) ? null :
-                <>
-                  <Stack gap="xs" mt="xl">
-                    <Title fw={500} order={4}>Playout</Title>
-                    <Select
-                      label="Player Profile"
-                      data={[{label: "Default", value: ""}, {label: "Low Latency Live", value: "ll"}, {label: "Ultra Low Latency Live", value: "ull"}]}
-                      {...form.getInputProps("playerProfile")}
-                    />
-                    <TextInput
-                      label="Offering(s)"
-                      placeholder="Comma separated"
-                      {...form.getInputProps("offerings")}
-                    />
-                    <TextInput
-                      label="Link Path"
-                      {...form.getInputProps("linkPath")}
-                    />
-                    <Checkbox
-                      my="md"
-                      label="Direct Link"
-                      {...form.getInputProps("directLink", { type: "checkbox" })}
-                    />
-                    <NumberInput
-                      label="Clip Start Time"
-                      allowNegative={false}
-                      decimalScale={1}
-                      step={0.1}
-                      {...form.getInputProps("clipStart")}
-                    />
-                    <NumberInput
-                      label="Clip End Time"
-                      allowNegative={false}
-                      decimalScale={1}
-                      step={0.1}
-                      {...form.getInputProps("clipEnd")}
-                    />
-                  </Stack>
-                  <Stack gap="xs" mt="xl">
-                    <Title fw={500} order={4}>Player</Title>
-                    <Select
-                      label="Autoplay"
-                      description="Note: Most browsers do not allow autoplaying of unmuted content by default. This setting is best-effort."
-                      data={["On", "Only When Visible", "Off"]}
-                      {...form.getInputProps("autoplay")}
-                    />
-                    <Select
-                      label="Controls"
-                      data={[
-                        {label: "Hidden", value: ""},
-                        {label: "Auto Hide", value: "h"},
-                        {label: "Always Visible", value: "s"},
-                        {label: "Volume Toggle Only", value: "hv"},
-                        {label: "Browser Default", value: "d"},
-                      ]}
-                      {...form.getInputProps("controls")}
-                    />
-                    <Checkbox
-                      my="xs"
-                      label="Mute Audio"
-                      {...form.getInputProps("muted", { type: "checkbox" })}
-                    />
-                    <Checkbox
-                      my="xs"
-                      label="Loop Video"
-                      {...form.getInputProps("loop", { type: "checkbox" })}
-                    />
-                    <Checkbox
-                      my="xs"
-                      label="Cap Video Quality to Player Size"
-                      description="If specified, the playout quality for video will not exceed the rendered size of the video element. This can improve performance and reduce bandwidth for smaller video elements or user screen sizes by not serving unnecessarily high quality video."
-                      {...form.getInputProps("capLevelToPlayerSize", { type: "checkbox" })}
-                    />
-                    <JsonInput
-                      label="Custom HLS.js Options"
-                      autosize
-                      minRows={2}
-                      {...form.getInputProps("hlsOptions")}
-                    />
-                  </Stack>
-                </>
+                <Stack gap="xs" mt="xl">
+                  <Title fw={500} order={4}>Player</Title>
+                  <Select
+                    label="Autoplay"
+                    description="Note: Most browsers do not allow autoplaying of unmuted content by default. This setting is best-effort."
+                    data={["On", "Only When Visible", "Off"]}
+                    {...form.getInputProps("autoplay")}
+                  />
+                  <Select
+                    label="Controls"
+                    data={[
+                      {label: "Hidden", value: ""},
+                      {label: "Auto Hide", value: "h"},
+                      {label: "Always Visible", value: "s"},
+                      {label: "Volume Toggle Only", value: "hv"},
+                      {label: "Browser Default", value: "d"},
+                    ]}
+                    {...form.getInputProps("controls")}
+                  />
+                  <Checkbox
+                    label="Mute Audio"
+                    {...form.getInputProps("muted", { type: "checkbox" })}
+                  />
+                  <Checkbox
+                    label="Loop Video"
+                    {...form.getInputProps("loop", { type: "checkbox" })}
+                  />
+                  <Checkbox
+                    label="Cap Video Quality to Player Size"
+                    description="If specified, the playout quality for video will not exceed the rendered size of the video element. This can improve performance and reduce bandwidth for smaller video elements or user screen sizes by not serving unnecessarily high quality video."
+                    {...form.getInputProps("capLevelToPlayerSize", { type: "checkbox" })}
+                  />
+                  <JsonInput
+                    label="Custom HLS.js Options"
+                    autosize
+                    minRows={2}
+                    {...form.getInputProps("hlsOptions")}
+                  />
+                </Stack>
             }
             <Stack gap="xs" mt="xl">
               <Title fw={500} order={4}>Embed Frame</Title>
