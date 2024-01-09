@@ -25,6 +25,7 @@ export const mediaTypes = {
   "v": "Video",
   "lv": "Live Video",
   "a": "Audio",
+  "pl": "Playlist",
   "i": "Image",
   "h": "HTML",
   "b": "EBook",
@@ -39,11 +40,14 @@ export const playerProfiles = {
 };
 
 export const paramsToName = {
+  ttl: "title",
+  dsc: "description",
   mt: "mediaType",
   net: "network",
   cid: "contentId",
   oid: "objectId",
   vid: "versionHash",
+  pid: "playlistId",
   off: "offerings",
   ln: "linkPath",
   dr: "directLink",
@@ -53,8 +57,6 @@ export const paramsToName = {
   ct: "controls",
   lp: "loop",
   ptc: "protocols",
-  ttl: "title",
-  dsc: "description",
   sm: "smallPlayer",
   i: "imageOnly",
   sh: "showShare",
@@ -101,21 +103,15 @@ export const GenerateEmbedURL = ({values}) => {
   let ogData = {};
   Object.keys(values).forEach(key => {
     const param = reverseMap[key];
-    const value = values[key];
+    let value = values[key];
 
     if(typeof value === "undefined" || (typeof value === "boolean" && !value) || value === "") {
       return;
+    } else if(typeof value === "string") {
+      value = value.trim();
     }
 
     switch(key) {
-      case "title":
-        data["og:title"] = value;
-        break;
-
-      case "description":
-        data["og:description"] = value;
-        break;
-
       case "autoplay":
         if(value === "Only When Visible") {
           url.searchParams.set("scr", "");
@@ -129,6 +125,8 @@ export const GenerateEmbedURL = ({values}) => {
         url.searchParams.set(param, parseFloat(value));
         break;
 
+      case "title":
+      case "description":
       case "linkPath":
       case "ticketCode":
       case "ticketSubject":
@@ -168,7 +166,7 @@ export const GenerateEmbedURL = ({values}) => {
   });
 
   if(Object.keys(ogData).length > 0) {
-    url.searchParams.set("data", Utils.B64(JSON.stringify({meta_tags: data})));
+    url.searchParams.set("data", Utils.B64(JSON.stringify({meta_tags: ogData})));
   }
 
   return url;
@@ -191,10 +189,11 @@ export const LoadParams = ({url, playerParams=true}={}) => {
   };
 
   for(const key of urlParams.keys()) {
-    const value = urlParams.get(key).toString();
+    const value = urlParams.get(key).toString().trim();
 
     switch(key) {
       case "cid":
+      case "pid":
       case "ptc":
       case "off":
       case "prf":
@@ -222,15 +221,14 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         params[paramsToName[key]] = parseFloat(value);
         break;
 
-      case "ln":
       case "ttl":
       case "dsc":
+      case "ln":
       case "tk":
       case "sbj":
-      case "data":
       case "murl":
       case "vrk":
-        params[paramsToName[key]] = atob(value);
+        params[paramsToName[key]] = Utils.FromB64(value).trim();
         break;
 
       case "hls":
@@ -264,18 +262,6 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "cap":
         params[paramsToName[key]] = true;
         break;
-    }
-  }
-
-  let title;
-  if(params.data) {
-    try {
-      title = JSON.parse(params.data).meta_tags["og:title"];
-    } catch(error) {
-      // eslint-disable-next-line no-console
-      console.error("Failed to parse 'data' parameter:");
-      // eslint-disable-next-line no-console
-      console.error(error);
     }
   }
 
@@ -318,10 +304,9 @@ export const LoadParams = ({url, playerParams=true}={}) => {
   }
 
   return {
-    title,
+    title: params.title,
+    description: params.description,
     smallPlayer: params.smallPlayer,
-    showTitle: params.showTitle,
-    hideTitle: params.hideTitle,
     showShare: params.showShare,
     network: params.network,
     objectId: params.objectId,
@@ -359,6 +344,14 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       },
       sourceOptions: {
         protocols: params.protocols,
+        playlistOptions: {
+          mediaLibraryObjectId: params.playlistId ? params.versionHash || params.objectId : undefined,
+          playlistId: params.playlistId
+        },
+        contentOptions: {
+          title: params.title,
+          description: params.description
+        },
         playoutParameters: {
           objectId: params.objectId,
           versionHash: params.versionHash,

@@ -21,7 +21,8 @@ import {
   NumberInput,
   JsonInput,
   Code,
-  Accordion
+  Accordion,
+  Textarea
 } from "@mantine/core";
 import {createRoot} from "react-dom/client";
 import {mediaTypes, LoadParams, GenerateEmbedURL} from "./Utils";
@@ -81,11 +82,11 @@ const Form = () => {
     height: Math.floor(DEFAULT_FRAME_WIDTH * 9 / 16)
   });
   let initialValues = {
-    showTitle: false,
     title: "",
     description: "",
     network: "main",
     contentId: "",
+    playlistId: "",
     offerings: "",
     mediaType: "v",
     playerProfile: "",
@@ -164,7 +165,7 @@ const Form = () => {
         </Group>
       </Container>
       <Container w="100%" py="xl" pb={50}>
-        <Paper withBorder p="xl" maw={800} mx="auto">
+        <Paper withBorder p="xl" maw={800} mx="auto" shadow="sm">
           <form
             onSubmit={form.onSubmit(
               values => {
@@ -195,16 +196,48 @@ const Form = () => {
                 data={Object.keys(mediaTypes).map(key => ({label: mediaTypes[key], value: key}))}
                 {...form.getInputProps("mediaType")}
               />
+              {
+                form.values.mediaType !== "pl" ? null :
+                  <TextInput
+                    required
+                    label="Playlist ID"
+                    {...form.getInputProps("playlistId")}
+                  />
+              }
+
+              {
+                !["v", "lv", "a"].includes(form.values.mediaType) ? null :
+                  <>
+                    <TextInput
+                      label="Title"
+                      {...form.getInputProps("title")}
+                    />
+                    <Textarea
+                      label="Description"
+                      {...form.getInputProps("description")}
+                    />
+                  </>
+              }
             </Stack>
             {
-              !["v", "lv", "a"].includes(form.values.mediaType) ? null :
+              !["v", "lv", "a", "pl"].includes(form.values.mediaType) ? null :
                 <Stack gap="xs" mt="xl">
                   <Title fw={500} order={4}>Playout</Title>
-                  <TextInput
-                    label="Offering(s)"
-                    placeholder="Comma separated"
-                    {...form.getInputProps("offerings")}
-                  />
+                  {
+                    form.values.linkPath && !form.values.offerings ? null :
+                      <TextInput
+                        label="Offering(s)"
+                        placeholder="Comma separated"
+                        {...form.getInputProps("offerings")}
+                      />
+                  }
+                  {
+                    form.values.offerings && !form.values.linkPath ? null :
+                      <TextInput
+                        label="Link Path"
+                        {...form.getInputProps("linkPath")}
+                      />
+                  }
                   <Accordion variant="contained">
                     <Accordion.Item key="advanced" value="advanced">
                       <Accordion.Control>Advanced Options</Accordion.Control>
@@ -217,16 +250,6 @@ const Form = () => {
                               value: "ll"
                             }, {label: "Ultra Low Latency Live", value: "ull"}]}
                             {...form.getInputProps("playerProfile")}
-                          />
-                          <TextInput
-                            label="Link Path"
-                            {...form.getInputProps("linkPath")}
-                          />
-                          <Checkbox
-                            mt="xs"
-                            mb="md"
-                            label="Direct Link"
-                            {...form.getInputProps("directLink", {type: "checkbox"})}
                           />
                           <NumberInput
                             label="Clip Start Time"
@@ -290,7 +313,7 @@ const Form = () => {
             </Stack>
 
             {
-              !["v", "lv", "a"].includes(form.values.mediaType) ? null :
+              !["v", "lv", "a", "pl"].includes(form.values.mediaType) ? null :
                 <Stack gap="xs" mt="xl">
                   <Title fw={500} order={4}>Player</Title>
                   <Select

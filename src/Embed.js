@@ -29,22 +29,25 @@ const SandboxPermissions = () => {
 
 const Playable = async (client, playerParams) => {
   try {
-    const availableOfferings = await client.AvailableOfferings({
-      objectId: playerParams.sourceOptions.playoutParameters.objectId,
-      versionHash: playerParams.sourceOptions.playoutParameters.versionHash,
-      writeToken: playerParams.sourceOptions.playoutParameters.writeToken,
-      linkPath: playerParams.sourceOptions.playoutParameters.linkPath,
-      directLink: playerParams.sourceOptions.playoutParameters.directLink,
-      resolveIncludeSource: true,
-      authorizationToken: playerParams.sourceOptions.playoutParameters.authorizationToken
-    });
+    let availableOfferings = {};
+    // If direct link is specified, determining offering is not necessary
+    if(!playerParams.sourceOptions.playoutParameters.linkPath) {
+      availableOfferings = await client.AvailableOfferings({
+        objectId: playerParams.sourceOptions.playoutParameters.objectId,
+        versionHash: playerParams.sourceOptions.playoutParameters.versionHash,
+        writeToken: playerParams.sourceOptions.playoutParameters.writeToken,
+        linkPath: playerParams.sourceOptions.playoutParameters.linkPath,
+        resolveIncludeSource: true,
+        authorizationToken: playerParams.sourceOptions.playoutParameters.authorizationToken
+      });
+    }
 
     return {
       playable: availableOfferings && Object.keys(availableOfferings).length > 0,
       availableOfferings
     };
   } catch(error) {
-    return { playable: false };
+    return { playable: false, availableOfferings: {} };
   }
 };
 
@@ -213,14 +216,16 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
       typeof (metadata.nft || metadata.asset_metadata.nft || {}).playable !== "undefined" &&
       !(metadata.nft || metadata.asset_metadata.nft || {}).playable;
 
-    let { playable, availableOfferings } = nonPlayableNFT ? { playable: false } : await Playable(client, params.playerParameters);
+    let { playable, availableOfferings } = nonPlayableNFT ? { playable: false, availableOfferings: {} } : await Playable(client, params.playerParameters);
 
-    if(mediaType !== "video" && mediaType !== "live video" && (mediaType === "image" || params.imageOnly || !playable)) {
+    if(!["video", "live video", "audio", "playlist"].includes(mediaType) && (mediaType === "image" || params.imageOnly || !playable)) {
       LoadImage({client, params, metadata, imageUrl: mediaUrl, target: playerTarget});
     } else {
       // Select specified offering - highest priority offering that is actually available
       if(params.offerings?.length > 0) {
         params.playerParameters.sourceOptions.playoutParameters.offering = params.offerings.find(offeringKey => availableOfferings[offeringKey]);
+      } else if(availableOfferings && Object.keys(availableOfferings).length > 0) {
+        params.playerParameters.sourceOptions.playoutParameters.offering = Object.keys(availableOfferings)[0];
       }
 
       if(errorCallback) {
