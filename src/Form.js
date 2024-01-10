@@ -106,6 +106,7 @@ const Form = () => {
     embedCode: "",
     clipStart: "",
     clipEnd: "",
+    maxBitrate: "",
     hlsOptions: "{}",
     ...initialParams
   };
@@ -184,17 +185,17 @@ const Form = () => {
                 data={[{label: "Main", value: "main"}, {label: "Demo", value: "demo"}]}
                 {...form.getInputProps("network")}
               />
-              <TextInput
-                required
-                label="Content ID"
-                placeholder="Version Hash or Object ID of the Content"
-                {...form.getInputProps("contentId")}
-              />
               <Select
                 required
                 label="Media Type"
                 data={Object.keys(mediaTypes).map(key => ({label: mediaTypes[key], value: key}))}
                 {...form.getInputProps("mediaType")}
+              />
+              <TextInput
+                required
+                label={form.values.mediaType === "pl" ? "Media Catalog ID" : "Content ID"}
+                placeholder={`Version Hash or Object ID of the ${form.values.mediaType === "pl" ? "media catalog" : "content"}`}
+                {...form.getInputProps("contentId")}
               />
               {
                 form.values.mediaType !== "pl" ? null :
@@ -252,6 +253,13 @@ const Form = () => {
                             {...form.getInputProps("playerProfile")}
                           />
                           <NumberInput
+                            label="Maximum Bitrate (bps)"
+                            allowNegative={false}
+                            allowDecimal={false}
+                            step={1}
+                            {...form.getInputProps("maxBitrate")}
+                          />
+                          <NumberInput
                             label="Clip Start Time"
                             allowNegative={false}
                             decimalScale={1}
@@ -280,7 +288,7 @@ const Form = () => {
               />
               <Checkbox
                 my="xs"
-                label="Prompt for Ticket"
+                label="Prompt for Ticket Code"
                 {...form.getInputProps("promptTicket", { type: "checkbox" })}
               />
               {
@@ -300,7 +308,6 @@ const Form = () => {
                       />
                       <TextInput
                         label="Ticket Code"
-                        required
                         {...form.getInputProps("ticketCode")}
                       />
                       <TextInput

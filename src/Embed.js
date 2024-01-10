@@ -271,8 +271,6 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
       window.player = player;
     }
 
-    //InitializeTitle({target, params, metadata, width: params.smallPlayer ? params.width : undefined, setPageTitle});
-
     return player;
   } catch(error) {
     // eslint-disable-next-line no-console

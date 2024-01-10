@@ -1,6 +1,4 @@
 import "./static/stylesheets/app.scss";
-// TODO: remove
-import "./Form";
 
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -21,5 +19,5 @@ if(urlParams.has("p")) {
         );
   }
 } else {
-  //Form()
+  import("./Form");
 }

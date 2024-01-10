@@ -64,6 +64,7 @@ export const paramsToName = {
   ht: "hideTitle",
   prf: "playerProfile",
   hls: "hlsOptions",
+  mbr: "maxBitrate",
 
   w: "width",
   h: "height",
@@ -123,6 +124,10 @@ export const GenerateEmbedURL = ({values}) => {
       case "clipStart":
       case "clipEnd":
         url.searchParams.set(param, parseFloat(value));
+        break;
+
+      case "maxBitrate":
+        url.searchParams.set(param, parseInt(value));
         break;
 
       case "title":
@@ -213,6 +218,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
 
       case "w":
       case "h":
+      case "mbr":
         params[paramsToName[key]] = parseInt(value);
         break;
 
@@ -373,7 +379,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         accountWatermark: params.accountWatermark,
         capLevelToPlayerSize: params.capLevelToPlayerSize,
         playerProfile: params.playerProfile,
-        hlsjsOptions: params.hlsOptions
+        hlsjsOptions: params.hlsOptions,
+        maxBitrate: params.maxBitrate
       }
     }
   };
