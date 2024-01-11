@@ -351,7 +351,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       sourceOptions: {
         protocols: params.protocols,
         playlistOptions: {
-          mediaLibraryObjectId: params.playlistId ? params.versionHash || params.objectId : undefined,
+          mediaCatalogObjectId: params.playlistId ? params.objectId : undefined,
+          mediaCatalogVersionHash: params.playlistId ? params.versionHash : undefined,
           playlistId: params.playlistId
         },
         contentOptions: {
