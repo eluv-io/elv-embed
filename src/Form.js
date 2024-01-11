@@ -86,7 +86,7 @@ const Form = () => {
     description: "",
     network: "main",
     contentId: "",
-    playlistId: "",
+    collectionId: "",
     offerings: "",
     mediaType: "v",
     playerProfile: "",
@@ -195,16 +195,16 @@ const Form = () => {
               />
               <TextInput
                 required
-                label={form.values.mediaType === "pl" ? "Media Catalog ID" : "Content ID"}
-                placeholder={`Version Hash or Object ID of the ${form.values.mediaType === "pl" ? "media catalog" : "content"}`}
+                label={form.values.mediaType === "mc" ? "Media Catalog ID" : "Content ID"}
+                placeholder={`Version Hash or Object ID of the ${form.values.mediaType === "mc" ? "media catalog" : "content"}`}
                 {...form.getInputProps("contentId")}
               />
               {
-                form.values.mediaType !== "pl" ? null :
+                form.values.mediaType !== "mc" ? null :
                   <TextInput
                     required
-                    label="Playlist ID"
-                    {...form.getInputProps("playlistId")}
+                    label="Media Collection ID"
+                    {...form.getInputProps("collectionId")}
                   />
               }
 
@@ -223,7 +223,7 @@ const Form = () => {
               }
             </Stack>
             {
-              !["v", "lv", "a", "pl"].includes(form.values.mediaType) ? null :
+              !["v", "lv", "a", "mc"].includes(form.values.mediaType) ? null :
                 <Stack gap="xs" mt="xl">
                   <Title fw={500} order={4}>Playout</Title>
                   {
@@ -328,7 +328,7 @@ const Form = () => {
             </Stack>
 
             {
-              !["v", "lv", "a", "pl"].includes(form.values.mediaType) ? null :
+              !["v", "lv", "a", "mc"].includes(form.values.mediaType) ? null :
                 <Stack gap="xs" mt="xl">
                   <Title fw={500} order={4}>Player</Title>
                   <Select

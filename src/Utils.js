@@ -25,7 +25,7 @@ export const mediaTypes = {
   "v": "Video",
   "lv": "Live Video",
   "a": "Audio",
-  "pl": "Playlist",
+  "mc": "Media Collection",
   "i": "Image",
   "h": "HTML",
   "b": "EBook",
@@ -47,7 +47,7 @@ export const paramsToName = {
   cid: "contentId",
   oid: "objectId",
   vid: "versionHash",
-  pid: "playlistId",
+  mcid: "collectionId",
   off: "offerings",
   ln: "linkPath",
   dr: "directLink",
@@ -111,8 +111,8 @@ export const GenerateEmbedURL = ({values}) => {
     }
 
     switch(key) {
-      case "playlistId":
-        if(values.mediaType === "pl") {
+      case "collectionId":
+        if(values.mediaType === "mc") {
           url.searchParams.set(param, value);
         }
         break;
@@ -200,7 +200,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
 
     switch(key) {
       case "cid":
-      case "pid":
+      case "mcid":
       case "ptc":
       case "off":
       case "prf":
@@ -353,10 +353,10 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       },
       sourceOptions: {
         protocols: params.protocols,
-        playlistOptions: {
-          mediaCatalogObjectId: params.playlistId ? params.objectId : undefined,
-          mediaCatalogVersionHash: params.playlistId ? params.versionHash : undefined,
-          playlistId: params.playlistId
+        mediaCollectionOptions: {
+          mediaCatalogObjectId: params.mediaType === mediaTypes["mc"] ? params.objectId : undefined,
+          mediaCatalogVersionHash: params.mediaType === mediaTypes["mc"] ? params.versionHash : undefined,
+          collectionId: params.collectionId
         },
         contentOptions: {
           title: params.title,

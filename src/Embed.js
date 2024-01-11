@@ -218,7 +218,7 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
 
     let { playable, availableOfferings } = nonPlayableNFT ? { playable: false, availableOfferings: {} } : await Playable(client, params.playerParameters);
 
-    if(!["video", "live video", "audio", "playlist"].includes(mediaType) && (mediaType === "image" || params.imageOnly || !playable)) {
+    if(!["video", "live video", "audio", "media collection"].includes(mediaType) && (mediaType === "image" || params.imageOnly || !playable)) {
       LoadImage({client, params, metadata, imageUrl: mediaUrl, target: playerTarget});
     } else {
       // Select specified offering - highest priority offering that is actually available
