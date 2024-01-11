@@ -59,8 +59,6 @@ export const paramsToName = {
   ptc: "protocols",
   sm: "smallPlayer",
   i: "imageOnly",
-  sh: "showShare",
-  st: "showTitle",
   ht: "hideTitle",
   prf: "playerProfile",
   hls: "hlsOptions",
@@ -377,6 +375,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       },
       playerOptions: {
         controlsClassName: "swiper-no-swiping",
+        title: !params.hideTitle,
         controls: params.controls,
         autoplay: params.scrollPlayPause ? EluvioPlayerParameters.autoplay.WHEN_VISIBLE : params.autoplay,
         muted: params.muted,

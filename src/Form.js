@@ -103,6 +103,7 @@ const Form = () => {
     loop: false,
     muted: false,
     hideWatermark: false,
+    hideTitle: false,
     capLevelToPlayerSize: false,
     embedCode: "",
     clipStart: "",
@@ -356,7 +357,11 @@ const Form = () => {
                     {...form.getInputProps("loop", { type: "checkbox" })}
                   />
                   <Checkbox
-                    label="Hide Eluvio Watermark"
+                    label="Hide Title"
+                    {...form.getInputProps("hideTitle", { type: "checkbox" })}
+                  />
+                  <Checkbox
+                    label="Hide Watermark"
                     {...form.getInputProps("hideWatermark", { type: "checkbox" })}
                   />
                   <Checkbox
