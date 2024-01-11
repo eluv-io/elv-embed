@@ -88,7 +88,7 @@ export const paramsToName = {
 
   // Watermark defaults true except for NFTs
   wm: "watermark",
-  nwm: "watermark",
+  nwm: "hideWatermark",
   awm: "accountWatermark"
 };
 
@@ -113,6 +113,12 @@ export const GenerateEmbedURL = ({values}) => {
     }
 
     switch(key) {
+      case "playlistId":
+        if(values.mediaType === "pl") {
+          url.searchParams.set(param, value);
+        }
+        break;
+
       case "autoplay":
         if(value === "Only When Visible") {
           url.searchParams.set("scr", "");
@@ -189,9 +195,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
     new URL(url || window.location.toString()).search
   );
 
-  let params = {
-    watermark: true
-  };
+  let params = {};
 
   for(const key of urlParams.keys()) {
     const value = urlParams.get(key).toString().trim();
@@ -252,6 +256,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         break;
 
       case "wm":
+      case "nwm":
       case "awm":
       case "ap":
       case "scr":
@@ -376,7 +381,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         autoplay: params.scrollPlayPause ? EluvioPlayerParameters.autoplay.WHEN_VISIBLE : params.autoplay,
         muted: params.muted,
         loop: params.loop,
-        watermark: params.watermark,
+        watermark: !params.hideWatermark,
         accountWatermark: params.accountWatermark,
         capLevelToPlayerSize: params.capLevelToPlayerSize,
         playerProfile: params.playerProfile,

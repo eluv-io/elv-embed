@@ -102,6 +102,7 @@ const Form = () => {
     controls: "h",
     loop: false,
     muted: false,
+    hideWatermark: false,
     capLevelToPlayerSize: false,
     embedCode: "",
     clipStart: "",
@@ -273,6 +274,12 @@ const Form = () => {
                             step={0.1}
                             {...form.getInputProps("clipEnd")}
                           />
+                          <JsonInput
+                            label="Custom HLS.js Options"
+                            autosize
+                            minRows={2}
+                            {...form.getInputProps("hlsOptions")}
+                          />
                         </Stack>
                       </Accordion.Panel>
                     </Accordion.Item>
@@ -349,15 +356,13 @@ const Form = () => {
                     {...form.getInputProps("loop", { type: "checkbox" })}
                   />
                   <Checkbox
+                    label="Hide Eluvio Watermark"
+                    {...form.getInputProps("hideWatermark", { type: "checkbox" })}
+                  />
+                  <Checkbox
                     label="Cap Video Quality to Player Size"
                     description="If specified, the playout quality for video will not exceed the rendered size of the video element. This can improve performance and reduce bandwidth for smaller video elements or user screen sizes by not serving unnecessarily high quality video."
                     {...form.getInputProps("capLevelToPlayerSize", { type: "checkbox" })}
-                  />
-                  <JsonInput
-                    label="Custom HLS.js Options"
-                    autosize
-                    minRows={2}
-                    {...form.getInputProps("hlsOptions")}
                   />
                 </Stack>
             }
