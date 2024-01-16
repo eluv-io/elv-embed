@@ -221,7 +221,15 @@ const Form = () => {
                     />
                   </>
               }
+              {
+                ["v", "lv", "a", "mc"].includes(form.values.mediaType) ? null :
+                  <TextInput
+                    label="Link Path"
+                    {...form.getInputProps("linkPath")}
+                  />
+              }
             </Stack>
+
             {
               !["v", "lv", "a", "mc"].includes(form.values.mediaType) ? null :
                 <Stack gap="xs" mt="xl">
