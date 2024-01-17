@@ -27,6 +27,27 @@ const SandboxPermissions = () => {
   ].join(" ");
 };
 
+const DisplayError = message => {
+  const app = document.getElementById("app");
+  const errorContainer = document.createElement("div");
+  errorContainer.classList.add("-elv-error-container");
+
+  const error = document.createElement("div");
+  error.classList.add("-elv-error");
+
+  const errorText = document.createElement("h4");
+  errorText.innerHTML = message;
+  error.appendChild(errorText);
+
+  errorContainer.appendChild(error);
+
+  if(app.firstChild) {
+    app.replaceChild(errorContainer, app.firstChild);
+  } else {
+    app.appendChild(errorContainer);
+  }
+};
+
 const Playable = async (client, playerParams) => {
   try {
     let availableOfferings = {};
@@ -51,8 +72,57 @@ const Playable = async (client, playerParams) => {
   }
 };
 
-const LoadImage = async ({client, params, imageUrl, metadata={}, target}) => {
-  const url = imageUrl || metadata.asset_metadata.nft.image || await client.ContentObjectImageUrl({versionHash: params.versionHash});
+// Determine the URL for static media like images, html files and ebooks
+const MediaUrl = async ({client, params, nftMetadata}) => {
+  if(params.mediaUrl) {
+    // Full media URL specified in params
+    return new URL(params.mediaUrl)
+  } else if(params.linkPath || nftMetadata?.media) {
+    const linkPath = params.linkPath ? params.linkPath : "/public/asset_metadata/nft/media";
+
+    console.log(linkPath);
+    // Determine link to file
+    let fileLinkPath = "";
+    if(linkPath.startsWith("./files") || linkPath.startsWith("/files")) {
+      fileLinkPath = linkPath;
+    } else {
+      const linkContent = await client.ContentObjectMetadata({
+        versionHash: params.versionHash,
+        authorizationToken: params.authorizationToken,
+        resolveLinks: false,
+        resolveIncludeSource: true,
+        metadataSubtree: linkPath,
+        resolveIgnoreErrors: true,
+        produceLinkUrls: true
+      });
+
+      if(typeof linkContent === "string") {
+        // Target contains link already
+        return new URL(linkContent);
+      }
+    }
+
+    let url = new URL(
+      params.network === "main" ?
+        "https://main.net955305.contentfabric.io" :
+        "https://demov3.net955210.contentfabric.io"
+    );
+
+    let urlPath = params.authorizationToken ? UrlJoin("/t", params.authorizationToken) : UrlJoin("s", params.network === "main" ? "main" : "demov3");
+    if(fileLinkPath) {
+      urlPath = UrlJoin(urlPath, "q", params.versionHash, fileLinkPath.replace("./", ""));
+    } else {
+      urlPath = UrlJoin(urlPath, "q", params.versionHash, "meta", linkPath);
+    }
+
+    url.pathname = urlPath;
+
+    return url;
+  }
+};
+
+const RenderImage = async ({client, params, imageUrl, nftMetadata={}, target}) => {
+  const url = imageUrl || nftMetadata.image || await client.ContentObjectImageUrl({versionHash: params.versionHash});
 
   if(!url) { return; }
 
@@ -69,19 +139,11 @@ const LoadImage = async ({client, params, imageUrl, metadata={}, target}) => {
 
 export const Initialize = async ({client, target, url, playerOptions, errorCallback, setPageTitle=false, embedApp=false}={}) => {
   let player, playerTarget;
+  const params = LoadParams({url});
 
   try {
-    const params = LoadParams({url});
-
     if(setPageTitle) {
-      document.title = params.title ? `${params.title} | Eluvio` : "Eluvio";
-    }
-
-    if(playerOptions) {
-      params.playerParameters.playerOptions = {
-        ...params.playerParameters.playerOptions,
-        ...playerOptions
-      };
+      document.title = params.title ? `${params.title} | Eluvio` : "Eluvio Embed";
     }
 
     if(!target) {
@@ -124,20 +186,26 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
       });
     }
 
-    let metadata = {};
+    let metadata = { public: {} };
     if(params.versionHash) {
       try {
-        metadata = (await client.ContentObjectMetadata({
+        metadata.public = (await client.ContentObjectMetadata({
           versionHash: params.versionHash,
-          metadataSubtree: "public",
           authorizationToken: params.authorizationToken,
+          metadataSubtree: "/public",
           select: [
-            "name",
-            "nft",
-            "asset_metadata/title",
-            "asset_metadata/display_title",
-            "asset_metadata/nft"
+            "/nft/image",
+            "/nft/media",
+            "/nft/media_parameters",
+            "/nft/media_type",
+            "/nft/playable",
+            "/asset_metadata/nft/image",
+            "/asset_metadata/nft/media",
+            "/asset_metadata/nft/media_parameters",
+            "/asset_metadata/nft/media_type",
+            "/asset_metadata/nft/playable"
           ],
+          resolveIgnoreErrors: true,
           produceLinkUrls: true
         })) || {};
       } catch(error) {
@@ -146,81 +214,62 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
       }
     }
 
+    const nftMetadata = {
+      ...(metadata.public?.asset_metadata?.nft || {}),
+      ...(metadata.public?.nft || {})
+    };
+
     const mediaType = (params.mediaType || "").toLowerCase();
 
-    let mediaUrl;
-    if(["image", "ebook"].includes(mediaType)) {
-      mediaUrl = params.mediaUrl || client.utils.SafeTraverse(metadata, (params.linkPath || "").replace("/public", "").split("/").filter(part => part))?.url;
-    }
-
-    // HTML Media - embed iframe with link to HTML file
-    if(["html", "link"].includes(mediaType) || metadata.asset_metadata?.nft?.media_type === "HTML") {
-      let mediaUrl = params.mediaUrl ? new URL(params.mediaUrl) : "";
-      if(!mediaUrl) {
-        const fileLink = metadata.asset_metadata?.nft?.media;
-        const targetHash = await client.LinkTarget({
-          versionHash: params.versionHash,
-          linkPath: "/public/asset_metadata/nft/media"
-        });
-
-        const filePath = fileLink["/"].split("/files/")[1];
-
-        const mediaUrl = new URL(
-          params.network.replace("/config", "")
-        );
-
-        mediaUrl.pathname = UrlJoin("/s", await client.NetworkInfo().name, "q", targetHash, "files", filePath);
-
-        (metadata.asset_metadata?.nft?.media_parameters || []).forEach(({name, value}) =>
-          mediaUrl.searchParams.set(name, value)
-        );
-      }
-
-      if(params.authorizationToken) {
-        mediaUrl.searchParams.set("authorization", params.authorizationToken);
-      }
-
-      await recordViewPromise;
-      window.location.href = mediaUrl.toString();
-      return;
-    }
-
-    if(mediaType === "ebook" || metadata.asset_metadata?.nft?.media_type === "Ebook") {
-      const ebookUrl = mediaUrl || metadata.asset_metadata?.nft?.media?.url;
-
-      import("./Ebook.js").then(async ({InitializeEbook}) => {
-        await InitializeEbook(ebookUrl, playerTarget, params);
-      });
-
-      return;
-    }
-
-
-    playerTarget.classList.add("-elv-player-target");
-
-    const isNFT = !!metadata.nft || !!(metadata.asset_metadata || {}).nft;
+    const isNFT = !!metadata.public?.nft || !!metadata.public?.asset_metadata?.nft;
 
     if(isNFT) {
       params.playerParameters.playerOptions.watermark = false;
     }
 
-    metadata.asset_metadata = metadata.asset_metadata || {};
-    metadata.asset_metadata.nft = metadata.asset_metadata.nft || {};
+    let playable = ["video", "live video", "audio", "media collection"].includes(mediaType) || (isNFT && nftMetadata.playable);
 
-    if(metadata.asset_metadata.nft.background_color) {
-      target.style.backgroundColor = metadata.asset_metadata.nft.background_color.color;
-    }
+    if(!playable) {
+      const mediaUrl = await MediaUrl({client, params, nftMetadata});
 
-    const nonPlayableNFT =
-      isNFT &&
-      typeof (metadata.nft || metadata.asset_metadata.nft || {}).playable !== "undefined" &&
-      !(metadata.nft || metadata.asset_metadata.nft || {}).playable;
+      if(!mediaUrl) {
+        throw "Unable to determine media URL for the specified parameters";
+      }
 
-    let { playable, availableOfferings } = nonPlayableNFT ? { playable: false, availableOfferings: {} } : await Playable(client, params.playerParameters);
+      (nftMetadata.media_parameters || []).forEach(({name, value}) =>
+        mediaUrl.searchParams.set(name, value)
+      );
 
-    if(!["video", "live video", "audio", "media collection"].includes(mediaType) && (mediaType === "image" || params.imageOnly || !playable)) {
-      LoadImage({client, params, metadata, imageUrl: mediaUrl, target: playerTarget});
+      // HTML Media - embed iframe with link to HTML file
+      if(["html", "link"].includes(mediaType) || ["HTML", "Link", "Embedded Webpage"].includes(nftMetadata.media_type)) {
+        // HTML or Link
+        await recordViewPromise;
+        window.location.href = mediaUrl.toString();
+        return;
+      } else if(mediaType === "ebook" || nftMetadata.media_type === "Ebook") {
+        // Ebook
+        import("./Ebook.js").then(async ({InitializeEbook}) => {
+          await InitializeEbook(mediaUrl, playerTarget, params);
+        });
+
+        return;
+      } else {
+        // Image
+        playerTarget.classList.add("-elv-player-target");
+        RenderImage({client, params, nftMetadata, imageUrl: mediaUrl, target: playerTarget});
+      }
     } else {
+      // Video
+      playerTarget.classList.add("-elv-player-target");
+
+      if(playerOptions) {
+        params.playerParameters.playerOptions = {
+          ...params.playerParameters.playerOptions,
+          ...playerOptions
+        };
+      }
+
+      let { availableOfferings } = await Playable(client, params.playerParameters);
       // Select specified offering - highest priority offering that is actually available
       if(params.offerings?.length > 0) {
         params.playerParameters.sourceOptions.playoutParameters.offering = params.offerings.find(offeringKey => availableOfferings[offeringKey]);
@@ -275,8 +324,11 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
   } catch(error) {
     // eslint-disable-next-line no-console
     console.log(error);
+    // eslint-disable-next-line no-console
+    console.log(params);
 
-    errorCallback && errorCallback(error, player);
+
+    errorCallback && errorCallback(error, window.player);
 
     if(playerTarget) {
       playerTarget.remove();
@@ -289,19 +341,9 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
     const node = urlParams.get("node");
 
     if(error.status === 500 && node) {
-      const app = document.getElementById("app");
-      const errorContainer = document.createElement("div");
-      errorContainer.classList.add("-elv-error-container");
-
-      const error = document.createElement("div");
-      error.classList.add("-elv-error");
-
-      const errorText = document.createElement("h4");
-      errorText.innerHTML = "Error: there was a problem loading the specified node";
-      error.appendChild(errorText);
-
-      errorContainer.appendChild(error);
-      app.replaceChild(errorContainer, app.firstChild);
+      DisplayError("Error: there was a problem loading the specified node");
+    } else {
+      DisplayError("Something went wrong");
     }
   }
 };
