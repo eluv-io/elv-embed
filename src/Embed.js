@@ -76,16 +76,16 @@ const Playable = async (client, playerParams) => {
 const MediaUrl = async ({client, params, nftMetadata}) => {
   if(params.mediaUrl) {
     // Full media URL specified in params
-    return new URL(params.mediaUrl)
+    return new URL(params.mediaUrl);
   } else if(params.linkPath || nftMetadata?.media) {
     const linkPath = params.linkPath ? params.linkPath : "/public/asset_metadata/nft/media";
 
-    console.log(linkPath);
     // Determine link to file
     let fileLinkPath = "";
     if(linkPath.startsWith("./files") || linkPath.startsWith("/files")) {
       fileLinkPath = linkPath;
     } else {
+      // Must check content of link - it could be a string containing a URL
       const linkContent = await client.ContentObjectMetadata({
         versionHash: params.versionHash,
         authorizationToken: params.authorizationToken,
@@ -157,10 +157,25 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
     playerTarget.classList.add("-elv-target");
     target.appendChild(playerTarget);
 
-    if(!client) {
+    if(!client || (params.promptTicket && embedApp)) {
       client = await ElvClient.FromConfigurationUrl({
         configUrl: params.network
       });
+    }
+
+    const mediaType = (params.mediaType || "").toLowerCase();
+    let playable = ["video", "live video", "audio", "media collection"].includes(params.mediaType);
+
+    // Redeem ticket if present and not playable (let player handle tickets for videos)
+    if(!playable && params.promptTicket) {
+      await client.RedeemCode({
+        tenantId: params.tenantId,
+        ntpId: params.ntpId,
+        code: params.ticketCode,
+        email: params.ticketSubject
+      });
+
+      params.authorizationToken = client.staticToken;
     }
 
     let recordViewPromise;
@@ -219,7 +234,6 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
       ...(metadata.public?.nft || {})
     };
 
-    const mediaType = (params.mediaType || "").toLowerCase();
 
     const isNFT = !!metadata.public?.nft || !!metadata.public?.asset_metadata?.nft;
 
@@ -227,7 +241,6 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
       params.playerParameters.playerOptions.watermark = false;
     }
 
-    let playable = ["video", "live video", "audio", "media collection"].includes(mediaType) || (isNFT && nftMetadata.playable);
 
     if(!playable) {
       const mediaUrl = await MediaUrl({client, params, nftMetadata});
@@ -236,9 +249,16 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
         throw "Unable to determine media URL for the specified parameters";
       }
 
-      (nftMetadata.media_parameters || []).forEach(({name, value}) =>
-        mediaUrl.searchParams.set(name, value)
-      );
+      if(params.mediaUrlParameters) {
+        Object.keys(params.mediaUrlParameters).map(key =>
+          mediaUrl.searchParams.set(key, params.mediaUrlParameters[key])
+        );
+      } else if(nftMetadata.media_parameters) {
+        (nftMetadata.media_parameters || []).forEach(({name, value}) =>
+          mediaUrl.searchParams.set(name, value)
+        );
+      }
+
 
       // HTML Media - embed iframe with link to HTML file
       if(["html", "link"].includes(mediaType) || ["HTML", "Link", "Embedded Webpage"].includes(nftMetadata.media_type)) {

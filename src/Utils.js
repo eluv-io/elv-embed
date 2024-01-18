@@ -26,10 +26,10 @@ export const mediaTypes = {
   "lv": "Live Video",
   "a": "Audio",
   "mc": "Media Collection",
+  "g": "Gallery",
   "i": "Image",
   "h": "HTML",
   "b": "EBook",
-  "g": "Gallery",
   "l": "Link"
 };
 
@@ -42,7 +42,6 @@ export const playerProfiles = {
 export const paramsToName = {
   ttl: "title",
   dsc: "description",
-  mt: "mediaType",
   net: "network",
   cid: "contentId",
   oid: "objectId",
@@ -80,7 +79,9 @@ export const paramsToName = {
   end: "clipEnd",
 
   type: "mediaType",
+  mt: "mediaType",
   murl: "mediaUrl",
+  mp: "mediaUrlParameters",
   vrk: "viewRecordKey",
   ek: "eventKey",
 
@@ -148,6 +149,7 @@ export const GenerateEmbedURL = ({values}) => {
         }
         break;
 
+      case "mediaUrlParameters":
       case "hlsOptions":
         try {
           const options = JSON.parse(value);
@@ -155,7 +157,7 @@ export const GenerateEmbedURL = ({values}) => {
             url.searchParams.set(param, Utils.B58(JSON.stringify(options)));
           }
         } catch(error) {
-          console.error("Unable to convert HLS options:");
+          console.error(`Unable to convert JSON options for ${key}:`);
           console.error(error);
         }
         break;
@@ -204,7 +206,6 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "ptc":
       case "off":
       case "prf":
-      case "mt":
       case "net":
       case "ath":
       case "oid":
@@ -213,6 +214,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "ten":
       case "ntp":
       case "type":
+      case "mt":
       case "pst":
       case "ek":
         params[paramsToName[key]] = value;
@@ -239,6 +241,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         params[paramsToName[key]] = Utils.FromB64(value).trim();
         break;
 
+      case "mp":
       case "hls":
         try {
           params[paramsToName[key]] = JSON.stringify(
@@ -249,7 +252,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
             2
           );
         } catch(error) {
-          console.error("Invalid HLS options parameter:", params.hlsOptions, error);
+          console.error(`Invalid ${key} parameter:`, value, error);
         }
         break;
 
@@ -312,6 +315,14 @@ export const LoadParams = ({url, playerParams=true}={}) => {
     }
   }
 
+  if(params.mediaUrlParameters) {
+    try {
+      params.mediaUrlParameters = JSON.parse(params.mediaUrlParameters);
+    } catch(error) {
+      console.error("Invalid media URL parameter:", params.mediaUrlParameters);
+    }
+  }
+
   return {
     title: params.title,
     description: params.description,
@@ -327,12 +338,14 @@ export const LoadParams = ({url, playerParams=true}={}) => {
     imageOnly: params.imageOnly,
     mediaType: params.mediaType,
     mediaUrl: params.mediaUrl,
+    mediaUrlParameters: params.mediaUrlParameters,
     clipStart: params.clipStart,
     clipEnd: params.clipEnd,
     playerProfile: params.playerProfile,
 
     tenantId: params.tenantId,
     ntpId: params.ntpId,
+    ticketCode: params.ticketCode,
     ticketSubject: params.ticketSubject,
     promptTicket: params.promptTicket,
 

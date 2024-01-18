@@ -1,4 +1,3 @@
-// TODO: integrate title into player
 import "./static/stylesheets/form.scss";
 import "@mantine/core/styles.css";
 
@@ -89,6 +88,7 @@ const Form = () => {
     collectionId: "",
     offerings: "",
     mediaType: "v",
+    mediaUrlParameters: "{}",
     playerProfile: "",
     authorizationToken: "",
     promptTicket: false,
@@ -147,6 +147,13 @@ const Form = () => {
         }
       },
       hlsOptions: value => {
+        try {
+          value && JSON.parse(value);
+        } catch(error) {
+          return "Invalid JSON: " + error.toString();
+        }
+      },
+      mediaUrlParameters: value => {
         try {
           value && JSON.parse(value);
         } catch(error) {
@@ -228,6 +235,14 @@ const Form = () => {
                     {...form.getInputProps("linkPath")}
                   />
               }
+              {
+                ["v", "lv", "a", "mc", "g"].includes(form.values.mediaType) ? null :
+                  <JsonInput
+                    label="Media URL Parameters"
+                    description="Additional URL parameters that should be added when displaying the content"
+                    {...form.getInputProps("mediaUrlParameters")}
+                  />
+              }
             </Stack>
 
             {
@@ -304,7 +319,7 @@ const Form = () => {
               />
               <Checkbox
                 my="xs"
-                label="Prompt for Ticket Code"
+                label="Use Ticket Code Authorization"
                 {...form.getInputProps("promptTicket", { type: "checkbox" })}
               />
               {
@@ -324,6 +339,8 @@ const Form = () => {
                       />
                       <TextInput
                         label="Ticket Code"
+                        // Non video types don't support ticket prompt
+                        required={!["v", "lv", "a", "mc"].includes(form.values.mediaType)}
                         {...form.getInputProps("ticketCode")}
                       />
                       <TextInput

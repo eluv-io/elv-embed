@@ -20,10 +20,21 @@ SwiperCore.use([Lazy, Navigation, Keyboard]);
 
 let networkName;
 const LoadGallery = async ({params, client}) => {
-  if(!client) {
+  if(!client || params.promptTicket) {
     client = await ElvClient.FromConfigurationUrl({
       configUrl: params.network
     });
+  }
+
+  if(params.promptTicket) {
+    await client.RedeemCode({
+      tenantId: params.tenantId,
+      ntpId: params.ntpId,
+      code: params.ticketCode,
+      email: params.ticketSubject
+    });
+
+    params.authorizationToken = client.staticToken;
   }
 
   networkName = await client.NetworkInfo().name;
