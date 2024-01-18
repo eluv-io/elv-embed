@@ -164,7 +164,7 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
     }
 
     const mediaType = (params.mediaType || "").toLowerCase();
-    let playable = ["video", "live video", "audio", "media collection"].includes(params.mediaType);
+    let playable = ["video", "live video", "audio", "media collection"].includes(mediaType);
 
     // Redeem ticket if present and not playable (let player handle tickets for videos)
     if(!playable && params.promptTicket) {
@@ -330,7 +330,7 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
           });
         });
       };
-
+      
       player = new EluvioPlayer(playerTarget, params.playerParameters);
       if(params.smallPlayer && params.width && params.height) {
         playerTarget.style.width = `${params.width}px`;
