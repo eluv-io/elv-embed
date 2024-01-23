@@ -4,7 +4,7 @@ const urlParams = new URLSearchParams(window.location.search);
 
 // Player
 if(urlParams.has("p")) {
-  switch(urlParams.get("mt")) {
+  switch(urlParams.get("mt") || urlParams.get("type")) {
     case "g":
       import("./Gallery")
         .then(({Initialize}) =>
@@ -18,7 +18,6 @@ if(urlParams.has("p")) {
           Initialize({target: document.getElementById("app"), setPageTitle: true, embedApp: true})
         );
   }
-// Collection
 } else {
-  import("./Form.js");
+  import("./Form");
 }

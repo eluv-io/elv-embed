@@ -1,409 +1,429 @@
 import "./static/stylesheets/form.scss";
+import "@mantine/core/styles.css";
 
-import React from "react";
-import {render} from "react-dom";
-import {mediaTypes} from "./Utils";
+const DEFAULT_CONTENT = "hq__CcdV4wnCNq9wv6jXpYeCQ2GE4FLQBFtVSSSt2XKfBJMrH89DFDGsfkpWWvBy16QBGGYeF5mLGo";
+const DEFAULT_FRAME_WIDTH = Math.min(window.innerWidth * 0.8, 854);
+
+import React, {useEffect, useRef, useState} from "react";
+import {
+  Checkbox,
+  Container,
+  Group,
+  MantineProvider,
+  Paper,
+  Button,
+  Title,
+  Select,
+  Stack,
+  Anchor,
+  TextInput,
+  NumberInput,
+  JsonInput,
+  Code,
+  Accordion,
+  Textarea
+} from "@mantine/core";
+import {createRoot} from "react-dom/client";
+import {mediaTypes, LoadParams, GenerateEmbedURL} from "./Utils";
 
 import Logo from "./static/images/Logo.png";
 import {Utils} from "@eluvio/elv-client-js";
+import {useForm} from "@mantine/form";
 
-class Form extends React.Component {
-  constructor(props) {
-    super(props);
+let initialParams = LoadParams({playerParams: false});
+initialParams.autoplay = initialParams.scrollPlayPause ? "Only When Visible" : initialParams.autoplay ? "On" : "Off";
 
-    this.state = {
-      showTitle: false,
-      showShare: false,
-      title: "",
-      description: "",
-      network: "main",
-      objectId: "",
-      versionHash: "hq__CcdV4wnCNq9wv6jXpYeCQ2GE4FLQBFtVSSSt2XKfBJMrH89DFDGsfkpWWvBy16QBGGYeF5mLGo",
-      offerings: undefined,
-      mediaType: "v",
-      playerProfile: "",
-      authorizationToken: "",
-      promptTicket: false,
-      tenantId: "",
-      ntpId: "",
-      ticketCode: "",
-      ticketSubject: "",
-      linkPath: "",
-      directLink: false,
-      smallPlayer: false,
-      autoplay: "Off",
-      controls: "Auto Hide",
-      loop: false,
-      muted: false,
-      width: 854,
-      height: 480,
-      capLevelToPlayerSize: false,
-      embedCode: "",
-      clipStart: "",
-      clipEnd: "",
-      hlsOptions: "{\n}",
-      hlsOptionsValid: true
-    };
+const ScrollTo = (top) => {
+  // Mobile has a bug that prevents scroll top from working
+  if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+    document.querySelector("#app").scrollTo(0, top);
+  } else {
+    document.querySelector("#app").scrollTo({top, behavior: "smooth"});
+  }
+};
 
-    this.Generate = this.Generate.bind(this);
-    this.Update = this.Update.bind(this);
+const EmbedFrame = ({dimensions, embedUrl}) => {
+  const ref = useRef();
+  useEffect(() => {
+    if(!ref.current) { return; }
+
+    setTimeout(() => ScrollTo(ref.current.offsetTop), 200);
+  }, [ref]);
+
+  const embedFrameString =
+`<iframe
+  width=${dimensions.width} height=${dimensions.height} scrolling="no" marginheight="0"
+  marginwidth="0" frameborder="0" type="text/html" allowtransparency="true"
+  src="${embedUrl}"
+></iframe>`;
+
+  return (
+    <Container size={dimensions.width + 100} my="xl" ref={ref}>
+      <Paper withBorder p="xl">
+        <Title order={4} fw={500} mb="xs">Embed Url</Title>
+        <Anchor style={{wordWrap: "anywhere"}} fz="sm" href={embedUrl.toString()} target="_blank">{ embedUrl.toString() }</Anchor>
+
+        <Title order={4} fw={500} mt="xl" mb="xs">Embed Code</Title>
+        <Code block>{embedFrameString}</Code>
+
+
+        <Title order={4} fw={500} mt="xl" mb="xs">Preview</Title>
+        <div dangerouslySetInnerHTML={{__html: embedFrameString}} />
+      </Paper>
+    </Container>
+  );
+};
+
+const Form = () => {
+  const [embedUrl, setEmbedUrl] = useState(undefined);
+  const [dimensions, setDimensions] = useState({
+    width: DEFAULT_FRAME_WIDTH,
+    height: Math.floor(DEFAULT_FRAME_WIDTH * 9 / 16)
+  });
+  let initialValues = {
+    title: "",
+    description: "",
+    network: "main",
+    contentId: "",
+    collectionId: "",
+    offerings: "",
+    mediaType: "v",
+    mediaUrlParameters: "{}",
+    playerProfile: "",
+    authorizationToken: "",
+    promptTicket: false,
+    tenantId: "",
+    ntpId: "",
+    ticketCode: "",
+    ticketSubject: "",
+    linkPath: "",
+    directLink: false,
+    autoplay: "Off",
+    controls: "h",
+    loop: false,
+    muted: false,
+    hideWatermark: false,
+    hideTitle: false,
+    capLevelToPlayerSize: false,
+    embedCode: "",
+    clipStart: "",
+    clipEnd: "",
+    maxBitrate: "",
+    hlsOptions: "{}",
+    ...initialParams
+  };
+
+  // Convert versionHash and/or objectId to contentId
+  if(!initialValues.contentId) {
+    initialValues.contentId = initialValues.versionHash || initialValues.objectId;
   }
 
-  async componentDidMount() {
-    if(!("scrollBehavior" in document.documentElement.style)) {
-      await import("scroll-behavior-polyfill");
-    }
+  delete initialValues.versionHash;
+  delete initialValues.objectId;
+
+  // If no content ID specified, use default
+  if(!initialValues.contentId) {
+    initialValues.contentId = DEFAULT_CONTENT;
   }
 
-  EmbedCode() {
-    if(!this.state.embedCode) { return; }
-
-    return (
-      <div className="embed-code-container">
-        <h2>Embed Code</h2>
-        <pre className="embed-code">
-          { this.state.embedCode }
-        </pre>
-        <h2>Embed URL</h2>
-        <pre className="embed-code">
-          { this.state.embedUrl }
-        </pre>
-        <div
-          className="embed"
-          ref={element => {
-            if(!element) { return; }
-
-            element.innerHTML = this.state.embedCode;
-
-            window.scrollTo({
-              top: element.parentElement.getBoundingClientRect().top + (window.pageYOffset || element.parentElement.scrollTop),
-              behavior: "smooth"
-            });
-          }}
-        />
-      </div>
-    );
-  }
-
-  Generate(event) {
-    event.preventDefault();
-
-    let frameHeight = parseInt(this.state.height);
-
-    let params = {
-      net: this.state.network,
-      p: true
-    };
-
-    switch(this.state.controls) {
-      case "Browser Default":
-        params.ct = "d";
-        break;
-      case "Auto Hide":
-        params.ct = "h";
-        break;
-      case "Show":
-        params.ct = "s";
-        break;
-      case "Hide Except for Volume Toggle":
-        params.ct = "hv";
-        break;
-    }
-
-    if(this.state.muted) {
-      params.m = true;
-    }
-
-    if(this.state.loop) {
-      params.lp = true;
-    }
-
-    if(this.state.objectId) {
-      params.oid = this.state.objectId;
-    }
-
-    if(this.state.versionHash) {
-      params.vid = this.state.versionHash;
-    }
-
-    if(this.state.offerings) {
-      params.off = this.state.offerings.split(",").map(off => off.trim()).join(",");
-    }
-
-    if(this.state.mediaType) {
-      params.mt = this.state.mediaType;
-    }
-
-    if(this.state.playerProfile) {
-      params.prf = this.state.playerProfile;
-    }
-
-    if(this.state.hlsOptions) {
-      try {
-        const options = JSON.parse(this.state.hlsOptions);
-        if(options && Object.keys(options).length > 0) {
-          params.hls = Utils.B58(JSON.stringify(options));
+  const form = useForm({
+    initialValues,
+    validate: {
+      contentId: value => {
+        if(value.startsWith("iq__")) {
+          if(!Utils.ValidAddress(Utils.HashToAddress(value))) {
+            return "Invalid Object ID";
+          }
+        } else if(value.startsWith("hq__")) {
+          try {
+            if(!Utils.ValidAddress(Utils.HashToAddress(Utils.DecodeVersionHash(value).objectId))) {
+              return "Invalid Version Hash";
+            }
+          } catch(error) {
+            return "Invalid version hash";
+          }
+        } else {
+          return "Invalid Content ID";
         }
-      } catch(error) {
-        console.error("Unable to convert HLS options:");
-        console.error(error);
+      },
+      hlsOptions: value => {
+        try {
+          value && JSON.parse(value);
+        } catch(error) {
+          return "Invalid JSON: " + error.toString();
+        }
+      },
+      mediaUrlParameters: value => {
+        try {
+          value && JSON.parse(value);
+        } catch(error) {
+          return "Invalid JSON: " + error.toString();
+        }
       }
     }
+  });
 
-    if(this.state.linkPath) {
-      params.ln = btoa(this.state.linkPath);
-    }
+  useEffect(() => {
+    setEmbedUrl(undefined);
+  }, [form.values, dimensions]);
 
-    if(this.state.directLink) {
-      params.dr = true;
-    }
+  return (
+    <MantineProvider>
+      <Container fluid size="100%" mx={0} p="sm">
+        <Group>
+          <img src={Logo} alt="Eluvio" style={{height: "25px"}} />
+        </Group>
+      </Container>
+      <Container w="100%" py="xl" pb={50}>
+        <Paper withBorder p="xl" maw={800} mx="auto" shadow="sm">
+          <form
+            onSubmit={form.onSubmit(
+              values => {
+                setEmbedUrl(GenerateEmbedURL({values}));
+              },
+              () => ScrollTo(0)
+            )}
+          >
+            <Title fw={500} order={3} mb="xl" ta="center">Create an Eluvio Embed URL</Title>
 
-    if(this.state.tenantId) {
-      params.ten = this.state.tenantId;
-    }
+            <Stack gap="xs">
+              <Title fw={500} order={4}>Content</Title>
+              <Select
+                required
+                label="Network"
+                data={[{label: "Main", value: "main"}, {label: "Demo", value: "demo"}]}
+                {...form.getInputProps("network")}
+              />
+              <Select
+                required
+                label="Media Type"
+                data={Object.keys(mediaTypes).map(key => ({label: mediaTypes[key], value: key}))}
+                {...form.getInputProps("mediaType")}
+              />
+              <TextInput
+                required
+                label={form.values.mediaType === "mc" ? "Media Catalog ID" : "Content ID"}
+                placeholder={`Version Hash or Object ID of the ${form.values.mediaType === "mc" ? "media catalog" : "content"}`}
+                {...form.getInputProps("contentId")}
+              />
+              {
+                form.values.mediaType !== "mc" ? null :
+                  <TextInput
+                    required
+                    label="Media Collection ID"
+                    {...form.getInputProps("collectionId")}
+                  />
+              }
 
-    if(this.state.ntpId) {
-      params.ntp = this.state.ntpId;
-    }
+              {
+                !["v", "lv", "a"].includes(form.values.mediaType) ? null :
+                  <>
+                    <TextInput
+                      label="Title"
+                      {...form.getInputProps("title")}
+                    />
+                    <Textarea
+                      label="Description"
+                      {...form.getInputProps("description")}
+                    />
+                  </>
+              }
+              {
+                ["v", "lv", "a", "mc"].includes(form.values.mediaType) ? null :
+                  <TextInput
+                    label="Link Path"
+                    {...form.getInputProps("linkPath")}
+                  />
+              }
+              {
+                ["v", "lv", "a", "mc", "g"].includes(form.values.mediaType) ? null :
+                  <JsonInput
+                    label="Media URL Parameters"
+                    description="Additional URL parameters that should be added when displaying the content"
+                    {...form.getInputProps("mediaUrlParameters")}
+                  />
+              }
+            </Stack>
 
-    if(this.state.promptTicket) {
-      params.ptk = true;
-    }
-
-    if(this.state.ticketCode) {
-      params.tk = btoa(this.state.ticketCode);
-    }
-
-    if(this.state.ticketSubject) {
-      params.sbj = btoa(this.state.ticketSubject);
-    }
-
-    if(this.state.authorizationToken) {
-      params.ath = this.state.authorizationToken;
-    }
-
-    if(this.state.clipStart) {
-      params.start = parseFloat(this.state.clipStart);
-    }
-
-    if(this.state.clipEnd) {
-      params.end = parseFloat(this.state.clipEnd);
-    }
-
-    if(this.state.showShare) {
-      params.sh = true;
-      frameHeight += 50;
-    }
-
-    if(this.state.showTitle) {
-      params.st = true;
-      frameHeight += 50;
-    }
-
-    if(this.state.smallPlayer) {
-      params.sm = true;
-
-      params.w = parseInt(this.state.width);
-      params.h = parseInt(this.state.height);
-    }
-
-    if(this.state.capLevelToPlayerSize) {
-      params.cap = true;
-    }
-
-    if(this.state.autoplay === "When Visible") {
-      params.scr = true;
-    } else if(this.state.autoplay === "On") {
-      params.ap = true;
-    }
-
-    let data = {};
-    if(this.state.title) {
-      data["og:title"] = this.state.title;
-    }
-
-    if(this.state.description) {
-      data["og:description"] = this.state.description;
-    }
-
-    if(Object.keys(data).length > 0) {
-      params.data = btoa(JSON.stringify({meta_tags: data}));
-    }
-
-    const width = parseInt(this.state.width);
-
-    const paramsString = Object.keys(params).map(key => params[key] === true ? key : `${key}=${params[key]}`).join("&");
-
-    this.setState({
-      embedUrl: `${window.location.href}?${paramsString}`,
-      embedCode: (
-`<iframe 
-  width=${width} height=${frameHeight} scrolling="no" marginheight="0" 
-  marginwidth="0" frameborder="0" type="text/html" 
-  src="${window.location.href}?${paramsString}"
-  allowtransparency="true"
-></iframe>`
-      )
-    });
-  }
-
-  Update(event) {
-    this.setState({
-      [event.target.name]: event.target.value,
-      embedCode: ""
-    });
-  }
-
-  Select(name, options) {
-    return (
-      <select name={name} value={this.state[name]} onChange={this.Update}>
-        {options.map((o, i) =>
-          Array.isArray(o) ?
-            <option key={`option-${i}`} value={o[1]}>{ o[0] }</option> :
-            <option key={`option-${i}`} value={o}>{ o }</option>
-        )}
-      </select>
-    );
-  }
-
-  Checkbox(name, options={}) {
-    return (
-      <input
-        name={name}
-        value={this.state[name]}
-        checked={this.state[name]}
-        onChange={event => this.Update({target: { name: event.target.name, value: event.target.checked }})}
-        type="checkbox"
-        {...options}
-      />
-    );
-  }
-
-  Input(name, options={}) {
-    return (
-      <input
-        name={name}
-        value={this.state[name]}
-        checked={this.state[name]}
-        onChange={this.Update}
-        {...options}
-      />
-    );
-  }
-
-  LabelledField(label, name, input) {
-    return (
-      <>
-        <label htmlFor={name}>{ label }</label>
-        { input }
-      </>
-    );
-  }
-
-  HLSOptions() {
-    return (
-      <textarea
-        name="hlsOptions"
-        value={this.state.hlsOptions}
-        onChange={event => this.setState({hlsOptions: event.target.value, embedCode: ""})}
-        className={!this.state.hlsOptionsValid ? "invalid" : ""}
-        onBlur={() => {
-          try {
-            this.setState({
-              hlsOptions: JSON.stringify(JSON.parse(this.state.hlsOptions || "{}"), null, 2),
-              hlsOptionsValid: true
-            });
-          } catch(error) {
-            this.setState({hlsOptionsValid: false});
-          }
-        }}
-      />
-    );
-  }
-
-  render() {
-    return (
-      <>
-        <header>
-          <img src={Logo} alt="Eluvio" className="logo"/>
-        </header>
-        <div className="form-container">
-          <form onSubmit={this.Generate}>
-            <div className="spacer" />
-            <legend>Generate Embedded Video Code</legend>
-
-            <div />
-            <h2>Target</h2>
-            { this.LabelledField("Network", "network", this.Select("network", ["main", "demo", "test"])) }
-            { this.LabelledField("Object ID", "objectId", this.Input("objectId")) }
-            { this.LabelledField("Version Hash", "versionHash", this.Input("versionHash")) }
-            { this.LabelledField("Offerings", "offerings", this.Input("offerings")) }
-            { this.LabelledField("Media Type", "mediaType", this.Select("mediaType", Object.keys(mediaTypes).map(v => [mediaTypes[v], v]))) }
-            { this.LabelledField(
-              "Player Profile",
-              "playerProfile",
-              this.Select(
-                "playerProfile",
-                [
-                  ["Default", ""],
-                  ["Low Latency Live", "ll"],
-                  ["Ultra Low Latency Live", "ull"]
-                ]
-              ))
-            }
-            { this.LabelledField("Link Path", "linkPath", this.Input("linkPath")) }
-            { this.LabelledField("Direct Link", "directLink", this.Checkbox("directLink")) }
-            { this.LabelledField("Clip Start", "clipStart", this.Input("clipStart", {type: "number", step: 0.001})) }
-            { this.LabelledField("Clip End", "clipEnd", this.Input("clipEnd", {type: "number", step: 0.001})) }
-
-            <div />
-            <h2>Authorization</h2>
-
-            { this.LabelledField("Auth Token", "authorizationToken", this.Input("authorizationToken")) }
-            { this.LabelledField("Prompt for Ticket", "promptTicket", this.Checkbox("promptTicket")) }
             {
-              !this.state.promptTicket ? null :
-                <>
-                  {this.LabelledField("Tenant ID", "tenantId", this.Input("tenantId"))}
-                  {this.LabelledField("NTP ID", "ntpId", this.Input("ntpId"))}
-                  {this.LabelledField("Ticket Code", "ticketCode", this.Input("ticketCode"))}
-                  {this.LabelledField("Ticket Subject", "ticketSubject", this.Input("ticketSubject"))}
-                </>
+              !["v", "lv", "a", "mc"].includes(form.values.mediaType) ? null :
+                <Stack gap="xs" mt="xl">
+                  <Title fw={500} order={4}>Playout</Title>
+                  {
+                    form.values.linkPath && !form.values.offerings ? null :
+                      <TextInput
+                        label="Offering(s)"
+                        placeholder="Comma separated"
+                        {...form.getInputProps("offerings")}
+                      />
+                  }
+                  {
+                    form.values.offerings && !form.values.linkPath ? null :
+                      <TextInput
+                        label="Link Path"
+                        {...form.getInputProps("linkPath")}
+                      />
+                  }
+                  <Accordion variant="contained">
+                    <Accordion.Item key="advanced" value="advanced">
+                      <Accordion.Control>Advanced Options</Accordion.Control>
+                      <Accordion.Panel>
+                        <Stack gap="xs">
+                          <Select
+                            label="Player Profile"
+                            data={[{label: "Default", value: ""}, {
+                              label: "Low Latency Live",
+                              value: "ll"
+                            }, {label: "Ultra Low Latency Live", value: "ull"}]}
+                            {...form.getInputProps("playerProfile")}
+                          />
+                          <NumberInput
+                            label="Maximum Bitrate (bps)"
+                            allowNegative={false}
+                            allowDecimal={false}
+                            step={1}
+                            {...form.getInputProps("maxBitrate")}
+                          />
+                          <NumberInput
+                            label="Clip Start Time"
+                            allowNegative={false}
+                            decimalScale={1}
+                            step={0.1}
+                            {...form.getInputProps("clipStart")}
+                          />
+                          <NumberInput
+                            label="Clip End Time"
+                            allowNegative={false}
+                            decimalScale={1}
+                            step={0.1}
+                            {...form.getInputProps("clipEnd")}
+                          />
+                          <JsonInput
+                            label="Custom HLS.js Options"
+                            autosize
+                            minRows={2}
+                            {...form.getInputProps("hlsOptions")}
+                          />
+                        </Stack>
+                      </Accordion.Panel>
+                    </Accordion.Item>
+                  </Accordion>
+                </Stack>
             }
 
-            <div />
-            <h2>Player</h2>
-            { this.LabelledField("Title", "title", this.Input("title")) }
-            { this.LabelledField("Description", "description", this.Input("description")) }
+            <Stack gap="xs" mt="xl">
+              <Title fw={500} order={4}>Authorization</Title>
+              <TextInput
+                label="Auth Token"
+                {...form.getInputProps("authorizationToken")}
+              />
+              <Checkbox
+                my="xs"
+                label="Use Ticket Code Authorization"
+                {...form.getInputProps("promptTicket", { type: "checkbox" })}
+              />
+              {
+                !form.values.promptTicket ? null :
+                  <Paper withBorder p="md" ml="md">
+                    <Stack gap="xs">
+                      <Title fw={500} order={5}>Ticket Parameters</Title>
+                      <TextInput
+                        label="Tenant ID"
+                        required
+                        {...form.getInputProps("tenantId")}
+                      />
+                      <TextInput
+                        label="NTP ID"
+                        required
+                        {...form.getInputProps("ntpId")}
+                      />
+                      <TextInput
+                        label="Ticket Code"
+                        // Non video types don't support ticket prompt
+                        required={!["v", "lv", "a", "mc"].includes(form.values.mediaType)}
+                        {...form.getInputProps("ticketCode")}
+                      />
+                      <TextInput
+                        label="Ticket Subject"
+                        {...form.getInputProps("ticketSubject")}
+                      />
+                    </Stack>
+                  </Paper>
+              }
+            </Stack>
 
-            { this.LabelledField("Show Video Title", "showTitle", this.Checkbox("showTitle")) }
-            { this.LabelledField("Show Share Buttons", "showShare", this.Checkbox("showShare")) }
-            { this.LabelledField("Small Player", "smallPlayer", this.Checkbox("smallPlayer")) }
-            { this.LabelledField("Autoplay", "autoplay", this.Select("autoplay", ["Off", "When Visible", "On"])) }
-            { this.LabelledField("Controls", "controls", this.Select("controls", ["Hide", "Hide Except for Volume Toggle", "Browser Default", "Auto Hide", "Show"])) }
-            { this.LabelledField("Mute Audio", "muted", this.Checkbox("muted")) }
-            { this.LabelledField("Loop", "loop", this.Checkbox("loop")) }
-
-            { this.LabelledField("Cap Quality to Player Size", "capLevelToPlayerSize", this.Checkbox("capLevelToPlayerSize")) }
-            { this.LabelledField("Width", "width", this.Input("width", {type: "number", step: 1, required: true})) }
-            { this.LabelledField("Height", "height", this.Input("height", {type: "number", step: 1, required: true})) }
-
-            { this.LabelledField("HLS.js Options", "hlsOptions", this.HLSOptions()) }
-
-            <div className="spacer" />
-            <button type="submit" disabled={!this.state.hlsOptionsValid}>Generate Embed Code</button>
+            {
+              !["v", "lv", "a", "mc"].includes(form.values.mediaType) ? null :
+                <Stack gap="xs" mt="xl">
+                  <Title fw={500} order={4}>Player</Title>
+                  <Select
+                    label="Autoplay"
+                    description="Note: Most browsers do not allow autoplaying of unmuted content by default. This setting is best-effort."
+                    data={["On", "Only When Visible", "Off"]}
+                    {...form.getInputProps("autoplay")}
+                  />
+                  <Select
+                    label="Controls"
+                    data={[
+                      {label: "Hidden", value: ""},
+                      {label: "Auto Hide", value: "h"},
+                      {label: "Always Visible", value: "s"},
+                      {label: "Volume Toggle Only", value: "hv"},
+                      {label: "Browser Default", value: "d"},
+                    ]}
+                    {...form.getInputProps("controls")}
+                  />
+                  <Checkbox
+                    label="Mute Audio"
+                    {...form.getInputProps("muted", { type: "checkbox" })}
+                  />
+                  <Checkbox
+                    label="Loop Video"
+                    {...form.getInputProps("loop", { type: "checkbox" })}
+                  />
+                  <Checkbox
+                    label="Hide Title"
+                    {...form.getInputProps("hideTitle", { type: "checkbox" })}
+                  />
+                  <Checkbox
+                    label="Hide Watermark"
+                    {...form.getInputProps("hideWatermark", { type: "checkbox" })}
+                  />
+                  <Checkbox
+                    label="Cap Video Quality to Player Size"
+                    description="If specified, the playout quality for video will not exceed the rendered size of the video element. This can improve performance and reduce bandwidth for smaller video elements or user screen sizes by not serving unnecessarily high quality video."
+                    {...form.getInputProps("capLevelToPlayerSize", { type: "checkbox" })}
+                  />
+                </Stack>
+            }
+            <Stack gap="xs" mt="xl">
+              <Title fw={500} order={4}>Embed Frame</Title>
+              <Group>
+                <NumberInput
+                  label="Width"
+                  value={dimensions.width}
+                  onChange={value => setDimensions({...dimensions, width: value})}
+                />
+                <NumberInput
+                  label="Height"
+                  value={dimensions.height}
+                  onChange={value => setDimensions({...dimensions, height: value})}
+                />
+              </Group>
+            </Stack>
+            <Group justify="flex-end" mt={50}>
+              <Button type="submit">Generate Embed Link</Button>
+            </Group>
           </form>
+        </Paper>
+      </Container>
+      {
+        !embedUrl ? null :
+          <EmbedFrame dimensions={dimensions} embedUrl={embedUrl} />
+      }
+    </MantineProvider>
+  );
+};
 
-          { this.EmbedCode() }
-        </div>
-      </>
-    );
-  }
-}
-
-render(
-  (
-    <Form />
-  ),
-  document.getElementById("app")
-);
+createRoot(document.getElementById("app"))
+  .render(<Form />);

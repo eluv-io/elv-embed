@@ -20,10 +20,21 @@ SwiperCore.use([Lazy, Navigation, Keyboard]);
 
 let networkName;
 const LoadGallery = async ({params, client}) => {
-  if(!client) {
+  if(!client || params.promptTicket) {
     client = await ElvClient.FromConfigurationUrl({
       configUrl: params.network
     });
+  }
+
+  if(params.promptTicket) {
+    await client.RedeemCode({
+      tenantId: params.tenantId,
+      ntpId: params.ntpId,
+      code: params.ticketCode,
+      email: params.ticketSubject
+    });
+
+    params.authorizationToken = client.staticToken;
   }
 
   networkName = await client.NetworkInfo().name;
@@ -472,7 +483,7 @@ export const Initialize = async ({client, target, url, errorCallback, setPageTit
     target = document.getElementById("app");
   }
 
-  const params = LoadParams(url);
+  const params = LoadParams({url});
 
   render(
     <Gallery client={client} params={params} errorCallback={errorCallback} setPageTitle={setPageTitle} />,

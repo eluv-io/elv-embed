@@ -14,76 +14,176 @@ const CreateMetaTags = (options={}) => {
   });
 };
 
+export const controls = {
+  "d": EluvioPlayerParameters.controls.DEFAULT,
+  "h": EluvioPlayerParameters.controls.AUTO_HIDE,
+  "s": EluvioPlayerParameters.controls.ON,
+  "hv": EluvioPlayerParameters.controls.OFF_WITH_VOLUME_TOGGLE
+};
+
 export const mediaTypes = {
   "v": "Video",
   "lv": "Live Video",
   "a": "Audio",
+  "mc": "Media Collection",
+  "g": "Gallery",
   "i": "Image",
   "h": "HTML",
   "b": "EBook",
-  "g": "Gallery",
   "l": "Link"
 };
 
 export const playerProfiles = {
-  "live": EluvioPlayerParameters.playerProfile.LOW_LATENCY,
+  "default": EluvioPlayerParameters.playerProfile.DEFAULT,
   "ll": EluvioPlayerParameters.playerProfile.LOW_LATENCY,
-  "low_latency": EluvioPlayerParameters.playerProfile.LOW_LATENCY,
   "ull": EluvioPlayerParameters.playerProfile.ULTRA_LOW_LATENCY,
-  "ultra_low_latency": EluvioPlayerParameters.playerProfile.ULTRA_LOW_LATENCY
 };
 
-export const LoadParams = (url) => {
-  const conversion = {
-    mt: "mediaType",
-    net: "network",
-    oid: "objectId",
-    vid: "versionHash",
-    off: "offerings",
-    ln: "linkPath",
-    dr: "directLink",
-    ap: "autoplay",
-    scr: "scrollPlayPause",
-    m: "muted",
-    ct: "controls",
-    lp: "loop",
-    ptc: "protocols",
-    ttl: "title",
-    dsc: "description",
-    sm: "smallPlayer",
-    i: "imageOnly",
-    sh: "showShare",
-    st: "showTitle",
-    ht: "hideTitle",
-    prf: "playerProfile",
-    hls: "hlsOptions",
+export const paramsToName = {
+  ttl: "title",
+  dsc: "description",
+  net: "network",
+  cid: "contentId",
+  oid: "objectId",
+  vid: "versionHash",
+  mcid: "collectionId",
+  off: "offerings",
+  ln: "linkPath",
+  dr: "directLink",
+  ap: "autoplay",
+  scr: "scrollPlayPause",
+  m: "muted",
+  ct: "controls",
+  lp: "loop",
+  ptc: "protocols",
+  sm: "smallPlayer",
+  i: "imageOnly",
+  ht: "hideTitle",
+  prf: "playerProfile",
+  hls: "hlsOptions",
+  mbr: "maxBitrate",
 
-    w: "width",
-    h: "height",
-    cap: "capLevelToPlayerSize",
+  w: "width",
+  h: "height",
+  cap: "capLevelToPlayerSize",
 
-    ath: "authorizationToken",
-    ten: "tenantId",
-    ntp: "ntpId",
-    ptk: "promptTicket",
-    tk: "ticketCode",
-    sbj: "ticketSubject",
-    data: "data",
+  ath: "authorizationToken",
+  ten: "tenantId",
+  ntp: "ntpId",
+  ptk: "promptTicket",
+  tk: "ticketCode",
+  sbj: "ticketSubject",
+  data: "data",
 
-    start: "clipStart",
-    end: "clipEnd",
+  start: "clipStart",
+  end: "clipEnd",
 
-    type: "mediaType",
-    murl: "mediaUrl",
-    vrk: "viewRecordKey",
-    ek: "eventKey",
+  type: "mediaType",
+  mt: "mediaType",
+  murl: "mediaUrl",
+  mp: "mediaUrlParameters",
+  vrk: "viewRecordKey",
+  ek: "eventKey",
 
-    // Watermark defaults true except for NFTs
-    wm: "watermark",
-    nwm: "watermark",
-    awm: "accountWatermark"
-  };
+  // Watermark defaults true except for NFTs
+  wm: "watermark",
+  nwm: "hideWatermark",
+  awm: "accountWatermark"
+};
 
+let reverseMap = {};
+Object.keys(paramsToName).forEach(key =>
+  reverseMap[paramsToName[key]] = key
+);
+
+export const GenerateEmbedURL = ({values}) => {
+  const url = new URL(window.location.origin);
+  url.searchParams.set("p", "");
+
+  let ogData = {};
+  Object.keys(values).forEach(key => {
+    const param = reverseMap[key];
+    let value = values[key];
+
+    if(typeof value === "undefined" || (typeof value === "boolean" && !value) || value === "") {
+      return;
+    } else if(typeof value === "string") {
+      value = value.trim();
+    }
+
+    switch(key) {
+      case "collectionId":
+        if(values.mediaType === "mc") {
+          url.searchParams.set(param, value);
+        }
+        break;
+
+      case "autoplay":
+        if(value === "Only When Visible") {
+          url.searchParams.set("scr", "");
+        } else if(value === "On") {
+          url.searchParams.set(param, "");
+        }
+        break;
+
+      case "clipStart":
+      case "clipEnd":
+        url.searchParams.set(param, parseFloat(value));
+        break;
+
+      case "maxBitrate":
+        url.searchParams.set(param, parseInt(value));
+        break;
+
+      case "title":
+      case "description":
+      case "linkPath":
+      case "ticketCode":
+      case "ticketSubject":
+        url.searchParams.set(param, Utils.B64(value));
+        break;
+
+      case "offerings":
+        if(value?.trim()) {
+          url.searchParams.set(param, value.trim().split(/[ ,]+/).join(","));
+        }
+        break;
+
+      case "mediaUrlParameters":
+      case "hlsOptions":
+        try {
+          const options = JSON.parse(value);
+          if(options && Object.keys(options).length > 0) {
+            url.searchParams.set(param, Utils.B58(JSON.stringify(options)));
+          }
+        } catch(error) {
+          console.error(`Unable to convert JSON options for ${key}:`);
+          console.error(error);
+        }
+        break;
+
+      default:
+        if(!param) {
+          console.warn(`Unknown parameter ${key} = ${value}`);
+          return;
+        }
+
+        if(typeof value === "boolean") {
+          url.searchParams.set(param, "");
+        } else {
+          url.searchParams.set(param, value);
+        }
+    }
+  });
+
+  if(Object.keys(ogData).length > 0) {
+    url.searchParams.set("data", Utils.B64(JSON.stringify({meta_tags: ogData})));
+  }
+
+  return url;
+};
+
+export const LoadParams = ({url, playerParams=true}={}) => {
   const networks = {
     main: EluvioPlayerParameters.networks.MAIN,
     demo: EluvioPlayerParameters.networks.DEMO,
@@ -95,22 +195,18 @@ export const LoadParams = (url) => {
     new URL(url || window.location.toString()).search
   );
 
-  let params = {
-    watermark: true
-  };
+  let params = {};
 
   for(const key of urlParams.keys()) {
-    const value = urlParams.get(key).toString();
+    const value = urlParams.get(key).toString().trim();
 
     switch(key) {
-      case "mt":
-        params[conversion[key]] = mediaTypes[value] || mediaTypes["v"];
-        break;
-
+      case "cid":
+      case "mcid":
+      case "ptc":
+      case "off":
+      case "prf":
       case "net":
-        params[conversion[key]] = networks[value.toLowerCase()];
-        break;
-
       case "ath":
       case "oid":
       case "vid":
@@ -118,33 +214,50 @@ export const LoadParams = (url) => {
       case "ten":
       case "ntp":
       case "type":
+      case "mt":
       case "pst":
       case "ek":
-        params[conversion[key]] = value;
+        params[paramsToName[key]] = value;
         break;
 
       case "w":
       case "h":
-        params[conversion[key]] = parseInt(value);
+      case "mbr":
+        params[paramsToName[key]] = parseInt(value);
         break;
 
       case "start":
       case "end":
-        params[conversion[key]] = parseFloat(value);
+        params[paramsToName[key]] = parseFloat(value);
         break;
 
-      case "ln":
       case "ttl":
       case "dsc":
+      case "ln":
       case "tk":
       case "sbj":
-      case "data":
       case "murl":
       case "vrk":
-        params[conversion[key]] = atob(value);
+        params[paramsToName[key]] = Utils.FromB64(value).trim();
+        break;
+
+      case "mp":
+      case "hls":
+        try {
+          params[paramsToName[key]] = JSON.stringify(
+            JSON.parse(
+              Utils.FromB58ToStr(value)
+            ),
+            null,
+            2
+          );
+        } catch(error) {
+          console.error(`Invalid ${key} parameter:`, value, error);
+        }
         break;
 
       case "wm":
+      case "nwm":
       case "awm":
       case "ap":
       case "scr":
@@ -159,64 +272,8 @@ export const LoadParams = (url) => {
       case "dr":
       case "i":
       case "cap":
-        params[conversion[key]] = true;
+        params[paramsToName[key]] = true;
         break;
-
-      case "ptc":
-      case "off":
-        params[conversion[key]] = (value || "").split(",");
-        break;
-
-      case "nwm":
-        params.watermark = false;
-        break;
-
-      case "node":
-        params.node = value;
-        break;
-
-      case "prf":
-        params.playerProfile = playerProfiles[value];
-        break;
-      case "hls":
-        try {
-          params[conversion[key]] = JSON.parse(Utils.FromB58ToStr(value));
-        } catch(error) {
-          console.error("Invalid HLS options parameter");
-        }
-
-        break;
-    }
-  }
-
-  let controls;
-  switch(params.controls) {
-    case "d":
-      controls = EluvioPlayerParameters.controls.DEFAULT;
-      break;
-    case "h":
-      controls = EluvioPlayerParameters.controls.AUTO_HIDE;
-      break;
-    case "s":
-      controls = EluvioPlayerParameters.controls.ON;
-      break;
-    case "hv":
-      controls = EluvioPlayerParameters.controls.OFF_WITH_VOLUME_TOGGLE;
-      break;
-    default:
-      controls = ("controls" in params) ? EluvioPlayerParameters.controls.DEFAULT : EluvioPlayerParameters.controls.OFF;
-      break;
-  }
-
-  let title;
-  if(params.data) {
-    try {
-      title = JSON.parse(params.data).meta_tags["og:title"];
-    } catch(error) {
-      // eslint-disable-next-line no-console
-      console.error("Failed to parse 'data' parameter:");
-      // eslint-disable-next-line no-console
-      console.error(error);
     }
   }
 
@@ -225,11 +282,51 @@ export const LoadParams = (url) => {
     params.playerProfile = params.playerProfile || EluvioPlayerParameters.playerProfile.LOW_LATENCY;
   }
 
+  if(!playerParams) {
+    return params;
+  }
+
+  params.network = networks[params.network.toLowerCase()];
+  params.mediaType = mediaTypes[params.mediaType] || mediaTypes["v"];
+  params.playerProfile = playerProfiles[params.playerProfile];
+  params.controls = controls[params.controls] || EluvioPlayerParameters.controls.OFF;
+
+  if(params.contentId) {
+    if(params.contentId.startsWith("iq__")) {
+      params[paramsToName["oid"]] = params.contentId;
+    } else {
+      params[paramsToName["vid"]] = params.contentId;
+    }
+  }
+
+  if(params.offerings) {
+    params.offerings = params.offerings.split(/[ ,]+/);
+  }
+
+  if(params.protocols) {
+    params.protocols = params.protocols.split(/[ ,]+/);
+  }
+
+  if(params.hlsOptions) {
+    try {
+      params.hlsOptions = JSON.parse(params.hlsOptions);
+    } catch(error) {
+      console.error("Invalid HLS options parameter:", params.hlsOptions);
+    }
+  }
+
+  if(params.mediaUrlParameters) {
+    try {
+      params.mediaUrlParameters = JSON.parse(params.mediaUrlParameters);
+    } catch(error) {
+      console.error("Invalid media URL parameter:", params.mediaUrlParameters);
+    }
+  }
+
   return {
-    title,
+    title: params.title,
+    description: params.description,
     smallPlayer: params.smallPlayer,
-    showTitle: params.showTitle,
-    hideTitle: params.hideTitle,
     showShare: params.showShare,
     network: params.network,
     objectId: params.objectId,
@@ -241,12 +338,14 @@ export const LoadParams = (url) => {
     imageOnly: params.imageOnly,
     mediaType: params.mediaType,
     mediaUrl: params.mediaUrl,
+    mediaUrlParameters: params.mediaUrlParameters,
     clipStart: params.clipStart,
     clipEnd: params.clipEnd,
     playerProfile: params.playerProfile,
 
     tenantId: params.tenantId,
     ntpId: params.ntpId,
+    ticketCode: params.ticketCode,
     ticketSubject: params.ticketSubject,
     promptTicket: params.promptTicket,
 
@@ -267,6 +366,15 @@ export const LoadParams = (url) => {
       },
       sourceOptions: {
         protocols: params.protocols,
+        mediaCollectionOptions: {
+          mediaCatalogObjectId: params.mediaType === mediaTypes["mc"] ? params.objectId : undefined,
+          mediaCatalogVersionHash: params.mediaType === mediaTypes["mc"] ? params.versionHash : undefined,
+          collectionId: params.collectionId
+        },
+        contentOptions: {
+          title: params.title,
+          description: params.description
+        },
         playoutParameters: {
           objectId: params.objectId,
           versionHash: params.versionHash,
@@ -280,15 +388,17 @@ export const LoadParams = (url) => {
       },
       playerOptions: {
         controlsClassName: "swiper-no-swiping",
-        controls,
+        title: !params.hideTitle,
+        controls: params.controls,
         autoplay: params.scrollPlayPause ? EluvioPlayerParameters.autoplay.WHEN_VISIBLE : params.autoplay,
         muted: params.muted,
         loop: params.loop,
-        watermark: params.watermark,
+        watermark: !params.hideWatermark,
         accountWatermark: params.accountWatermark,
         capLevelToPlayerSize: params.capLevelToPlayerSize,
         playerProfile: params.playerProfile,
-        hlsjsOptions: params.hlsOptions
+        hlsjsOptions: params.hlsOptions,
+        maxBitrate: params.maxBitrate
       }
     }
   };

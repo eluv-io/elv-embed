@@ -1,7 +1,7 @@
 import {LoadParams} from "./Utils";
 
 export const Initialize = async ({client, target, url, playerOptions, errorCallback, setPageTitle=false}={}) => {
-  const params = LoadParams(url);
+  const params = LoadParams({url});
 
   switch(params.mediaType) {
     case "Gallery":
