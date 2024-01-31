@@ -8,7 +8,7 @@ import {ElvClient} from "@eluvio/elv-client-js";
 import SwiperCore, {Lazy, Navigation, Keyboard} from "swiper";
 import {Swiper, SwiperSlide} from "swiper/react";
 import UrlJoin from "url-join";
-import {EluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import SVG from "react-inlinesvg";
 
 import LeftArrow from "./static/icons/left-arrow.svg";
@@ -184,30 +184,28 @@ const GalleryItem = ({params, controlType, item, itemIndex, isActive, isFullscre
 
               if(!videoHash) { return; }
 
-              setPlayer(
-                new EluvioPlayer(
-                  element,
-                  {
-                    clientOptions: {
-                      client: window.client
-                    },
-                    sourceOptions: {
-                      playoutParameters: {
-                        versionHash: videoHash,
-                        authorizationToken: params.authorizationToken
-                      }
-                    },
-                    playerOptions: {
-                      controlsClassName: "swiper-no-swiping",
-                      controls: EluvioPlayerParameters.controls.AUTO_HIDE,
-                      autoplay: EluvioPlayerParameters.autoplay.ON,
-                      muted: EluvioPlayerParameters.muted.OFF,
-                      watermark: EluvioPlayerParameters.watermark.OFF,
-                      capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.OFF
+              InitializeEluvioPlayer(
+                element,
+                {
+                  clientOptions: {
+                    client: window.client
+                  },
+                  sourceOptions: {
+                    playoutParameters: {
+                      versionHash: videoHash,
+                      authorizationToken: params.authorizationToken
                     }
+                  },
+                  playerOptions: {
+                    controlsClassName: "swiper-no-swiping",
+                    controls: EluvioPlayerParameters.controls.AUTO_HIDE,
+                    autoplay: EluvioPlayerParameters.autoplay.ON,
+                    muted: EluvioPlayerParameters.muted.OFF,
+                    watermark: EluvioPlayerParameters.watermark.OFF,
+                    capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.OFF
                   }
-                )
-              );
+                }
+              ).then(player => setPlayer(player));
             }}
           /> :
           <img

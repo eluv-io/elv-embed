@@ -1,6 +1,6 @@
 import "./static/stylesheets/video.scss";
 import "./static/stylesheets/ebook.scss";
-import EluvioPlayer from "@eluvio/elv-player-js";
+import {InitializeEluvioPlayer} from "@eluvio/elv-player-js";
 import {EmitEvent, LoadParams, RecordView} from "./Utils";
 import {ElvClient} from "@eluvio/elv-client-js";
 import UrlJoin from "url-join";
@@ -318,7 +318,8 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
           "pause",
           "play"
         ].forEach(eventName => {
-          params.videoElement.addEventListener(eventName, event => {
+          player.__RegisterVideoEventListener(eventName,event => {
+            // Emit video events to parent container
             EmitEvent({
               eventType: "video",
               eventKey: params.eventKey,
@@ -330,14 +331,9 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
           });
         });
       };
-      
-      player = new EluvioPlayer(playerTarget, params.playerParameters);
-      if(params.smallPlayer && params.width && params.height) {
-        playerTarget.style.width = `${params.width}px`;
-        playerTarget.style.height = `${params.height}px`;
-      }
 
-      window.player = player;
+      player = await InitializeEluvioPlayer(playerTarget, params.playerParameters);
+      window.elvPlayer = player;
     }
 
     return player;

@@ -88,7 +88,9 @@ export const paramsToName = {
   // Watermark defaults true except for NFTs
   wm: "watermark",
   nwm: "hideWatermark",
-  awm: "accountWatermark"
+  awm: "accountWatermark",
+
+  dbg: "debugLogging"
 };
 
 let reverseMap = {};
@@ -272,6 +274,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "dr":
       case "i":
       case "cap":
+      case "dbg":
         params[paramsToName[key]] = true;
         break;
     }
@@ -398,7 +401,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         capLevelToPlayerSize: params.capLevelToPlayerSize,
         playerProfile: params.playerProfile,
         hlsjsOptions: params.hlsOptions,
-        maxBitrate: params.maxBitrate
+        maxBitrate: params.maxBitrate,
+        debugLogging: params.debugLogging
       }
     }
   };
