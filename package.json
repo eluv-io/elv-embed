@@ -21,8 +21,8 @@
   "dependencies": {
     "@eluvio/elv-client-js": "^4.0.62",
     "@eluvio/elv-player-js": "git+https://github.com/eluv-io/elv-player-js#ui-rewrite",
-    "@mantine/core": "^7.4.0",
-    "@mantine/form": "^7.4.0",
+    "@mantine/core": "~7.4.0",
+    "@mantine/form": "~7.4.0",
     "epubjs": "^0.3.92",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
