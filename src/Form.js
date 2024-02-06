@@ -29,6 +29,7 @@ import {mediaTypes, LoadParams, GenerateEmbedURL} from "./Utils";
 import Logo from "./static/images/Logo.png";
 import {Utils} from "@eluvio/elv-client-js";
 import {useForm} from "@mantine/form";
+import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
 let initialParams = LoadParams({playerParams: false});
 initialParams.autoplay = initialParams.scrollPlayPause ? "Only When Visible" : initialParams.autoplay ? "On" : "Off";
@@ -98,6 +99,7 @@ const Form = () => {
     ticketSubject: "",
     linkPath: "",
     directLink: false,
+    ui: "",
     autoplay: "Off",
     controls: "h",
     loop: false,
@@ -356,6 +358,15 @@ const Form = () => {
               !["v", "lv", "a", "mc"].includes(form.values.mediaType) ? null :
                 <Stack gap="xs" mt="xl">
                   <Title fw={500} order={4}>Player</Title>
+                  <Select
+                    label="Player Interface"
+                    description="Select between the web and TV UI"
+                    data={[
+                      {label: "Web", value: ""},
+                      {label: "TV", value: EluvioPlayerParameters.ui.TV}
+                    ]}
+                    {...form.getInputProps("ui")}
+                  />
                   <Select
                     label="Autoplay"
                     description="Note: Most browsers do not allow autoplaying of unmuted content by default. This setting is best-effort."

@@ -50,13 +50,14 @@ export const paramsToName = {
   off: "offerings",
   ln: "linkPath",
   dr: "directLink",
+
+  ui: "ui",
   ap: "autoplay",
   scr: "scrollPlayPause",
   m: "muted",
   ct: "controls",
   lp: "loop",
   ptc: "protocols",
-  sm: "smallPlayer",
   i: "imageOnly",
   ht: "hideTitle",
   prf: "playerProfile",
@@ -219,6 +220,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "mt":
       case "pst":
       case "ek":
+      case "ui":
         params[paramsToName[key]] = value;
         break;
 
@@ -329,7 +331,6 @@ export const LoadParams = ({url, playerParams=true}={}) => {
   return {
     title: params.title,
     description: params.description,
-    smallPlayer: params.smallPlayer,
     showShare: params.showShare,
     network: params.network,
     objectId: params.objectId,
@@ -390,6 +391,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         }
       },
       playerOptions: {
+        ui: params.ui,
         controlsClassName: "swiper-no-swiping",
         title: !params.hideTitle,
         controls: params.controls,
