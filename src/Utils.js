@@ -42,6 +42,8 @@ export const playerProfiles = {
 export const paramsToName = {
   ttl: "title",
   dsc: "description",
+  img: "image",
+  pst: "posterImage",
   net: "network",
   cid: "contentId",
   oid: "objectId",
@@ -140,6 +142,8 @@ export const GenerateEmbedURL = ({values}) => {
 
       case "title":
       case "description":
+      case "image":
+      case "posterImage":
       case "linkPath":
       case "ticketCode":
       case "ticketSubject":
@@ -218,7 +222,6 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "ntp":
       case "type":
       case "mt":
-      case "pst":
       case "ek":
       case "ui":
         params[paramsToName[key]] = value;
@@ -237,6 +240,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
 
       case "ttl":
       case "dsc":
+      case "img":
+      case "pst":
       case "ln":
       case "tk":
       case "sbj":
@@ -331,6 +336,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
   return {
     title: params.title,
     description: params.description,
+    image: params.image,
+    posterImage: params.posterImage,
     showShare: params.showShare,
     network: params.network,
     objectId: params.objectId,
@@ -375,9 +382,11 @@ export const LoadParams = ({url, playerParams=true}={}) => {
           mediaCatalogVersionHash: params.mediaType === mediaTypes["mc"] ? params.versionHash : undefined,
           collectionId: params.collectionId
         },
-        contentOptions: {
+        contentInfo: {
           title: params.title,
-          description: params.description
+          description: params.description,
+          image: params.image,
+          posterImage: params.posterImage
         },
         playoutParameters: {
           objectId: params.objectId,

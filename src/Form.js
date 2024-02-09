@@ -84,6 +84,8 @@ const Form = () => {
   let initialValues = {
     title: "",
     description: "",
+    image: "",
+    posterImage: "",
     network: "main",
     contentId: "",
     collectionId: "",
@@ -219,16 +221,33 @@ const Form = () => {
 
               {
                 !["v", "lv", "a"].includes(form.values.mediaType) ? null :
-                  <>
-                    <TextInput
-                      label="Title"
-                      {...form.getInputProps("title")}
-                    />
-                    <Textarea
-                      label="Description"
-                      {...form.getInputProps("description")}
-                    />
-                  </>
+                  <Accordion variant="contained">
+                    <Accordion.Item key="content-info" value="Content Info">
+                      <Accordion.Control>Content Info</Accordion.Control>
+                      <Accordion.Panel>
+                        <Stack gap="xs">
+                          <TextInput
+                            label="Title"
+                            {...form.getInputProps("title")}
+                          />
+                          <Textarea
+                            label="Description"
+                            {...form.getInputProps("description")}
+                          />
+                          <TextInput
+                            label="Image"
+                            description="URL or metadata path"
+                            {...form.getInputProps("image")}
+                          />
+                          <TextInput
+                            label="Poster Image"
+                            description="URL or metadata path"
+                            {...form.getInputProps("posterImage")}
+                          />
+                        </Stack>
+                      </Accordion.Panel>
+                    </Accordion.Item>
+                  </Accordion>
               }
               {
                 ["v", "lv", "a", "mc"].includes(form.values.mediaType) ? null :
