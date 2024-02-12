@@ -318,7 +318,7 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
           "pause",
           "play"
         ].forEach(eventName => {
-          player.RegisterVideoEventListener(eventName,event => {
+          player.controls.RegisterVideoEventListener(eventName,event => {
             // Emit video events to parent container
             EmitEvent({
               eventType: "video",

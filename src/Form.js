@@ -86,6 +86,7 @@ const Form = () => {
     description: "",
     image: "",
     posterImage: "",
+    headerText: "",
     network: "main",
     contentId: "",
     collectionId: "",
@@ -233,6 +234,11 @@ const Form = () => {
                           <Textarea
                             label="Description"
                             {...form.getInputProps("description")}
+                          />
+                          <TextInput
+                            label="Headers"
+                            description="Text headers that show appear above the title, e.g. release date, rating, etc. Pipe (|) separated"
+                            {...form.getInputProps("headerText")}
                           />
                           <TextInput
                             label="Image"

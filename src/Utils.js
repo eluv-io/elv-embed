@@ -44,6 +44,7 @@ export const paramsToName = {
   dsc: "description",
   img: "image",
   pst: "posterImage",
+  hdr: "headerText",
   net: "network",
   cid: "contentId",
   oid: "objectId",
@@ -142,6 +143,7 @@ export const GenerateEmbedURL = ({values}) => {
 
       case "title":
       case "description":
+      case "headerText":
       case "image":
       case "posterImage":
       case "linkPath":
@@ -242,6 +244,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "dsc":
       case "img":
       case "pst":
+      case "hdr":
       case "ln":
       case "tk":
       case "sbj":
@@ -309,6 +312,10 @@ export const LoadParams = ({url, playerParams=true}={}) => {
     }
   }
 
+  if(params.headerText) {
+    params.headers = params.headerText.split("|").map(token => token.trim());
+  }
+
   if(params.offerings) {
     params.offerings = params.offerings.split(/[ ,]+/);
   }
@@ -338,6 +345,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
     description: params.description,
     image: params.image,
     posterImage: params.posterImage,
+    headerText: params.headerText,
     showShare: params.showShare,
     network: params.network,
     objectId: params.objectId,
@@ -385,6 +393,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         contentInfo: {
           title: params.title,
           description: params.description,
+          headers: params.headers,
           image: params.image,
           posterImage: params.posterImage
         },
