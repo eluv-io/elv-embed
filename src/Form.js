@@ -107,6 +107,7 @@ const Form = () => {
     controls: "h",
     loop: false,
     muted: false,
+    verifyContent: false,
     hideWatermark: false,
     hideTitle: false,
     capLevelToPlayerSize: false,
@@ -424,6 +425,10 @@ const Form = () => {
                   <Checkbox
                     label="Hide Watermark"
                     {...form.getInputProps("hideWatermark", { type: "checkbox" })}
+                  />
+                  <Checkbox
+                    label="Verify Content"
+                    {...form.getInputProps("verifyContent", { type: "checkbox" })}
                   />
                   <Checkbox
                     label="Cap Video Quality to Player Size"

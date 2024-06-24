@@ -66,6 +66,7 @@ export const paramsToName = {
   prf: "playerProfile",
   hls: "hlsOptions",
   mbr: "maxBitrate",
+  vc: "verifyContent",
 
   w: "width",
   h: "height",
@@ -285,6 +286,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "i":
       case "cap":
       case "dbg":
+      case "vc":
         params[paramsToName[key]] = true;
         break;
     }
@@ -422,7 +424,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         playerProfile: params.playerProfile,
         hlsjsOptions: params.hlsOptions,
         maxBitrate: params.maxBitrate,
-        debugLogging: params.debugLogging
+        debugLogging: params.debugLogging,
+        verifyContent: params.verifyContent
       }
     }
   };
