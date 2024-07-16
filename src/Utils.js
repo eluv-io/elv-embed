@@ -42,6 +42,9 @@ export const playerProfiles = {
 export const paramsToName = {
   ttl: "title",
   dsc: "description",
+  img: "image",
+  pst: "posterImage",
+  hdr: "headerText",
   net: "network",
   cid: "contentId",
   oid: "objectId",
@@ -50,18 +53,20 @@ export const paramsToName = {
   off: "offerings",
   ln: "linkPath",
   dr: "directLink",
+
+  ui: "ui",
   ap: "autoplay",
   scr: "scrollPlayPause",
   m: "muted",
   ct: "controls",
   lp: "loop",
   ptc: "protocols",
-  sm: "smallPlayer",
   i: "imageOnly",
   ht: "hideTitle",
   prf: "playerProfile",
   hls: "hlsOptions",
   mbr: "maxBitrate",
+  vc: "verifyContent",
 
   w: "width",
   h: "height",
@@ -88,7 +93,9 @@ export const paramsToName = {
   // Watermark defaults true except for NFTs
   wm: "watermark",
   nwm: "hideWatermark",
-  awm: "accountWatermark"
+  awm: "accountWatermark",
+
+  dbg: "debugLogging"
 };
 
 let reverseMap = {};
@@ -137,6 +144,9 @@ export const GenerateEmbedURL = ({values}) => {
 
       case "title":
       case "description":
+      case "headerText":
+      case "image":
+      case "posterImage":
       case "linkPath":
       case "ticketCode":
       case "ticketSubject":
@@ -215,8 +225,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "ntp":
       case "type":
       case "mt":
-      case "pst":
       case "ek":
+      case "ui":
         params[paramsToName[key]] = value;
         break;
 
@@ -233,6 +243,9 @@ export const LoadParams = ({url, playerParams=true}={}) => {
 
       case "ttl":
       case "dsc":
+      case "img":
+      case "pst":
+      case "hdr":
       case "ln":
       case "tk":
       case "sbj":
@@ -272,6 +285,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "dr":
       case "i":
       case "cap":
+      case "dbg":
+      case "vc":
         params[paramsToName[key]] = true;
         break;
     }
@@ -297,6 +312,10 @@ export const LoadParams = ({url, playerParams=true}={}) => {
     } else {
       params[paramsToName["vid"]] = params.contentId;
     }
+  }
+
+  if(params.headerText) {
+    params.headers = params.headerText.split("|").map(token => token.trim());
   }
 
   if(params.offerings) {
@@ -326,7 +345,9 @@ export const LoadParams = ({url, playerParams=true}={}) => {
   return {
     title: params.title,
     description: params.description,
-    smallPlayer: params.smallPlayer,
+    image: params.image,
+    posterImage: params.posterImage,
+    headerText: params.headerText,
     showShare: params.showShare,
     network: params.network,
     objectId: params.objectId,
@@ -371,9 +392,12 @@ export const LoadParams = ({url, playerParams=true}={}) => {
           mediaCatalogVersionHash: params.mediaType === mediaTypes["mc"] ? params.versionHash : undefined,
           collectionId: params.collectionId
         },
-        contentOptions: {
+        contentInfo: {
           title: params.title,
-          description: params.description
+          description: params.description,
+          headers: params.headers,
+          image: params.image,
+          posterImage: params.posterImage
         },
         playoutParameters: {
           objectId: params.objectId,
@@ -387,6 +411,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         }
       },
       playerOptions: {
+        ui: params.ui,
         controlsClassName: "swiper-no-swiping",
         title: !params.hideTitle,
         controls: params.controls,
@@ -398,7 +423,9 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         capLevelToPlayerSize: params.capLevelToPlayerSize,
         playerProfile: params.playerProfile,
         hlsjsOptions: params.hlsOptions,
-        maxBitrate: params.maxBitrate
+        maxBitrate: params.maxBitrate,
+        debugLogging: params.debugLogging,
+        verifyContent: params.verifyContent
       }
     }
   };

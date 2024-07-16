@@ -19,10 +19,10 @@
     "fix-scss": "./node_modules/sass-lint-auto-fix/dist/index.js"
   },
   "dependencies": {
-    "@eluvio/elv-client-js": "^4.0.62",
-    "@eluvio/elv-player-js": "^1.0.137",
-    "@mantine/core": "^7.4.0",
-    "@mantine/form": "^7.4.0",
+    "@eluvio/elv-client-js": "^4.0.87",
+    "@eluvio/elv-player-js": "^2.0.8",
+    "@mantine/core": "~7.4.0",
+    "@mantine/form": "~7.4.0",
     "epubjs": "^0.3.92",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

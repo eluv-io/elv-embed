@@ -29,6 +29,7 @@ import {mediaTypes, LoadParams, GenerateEmbedURL} from "./Utils";
 import Logo from "./static/images/Logo.png";
 import {Utils} from "@eluvio/elv-client-js";
 import {useForm} from "@mantine/form";
+import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
 let initialParams = LoadParams({playerParams: false});
 initialParams.autoplay = initialParams.scrollPlayPause ? "Only When Visible" : initialParams.autoplay ? "On" : "Off";
@@ -83,6 +84,9 @@ const Form = () => {
   let initialValues = {
     title: "",
     description: "",
+    image: "",
+    posterImage: "",
+    headerText: "",
     network: "main",
     contentId: "",
     collectionId: "",
@@ -98,10 +102,12 @@ const Form = () => {
     ticketSubject: "",
     linkPath: "",
     directLink: false,
+    ui: "",
     autoplay: "Off",
     controls: "h",
     loop: false,
     muted: false,
+    verifyContent: false,
     hideWatermark: false,
     hideTitle: false,
     capLevelToPlayerSize: false,
@@ -217,16 +223,38 @@ const Form = () => {
 
               {
                 !["v", "lv", "a"].includes(form.values.mediaType) ? null :
-                  <>
-                    <TextInput
-                      label="Title"
-                      {...form.getInputProps("title")}
-                    />
-                    <Textarea
-                      label="Description"
-                      {...form.getInputProps("description")}
-                    />
-                  </>
+                  <Accordion variant="contained">
+                    <Accordion.Item key="content-info" value="Content Info">
+                      <Accordion.Control>Content Info</Accordion.Control>
+                      <Accordion.Panel>
+                        <Stack gap="xs">
+                          <TextInput
+                            label="Title"
+                            {...form.getInputProps("title")}
+                          />
+                          <Textarea
+                            label="Description"
+                            {...form.getInputProps("description")}
+                          />
+                          <TextInput
+                            label="Headers"
+                            description="Text headers that show appear above the title, e.g. release date, rating, etc. Pipe (|) separated"
+                            {...form.getInputProps("headerText")}
+                          />
+                          <TextInput
+                            label="Image"
+                            description="URL or metadata path"
+                            {...form.getInputProps("image")}
+                          />
+                          <TextInput
+                            label="Poster Image"
+                            description="URL or metadata path"
+                            {...form.getInputProps("posterImage")}
+                          />
+                        </Stack>
+                      </Accordion.Panel>
+                    </Accordion.Item>
+                  </Accordion>
               }
               {
                 ["v", "lv", "a", "mc"].includes(form.values.mediaType) ? null :
@@ -357,6 +385,15 @@ const Form = () => {
                 <Stack gap="xs" mt="xl">
                   <Title fw={500} order={4}>Player</Title>
                   <Select
+                    label="Player Interface"
+                    description="Select between the web and TV UI"
+                    data={[
+                      {label: "Web", value: ""},
+                      {label: "TV", value: EluvioPlayerParameters.ui.TV}
+                    ]}
+                    {...form.getInputProps("ui")}
+                  />
+                  <Select
                     label="Autoplay"
                     description="Note: Most browsers do not allow autoplaying of unmuted content by default. This setting is best-effort."
                     data={["On", "Only When Visible", "Off"]}
@@ -388,6 +425,10 @@ const Form = () => {
                   <Checkbox
                     label="Hide Watermark"
                     {...form.getInputProps("hideWatermark", { type: "checkbox" })}
+                  />
+                  <Checkbox
+                    label="Verify Content"
+                    {...form.getInputProps("verifyContent", { type: "checkbox" })}
                   />
                   <Checkbox
                     label="Cap Video Quality to Player Size"
