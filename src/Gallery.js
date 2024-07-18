@@ -8,7 +8,7 @@ import {ElvClient} from "@eluvio/elv-client-js";
 import SwiperCore, {Lazy, Navigation, Keyboard} from "swiper";
 import {Swiper, SwiperSlide} from "swiper/react";
 import UrlJoin from "url-join";
-import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import {InitializeEluvioPlayer, EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import SVG from "react-inlinesvg";
 
 import LeftArrow from "./static/icons/left-arrow.svg";

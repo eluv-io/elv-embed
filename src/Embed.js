@@ -1,6 +1,6 @@
 import "./static/stylesheets/video.scss";
 import "./static/stylesheets/ebook.scss";
-import {InitializeEluvioPlayer} from "@eluvio/elv-player-js";
+import {InitializeEluvioPlayer} from "@eluvio/elv-player-js/lib/index";
 import {EmitEvent, LoadParams, RecordView} from "./Utils";
 import {ElvClient} from "@eluvio/elv-client-js";
 import UrlJoin from "url-join";
