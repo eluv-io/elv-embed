@@ -1,4 +1,4 @@
-import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 import {ElvWalletClient, Utils} from "@eluvio/elv-client-js";
 
 const CreateMetaTags = (options={}) => {

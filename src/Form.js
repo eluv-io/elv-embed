@@ -29,7 +29,7 @@ import {mediaTypes, LoadParams, GenerateEmbedURL} from "./Utils";
 import Logo from "./static/images/Logo.png";
 import {Utils} from "@eluvio/elv-client-js";
 import {useForm} from "@mantine/form";
-import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import {EluvioPlayerParameters} from "@eluvio/elv-player-js/lib/index";
 
 let initialParams = LoadParams({playerParams: false});
 initialParams.autoplay = initialParams.scrollPlayPause ? "Only When Visible" : initialParams.autoplay ? "On" : "Off";
