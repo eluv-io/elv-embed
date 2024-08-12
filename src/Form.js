@@ -116,6 +116,7 @@ const Form = () => {
     clipEnd: "",
     maxBitrate: "",
     hlsOptions: "{}",
+    dvr: false,
     ...initialParams
   };
 
@@ -430,6 +431,13 @@ const Form = () => {
                     label="Verify Content"
                     {...form.getInputProps("verifyContent", { type: "checkbox" })}
                   />
+                  {
+                    form.values.mediaType !== "lv" ? null :
+                      <Checkbox
+                        label="Live DVR"
+                        {...form.getInputProps("dvr", { type: "checkbox" })}
+                      />
+                  }
                   <Checkbox
                     label="Cap Video Quality to Player Size"
                     description="If specified, the playout quality for video will not exceed the rendered size of the video element. This can improve performance and reduce bandwidth for smaller video elements or user screen sizes by not serving unnecessarily high quality video."

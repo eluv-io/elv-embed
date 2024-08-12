@@ -53,6 +53,7 @@ export const paramsToName = {
   off: "offerings",
   ln: "linkPath",
   dr: "directLink",
+  dvr: "dvr",
 
   ui: "ui",
   ap: "autoplay",
@@ -95,6 +96,7 @@ export const paramsToName = {
   nwm: "hideWatermark",
   awm: "accountWatermark",
 
+  node: "node",
   dbg: "debugLogging"
 };
 
@@ -227,6 +229,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "mt":
       case "ek":
       case "ui":
+      case "node":
         params[paramsToName[key]] = value;
         break;
 
@@ -287,6 +290,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "cap":
       case "dbg":
       case "vc":
+      case "dvr":
         params[paramsToName[key]] = true;
         break;
     }
@@ -397,7 +401,9 @@ export const LoadParams = ({url, playerParams=true}={}) => {
           description: params.description,
           headers: params.headers,
           image: params.image,
-          posterImage: params.posterImage
+          posterImage: params.posterImage,
+          type: EluvioPlayerParameters.type[params.mediaType === mediaTypes["lv"] ? "LIVE" : "VOD"],
+          liveDVR: params.dvr
         },
         playoutParameters: {
           objectId: params.objectId,

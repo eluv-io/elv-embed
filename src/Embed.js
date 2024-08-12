@@ -163,6 +163,10 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
       });
     }
 
+    if(params.node) {
+      client.SetNodes({fabricURIs: [params.node]});
+    }
+
     const mediaType = (params.mediaType || "").toLowerCase();
     let playable = ["video", "live video", "audio", "media collection"].includes(mediaType);
 
