@@ -75,19 +75,20 @@ module.exports = env => {
     module: {
       rules: [
         {
-          test: /\.(css|scss)$/,
-          exclude: /\.(theme|font)\.(css|scss)$/i,
+          test: /\.css$/,
           use: [
-            "style-loader",
-            {
-              loader: "css-loader",
-              options: {
-                importLoaders: 2
-              }
-            },
-            "postcss-loader",
-            "sass-loader"
-          ]
+            'style-loader',
+            'css-loader',
+            'postcss-loader',
+          ],
+        },
+        {
+          test: /\.s[ac]ss$/i,
+          use: [
+            'style-loader',
+            'css-loader',
+            'sass-loader',
+          ],
         },
         {
           test: /\.(js|mjs|jsx)$/,
