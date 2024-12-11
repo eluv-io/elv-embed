@@ -5,11 +5,6 @@ import {EmitEvent, LoadParams, RecordView} from "./Utils";
 import {ElvClient} from "@eluvio/elv-client-js";
 import UrlJoin from "url-join";
 
-const robots = document.createElement("meta");
-robots.setAttribute("name", "robots");
-robots.setAttribute("content", "noindex");
-document.head.appendChild(robots);
-
 const SandboxPermissions = () => {
   return [
     "allow-downloads",
