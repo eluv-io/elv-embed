@@ -296,11 +296,6 @@ export const LoadParams = ({url, playerParams=true}={}) => {
     }
   }
 
-  if(!params.playerProfile && params.mediaType === mediaTypes["lv"]) {
-    // Set player profile based on media type
-    params.playerProfile = params.playerProfile || EluvioPlayerParameters.playerProfile.LOW_LATENCY;
-  }
-
   if(!playerParams) {
     return params;
   }

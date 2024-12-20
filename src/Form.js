@@ -300,10 +300,10 @@ const Form = () => {
                         <Stack gap="xs">
                           <Select
                             label="Player Profile"
-                            data={[{label: "Default", value: ""}, {
-                              label: "Low Latency Live",
-                              value: "ll"
-                            }, {label: "Ultra Low Latency Live", value: "ull"}]}
+                            data={[
+                              {label: "Default", value: ""},
+                              {label: "Low Latency Live", value: "ll"},
+                              {label: "Ultra Low Latency Live", value: "ull"}]}
                             {...form.getInputProps("playerProfile")}
                           />
                           <NumberInput
