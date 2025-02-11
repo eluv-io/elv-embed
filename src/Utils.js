@@ -83,6 +83,7 @@ export const paramsToName = {
 
   start: "clipStart",
   end: "clipEnd",
+  aud: "audioTrackLabel",
 
   type: "mediaType",
   mt: "mediaType",
@@ -152,6 +153,7 @@ export const GenerateEmbedURL = ({values}) => {
       case "linkPath":
       case "ticketCode":
       case "ticketSubject":
+      case "audioTrackLabel":
         url.searchParams.set(param, Utils.B64(value));
         break;
 
@@ -254,6 +256,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "sbj":
       case "murl":
       case "vrk":
+      case "aud":
         params[paramsToName[key]] = Utils.FromB64(value).trim();
         break;
 
@@ -408,7 +411,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
           directLink: params.directLink,
           authorizationToken: params.authorizationToken,
           clipStart: params.clipStart,
-          clipEnd: params.clipEnd
+          clipEnd: params.clipEnd,
+          audioTrackLabel: params.audioTrackLabel
         }
       },
       playerOptions: {

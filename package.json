@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@eluvio/elv-client-js": "^4.0.87",
-    "@eluvio/elv-player-js": "^2.0.23",
+    "@eluvio/elv-player-js": "^2.0.34",
     "@mantine/core": "~7.4.0",
     "@mantine/form": "~7.4.0",
     "epubjs": "^0.3.92",

@@ -293,7 +293,7 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
       if(params.offerings?.length > 0) {
         params.playerParameters.sourceOptions.playoutParameters.offering = params.offerings.find(offeringKey => availableOfferings[offeringKey]);
       } else if(availableOfferings && Object.keys(availableOfferings).length > 0) {
-        params.playerParameters.sourceOptions.playoutParameters.offering = Object.keys(availableOfferings)[0];
+        params.playerParameters.sourceOptions.playoutParameters.offering = availableOfferings.default ? "default" : Object.keys(availableOfferings)[0];
       }
 
       if(errorCallback) {
