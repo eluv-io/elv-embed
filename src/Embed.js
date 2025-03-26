@@ -136,6 +136,7 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
   let player, playerTarget;
   const params = LoadParams({url});
 
+  console.log(params);
   try {
     if(setPageTitle) {
       document.title = params.title ? `${params.title} | Eluvio` : "Eluvio Embed";

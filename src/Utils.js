@@ -51,6 +51,7 @@ export const paramsToName = {
   vid: "versionHash",
   mcid: "collectionId",
   off: "offerings",
+  ch: "channel",
   ln: "linkPath",
   dr: "directLink",
   dvr: "dvr",
@@ -220,6 +221,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "mcid":
       case "ptc":
       case "off":
+      case "ch":
       case "prf":
       case "net":
       case "ath":
@@ -358,6 +360,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
     node: params.node,
     versionHash: params.versionHash,
     offerings: params.offerings,
+    channel: params.channel,
     linkPath: params.linkPath,
     authorizationToken: params.authorizationToken,
     shareId: params.shareId,
@@ -410,6 +413,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
           objectId: params.objectId,
           versionHash: params.versionHash,
           offering: (params.offerings || [])[0],
+          channel: params.channel,
           linkPath: params.linkPath,
           directLink: params.directLink,
           authorizationToken: params.authorizationToken,
