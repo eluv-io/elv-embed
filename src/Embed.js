@@ -158,6 +158,24 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
       });
     }
 
+    if(params.shareId) {
+      try {
+        client.SetStaticToken({
+          token: await client.RedeemShareToken({shareId: params.shareId})
+        });
+      } catch(error) {
+        const info = await client.ShareInfo({shareId: params.shareId});
+
+        if(info.revoked) {
+          throw { displayMessage: "You no longer have permission to access this content" };
+        } else if(info.end_time && new Date(info.end_time).getTime() < new Date().getTime()) {
+          throw { displayMessage: "Access to this content has expired" };
+        } else {
+          throw { displayMessage: "This content is no longer available" };
+        }
+      }
+    }
+
     if(params.node) {
       client.SetNodes({fabricURIs: [params.node]});
     }
@@ -355,7 +373,9 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
 
     const node = urlParams.get("node");
 
-    if(error.status === 500 && node) {
+    if(error.displayMessage) {
+      DisplayError(error.displayMessage);
+    } else if(error.status === 500 && node) {
       DisplayError("Error: there was a problem loading the specified node");
     } else {
       DisplayError("Something went wrong");

@@ -74,6 +74,7 @@ export const paramsToName = {
   cap: "capLevelToPlayerSize",
 
   ath: "authorizationToken",
+  sid: "shareId",
   ten: "tenantId",
   ntp: "ntpId",
   ptk: "promptTicket",
@@ -222,6 +223,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "prf":
       case "net":
       case "ath":
+      case "sid":
       case "oid":
       case "vid":
       case "ct":
@@ -358,6 +360,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
     offerings: params.offerings,
     linkPath: params.linkPath,
     authorizationToken: params.authorizationToken,
+    shareId: params.shareId,
     imageOnly: params.imageOnly,
     mediaType: params.mediaType,
     mediaUrl: params.mediaUrl,
@@ -410,6 +413,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
           linkPath: params.linkPath,
           directLink: params.directLink,
           authorizationToken: params.authorizationToken,
+          shareId: params.shareId,
           clipStart: params.clipStart,
           clipEnd: params.clipEnd,
           audioTrackLabel: params.audioTrackLabel

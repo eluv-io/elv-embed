@@ -18,6 +18,11 @@ if(urlParams.has("p")) {
           Initialize({target: document.getElementById("app"), setPageTitle: true, embedApp: true})
         );
   }
+} else if(urlParams.has("d")) {
+  import("./Download.js")
+    .then(({Initialize}) =>
+      Initialize({target: document.getElementById("app")})
+    );
 } else {
   import("./Form");
 }
