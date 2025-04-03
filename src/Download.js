@@ -25,7 +25,7 @@ const InitializeClient = async params => {
         token: await client.RedeemShareToken({shareId: params.shareId})
       });
 
-      window.info = info;
+      window.shareInfo = info;
 
       return { client, shareInfo: info };
     } catch(error) {
@@ -40,34 +40,11 @@ const InitializeClient = async params => {
   }
 };
 
-const DownloadFromUrl = (url, filename, options={}) => {
-  let element = document.createElement("a");
-  element.href = url;
-  element.download = filename;
-
-  Object.keys(options).forEach(key => element[key] = options[key]);
-
-  element.style.display = "none";
-  document.body.appendChild(element);
-
-  element.click();
-
-  document.body.removeChild(element);
-  window.URL.revokeObjectURL(url);
-};
-
 const DownloadJobStatus = async ({client, downloadJobId, versionHash}) => {
   return await client.MakeFileServiceRequest({
     versionHash,
     path: UrlJoin("call", "media", "files", downloadJobId)
   });
-};
-
-const SaveDownloadJob = async ({client, downloadJobId, versionHash, filename}) => {
-  DownloadFromUrl(
-
-    filename
-  );
 };
 
 const Download = ({client, shareInfo}) => {
@@ -124,7 +101,7 @@ const Download = ({client, shareInfo}) => {
         Download
       </a>
     );
-  } else if(true || status?.status === "failed") {
+  } else if(status?.status === "failed") {
     return (
       <div className="note">
         This content is no longer available

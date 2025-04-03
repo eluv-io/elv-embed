@@ -19,7 +19,7 @@
     "fix-scss": "./node_modules/sass-lint-auto-fix/dist/index.js"
   },
   "dependencies": {
-    "@eluvio/elv-client-js": "^4.0.123",
+    "@eluvio/elv-client-js": "^4.0.126",
     "@eluvio/elv-player-js": "^2.0.38",
     "@mantine/core": "~7.4.0",
     "@mantine/form": "~7.4.0",
