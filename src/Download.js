@@ -137,7 +137,6 @@ const Content = ({params}) => {
       })
       .catch(error => setErrorMessage(error?.displayMessage || "This content is no longer available"));
   }, []);
-  console.log(params);
 
   if(errorMessage) {
     return (
