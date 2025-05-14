@@ -2,6 +2,7 @@ import "./static/stylesheets/app.scss";
 
 const urlParams = new URLSearchParams(window.location.search);
 
+console.log(window.location.pathname.toLowerCase());
 // Player
 if(urlParams.has("p")) {
   switch(urlParams.get("mt") || urlParams.get("type")) {
@@ -23,6 +24,8 @@ if(urlParams.has("p")) {
     .then(({Initialize}) =>
       Initialize({target: document.getElementById("app")})
     );
+} else if(window.location.pathname.toLowerCase() === "/mediaprofile") {
+  import("./MediaCapabilities.js");
 } else {
-  import("./Form");
+  import("./Form.js");
 }
