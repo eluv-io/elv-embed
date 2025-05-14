@@ -2,7 +2,6 @@ import "./static/stylesheets/app.scss";
 
 const urlParams = new URLSearchParams(window.location.search);
 
-console.log(window.location.pathname.toLowerCase());
 // Player
 if(urlParams.has("p")) {
   switch(urlParams.get("mt") || urlParams.get("type")) {
