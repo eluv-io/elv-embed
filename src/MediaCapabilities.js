@@ -1,6 +1,7 @@
 import "./static/stylesheets/media-profile.scss";
 
 import React, {useEffect, useState} from "react";
+import {UAParser} from "ua-parser-js";
 import {createRoot} from "react-dom/client";
 
 const testProfiles = [
@@ -14,6 +15,21 @@ const testProfiles = [
   { label: "540p50", width: 960, height: 540, framerate: 50, bitrate: 3000000 },
   { label: "540p30", width: 960, height: 540, framerate: 30, bitrate: 2000000 },
 ];
+
+const Copy = async (value) => {
+  try {
+    value = (value || "").toString();
+
+    await navigator.clipboard.writeText(value);
+  } catch(error) {
+    const input = document.createElement("input");
+
+    input.value = value;
+    input.select();
+    input.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+  }
+};
 
 const GetCapabilities = async () => {
   return await Promise.all(
@@ -42,9 +58,10 @@ const MediaCapabilities = () => {
   const [canPlay, setCanPlay] = useState(false);
 
   useEffect(() => {
+    const video = document.createElement("video");
+    setCanPlay(video.canPlayType("video/mp4; codecs=\"avc1.640028\""));
+
     if(!("mediaCapabilities" in navigator)) {
-      const video = document.createElement("video");
-      setCanPlay(video.canPlayType("video/mp4; codecs=\"avc1.640028\""));
       return;
     }
 
@@ -64,6 +81,23 @@ const MediaCapabilities = () => {
           <div>
             Fallback canPlayType result: <b>{canPlay}</b>
           </div>
+        </div>
+        <div className="copy-container">
+          <button
+            onClick={() =>
+              Copy(JSON.stringify({
+                appUrl: window.location.href,
+                userAgent: navigator.userAgent,
+                userLanguage: navigator.language,
+                mediaCapabilitiesSupported: false,
+                canPlayType: canPlay,
+                ...UAParser()
+              }, null, 2))
+            }
+            className="copy"
+          >
+            Copy Debug Info
+          </button>
         </div>
       </div>
     );
@@ -89,6 +123,24 @@ const MediaCapabilities = () => {
             </div>
           )
         }
+      </div>
+      <div className="copy-container">
+        <button
+          onClick={() =>
+            Copy(JSON.stringify({
+              appUrl: window.location.href,
+              userAgent: navigator.userAgent,
+              userLanguage: navigator.language,
+              canPlayType: canPlay,
+              mediaCapabilitiesSupported: true,
+              mediaProfileResults: results,
+              ...UAParser()
+            }, null, 2))
+          }
+          className="copy"
+        >
+          Copy Debug Info
+        </button>
       </div>
     </div>
   );

@@ -29,6 +29,7 @@
     "react-inlinesvg": "^4.1.0",
     "scroll-behavior-polyfill": "^2.0.13",
     "swiper": "^8.3.2",
+    "ua-parser-js": "^2.0.3",
     "url-join": "^4.0.1"
   },
   "devDependencies": {
