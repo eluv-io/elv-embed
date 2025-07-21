@@ -67,6 +67,7 @@ export const paramsToName = {
   ht: "hideTitle",
   prf: "playerProfile",
   hls: "hlsOptions",
+  opt: "playoutUrlParams",
   mbr: "maxBitrate",
   vc: "verifyContent",
 
@@ -167,6 +168,7 @@ export const GenerateEmbedURL = ({values}) => {
 
       case "mediaUrlParameters":
       case "hlsOptions":
+      case "playoutUrlParams":
         try {
           const options = JSON.parse(value);
           if(options && Object.keys(options).length > 0) {
@@ -266,14 +268,9 @@ export const LoadParams = ({url, playerParams=true}={}) => {
 
       case "mp":
       case "hls":
+      case "opt":
         try {
-          params[paramsToName[key]] = JSON.stringify(
-            JSON.parse(
-              Utils.FromB58ToStr(value)
-            ),
-            null,
-            2
-          );
+          params[paramsToName[key]] = JSON.parse(Utils.FromB58ToStr(value));
         } catch(error) {
           console.error(`Invalid ${key} parameter:`, value, error);
         }
@@ -420,7 +417,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
           shareId: params.shareId,
           clipStart: params.clipStart,
           clipEnd: params.clipEnd,
-          audioTrackLabel: params.audioTrackLabel
+          audioTrackLabel: params.audioTrackLabel,
+          options: params.playoutUrlParams
         }
       },
       playerOptions: {
