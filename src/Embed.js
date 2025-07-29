@@ -158,7 +158,9 @@ export const Initialize = async ({client, target, url, playerOptions, errorCallb
       });
     }
 
-    if(params.shareId) {
+    if(params.authorizationToken) {
+      client.SetStaticToken({token: params.authorizationToken});
+    } else if(params.shareId) {
       try {
         client.SetStaticToken({
           token: await client.RedeemShareToken({shareId: params.shareId})
