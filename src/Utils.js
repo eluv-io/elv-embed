@@ -70,6 +70,7 @@ export const paramsToName = {
   opt: "playoutUrlParams",
   mbr: "maxBitrate",
   vc: "verifyContent",
+  chpt: "loadChapters",
 
   w: "width",
   h: "height",
@@ -294,6 +295,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "cap":
       case "dbg":
       case "vc":
+      case "chpt":
       case "dvr":
         params[paramsToName[key]] = true;
         break;
@@ -436,7 +438,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         hlsjsOptions: params.hlsOptions,
         maxBitrate: params.maxBitrate,
         debugLogging: params.debugLogging,
-        verifyContent: params.verifyContent
+        verifyContent: params.verifyContent,
+        loadChapters: params.loadChapters
       }
     }
   };
