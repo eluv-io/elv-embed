@@ -71,6 +71,8 @@ export const paramsToName = {
   mbr: "maxBitrate",
   vc: "verifyContent",
   chpt: "loadChapters",
+  pose: "loadPoseOverlay",
+  v: "vertical",
 
   w: "width",
   h: "height",
@@ -296,6 +298,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "dbg":
       case "vc":
       case "chpt":
+      case "pose":
+      case "v":
       case "dvr":
         params[paramsToName[key]] = true;
         break;
@@ -420,7 +424,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
           clipStart: params.clipStart,
           clipEnd: params.clipEnd,
           audioTrackLabel: params.audioTrackLabel,
-          options: params.playoutUrlParams
+          options: params.playoutUrlParams,
+          vertical: params.vertical
         }
       },
       playerOptions: {
@@ -439,7 +444,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         maxBitrate: params.maxBitrate,
         debugLogging: params.debugLogging,
         verifyContent: params.verifyContent,
-        loadChapters: params.loadChapters
+        loadChapters: params.loadChapters,
+        loadPoseOverlay: params.loadPoseOverlay
       }
     }
   };
