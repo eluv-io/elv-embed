@@ -3,7 +3,6 @@ const Path = require("path");
 const autoprefixer = require("autoprefixer");
 const BundleAnalyzerPlugin = require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
 const fs = require("fs");
 
 module.exports = env => {
