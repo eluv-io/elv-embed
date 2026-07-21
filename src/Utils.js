@@ -73,6 +73,7 @@ export const paramsToName = {
   chpt: "loadChapters",
   pose: "loadPoseOverlay",
   v: "vertical",
+  it: "ignoreTrimming",
 
   w: "width",
   h: "height",
@@ -300,6 +301,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       case "chpt":
       case "pose":
       case "v":
+      case "it":
       case "dvr":
         params[paramsToName[key]] = true;
         break;
@@ -350,6 +352,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
       console.error("Invalid media URL parameter:", params.mediaUrlParameters);
     }
   }
+
+  console.log(params)
 
   return {
     title: params.title,
@@ -425,7 +429,8 @@ export const LoadParams = ({url, playerParams=true}={}) => {
           clipEnd: params.clipEnd,
           audioTrackLabel: params.audioTrackLabel,
           options: params.playoutUrlParams,
-          vertical: params.vertical
+          vertical: params.vertical,
+          ignoreTrimming: params.ignoreTrimming
         }
       },
       playerOptions: {
