@@ -19,8 +19,8 @@
     "fix-scss": "./node_modules/sass-lint-auto-fix/dist/index.js"
   },
   "dependencies": {
-    "@eluvio/elv-client-js": "^4.2.5",
-    "@eluvio/elv-player-js": "^2.1.39",
+    "@eluvio/elv-client-js": "^4.2.44",
+    "@eluvio/elv-player-js": "git://github.com/eluv-io/elv-player-js#pd/cc_widevine_tryout",
     "@mantine/core": "~7.4.0",
     "@mantine/form": "~7.4.0",
     "epubjs": "^0.3.92",
