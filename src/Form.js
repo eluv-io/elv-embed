@@ -83,6 +83,7 @@ const Form = () => {
   });
   let initialValues = {
     title: "",
+    subtitle: "",
     description: "",
     image: "",
     posterImage: "",
@@ -232,6 +233,10 @@ const Form = () => {
                           <TextInput
                             label="Title"
                             {...form.getInputProps("title")}
+                          />
+                          <TextInput
+                            label="Subtitle"
+                            {...form.getInputProps("subtitle")}
                           />
                           <Textarea
                             label="Description"

@@ -41,6 +41,7 @@ export const playerProfiles = {
 
 export const paramsToName = {
   ttl: "title",
+  sttl: "subtitle",
   dsc: "description",
   img: "image",
   pst: "posterImage",
@@ -153,6 +154,7 @@ export const GenerateEmbedURL = ({values}) => {
         break;
 
       case "title":
+      case "subtitle":
       case "description":
       case "headerText":
       case "image":
@@ -257,6 +259,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         break;
 
       case "ttl":
+      case "sttl":
       case "dsc":
       case "img":
       case "pst":
@@ -353,10 +356,9 @@ export const LoadParams = ({url, playerParams=true}={}) => {
     }
   }
 
-  console.log(params)
-
   return {
     title: params.title,
+    subtitle: params.subtitle,
     description: params.description,
     image: params.image,
     posterImage: params.posterImage,
@@ -409,6 +411,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         },
         contentInfo: {
           title: params.title,
+          subtitle: params.subtitle,
           description: params.description,
           headers: params.headers,
           image: params.image,
@@ -448,7 +451,7 @@ export const LoadParams = ({url, playerParams=true}={}) => {
         hlsjsOptions: params.hlsOptions,
         maxBitrate: params.maxBitrate,
         debugLogging: params.debugLogging,
-        verifyContent: params.verifyContent,
+        verifyContent: typeof params.verifyContent === "undefined" ? true : params.verifyContent,
         loadChapters: params.loadChapters,
         loadPoseOverlay: params.loadPoseOverlay
       }
